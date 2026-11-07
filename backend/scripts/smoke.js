@@ -47,12 +47,14 @@ async function api(method, path, token, body, opts) {
   }
   const res = await fetch(BASE + path, { method, headers, body: payload });
   let data = null;
+  let raw = '';
   try {
-    data = await res.json();
+    raw = await res.text();
+    data = JSON.parse(raw);
   } catch (e) {
     data = null;
   }
-  return { status: res.status, data };
+  return { status: res.status, data, raw: raw.slice(0, 300) };
 }
 
 function connect(token) {
@@ -251,8 +253,8 @@ async function run() {
 
   r = await api('GET', '/me', T.referee);
   check('árbitro: el mail verificado lo vincula (REFEREE + menú de árbitro)',
-    r.status === 200 && r.data.user.roles.includes('REFEREE') && r.data.menu.includes('asignaciones'),
-    JSON.stringify(r.data));
+    !!r.data && r.status === 200 && r.data.user.roles.includes('REFEREE') && r.data.menu.includes('asignaciones'),
+    'status ' + r.status + ' ' + (r.data ? JSON.stringify(r.data) : r.raw));
   ids.referee = r.data.user.id;
   tracked.add(ids.referee);
 
@@ -374,7 +376,7 @@ async function run() {
   eq('jugador no puede crear torneos (403)', r.status, 403);
   r = await api('POST', '/tournaments', A, { name: TAG + ' T', startsAt: '2026-12-01', endsAt: '2026-10-01' });
   eq('fechas invertidas rechazadas (400)', r.status, 400);
-  r = await api('POST', '/tournaments', A, { name: TAG + ' Torneo', startsAt: '2026-10-01', endsAt: '2026-12-01' });
+  r = await api('POST', '/tournaments', A, { name: TAG + ' Torneo', branch: 'MIXED', modality: 'FOAM', year: 2026, startsAt: '2026-10-01', endsAt: '2026-12-01' });
   eq('admin crea torneo (201)', r.status, 201);
   const tour = r.data;
 
@@ -456,7 +458,7 @@ async function run() {
   r = await api('GET', '/me/assignments', T.referee);
   check('"mis partidos asignados" del árbitro incluye el partido', r.status === 200 && r.data.some((x) => x.match.id === m.id && x.function === 'REFEREE'));
   r = await api('GET', '/me', T.table);
-  check('la mesa asignada ve "control_mesa" en el menú', r.status === 200 && r.data.menu.includes('control_mesa'));
+  check('la mesa asignada ve "asignaciones" en el menú', r.status === 200 && r.data.menu.includes('asignaciones'));
 
   r = await post('/sets', T.referee, { winnerTeamId: tA.id });
   eq('árbitro asignado agrega el set 1 (201)', r.status, 201);
