@@ -5,6 +5,7 @@ const supabaseAdmin = require('../lib/supabaseAdmin');
 const PHOTOS_BUCKET = 'photos'; // privado: URL firmadas solo para cuentas con sesión
 const LOGOS_BUCKET = 'team-logos'; // público: escudos y logos
 const SHEETS_BUCKET = 'match-sheets'; // privado: planillas de juego (auditoría, solo la organización)
+const REPORTS_BUCKET = 'bug-reports'; // privado: capturas de los reportes de problemas (solo la organización)
 const SIGNED_TTL = 60 * 60; // 1 hora
 
 const rawImage = express.raw({
@@ -32,7 +33,7 @@ function imageBody(req, res, next) {
 let ready = false;
 async function ensureBuckets() {
   if (ready) return;
-  for (const [name, isPublic] of [[PHOTOS_BUCKET, false], [LOGOS_BUCKET, true], [SHEETS_BUCKET, false]]) {
+  for (const [name, isPublic] of [[PHOTOS_BUCKET, false], [LOGOS_BUCKET, true], [SHEETS_BUCKET, false], [REPORTS_BUCKET, false]]) {
     const { error } = await supabaseAdmin.storage.createBucket(name, { public: isPublic });
     const exists = error && (String(error.statusCode) === '409' || /already exists|duplicate/i.test(error.message));
     if (error && !exists) throw error;
@@ -87,6 +88,18 @@ async function signedSheetUrl(path) {
   return error ? null : data.signedUrl;
 }
 
+async function uploadReportImage(path, buffer) {
+  await ensureBuckets();
+  const { error } = await supabaseAdmin.storage.from(REPORTS_BUCKET).upload(path, buffer, { contentType: 'image/webp', upsert: false });
+  if (error) throw error;
+}
+
+async function signedReportUrls(paths) {
+  if (!paths.length) return [];
+  const { data, error } = await supabaseAdmin.storage.from(REPORTS_BUCKET).createSignedUrls(paths, SIGNED_TTL);
+  return error ? [] : data;
+}
+
 async function removeFile(bucket, path) {
   const { error } = await supabaseAdmin.storage.from(bucket).remove([path]);
   if (error) throw error;
@@ -115,6 +128,9 @@ module.exports = {
   uploadPhoto,
   uploadLogo,
   uploadSheet,
+  REPORTS_BUCKET,
+  uploadReportImage,
+  signedReportUrls,
   signedSheetUrl,
   removeFile,
   signedUrl,

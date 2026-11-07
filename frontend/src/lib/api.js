@@ -127,3 +127,15 @@ export async function apiUploadSheet(matchId, file) {
   if (!res.ok) throw Object.assign(new Error(json?.error || 'No se pudo subir la planilla'), { status: res.status })
   return json
 }
+
+// Captura de un reporte de problema (con o sin sesión: la clave del alta autoriza la subida)
+export async function apiUploadReportImage(reportId, key, file) {
+  const res = await netFetch(BASE + '/reports/' + reportId + '/images?key=' + encodeURIComponent(key), {
+    method: 'POST',
+    headers: { 'ngrok-skip-browser-warning': 'true', 'Content-Type': file.type || 'image/jpeg' },
+    body: file,
+  })
+  const json = await res.json().catch(() => null)
+  if (!res.ok) throw Object.assign(new Error(json?.error || 'No se pudo subir la captura'), { status: res.status })
+  return json
+}

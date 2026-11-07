@@ -33,6 +33,8 @@ import SedesPublicPage from './pages/SedesPublicPage'
 import NoticiasPage, { NoticiaDetalle } from './pages/NoticiasPage'
 import ReglasPage from './pages/ReglasPage'
 import AcercaPage from './pages/AcercaPage'
+import ReportarPage from './pages/ReportarPage'
+import ReportesPage from './pages/admin/ReportesPage'
 import SancionesPage from './pages/admin/SancionesPage'
 import SancionesPublicaPage from './pages/SancionesPublicaPage'
 import AdminTeamPage from './pages/admin/AdminTeamPage'
@@ -71,7 +73,7 @@ function PerfilTemp() {
   )
 }
 
-const PROTECTED = Object.entries(ITEMS).filter(([k]) => !['home', 'perfil', 'favoritos', 'mi_equipo', 'asignaciones', 'historial_asignaciones', 'mis_partidos', 'mis_estadisticas', 'dashboard_canchas', 'torneos', 'equipos', 'sedes', 'sanciones', 'partidos', 'personas', 'usuarios', 'registro_ediciones'].includes(k))
+const PROTECTED = Object.entries(ITEMS).filter(([k]) => !['home', 'perfil', 'favoritos', 'mi_equipo', 'asignaciones', 'historial_asignaciones', 'mis_partidos', 'mis_estadisticas', 'dashboard_canchas', 'torneos', 'equipos', 'sedes', 'sanciones', 'partidos', 'personas', 'usuarios', 'registro_ediciones', 'reportes'].includes(k))
 
 function App() {
   const init = useAuthStore((s) => s.init)
@@ -106,7 +108,8 @@ function App() {
             <Route path="/noticias/:id" element={<NoticiaDetalle />} />
             <Route path="/reglas" element={<ReglasPage />} />
             <Route path="/acerca" element={<AcercaPage />} />
-            {GENERAL.filter((g) => !['/cronometro', '/liga', '/estadisticas', '/equipos', '/partidos', '/sedes', '/noticias', '/predicciones', '/sanciones', '/reglas', '/acerca'].includes(g.to)).map((g) => (
+            <Route path="/reportar" element={<ReportarPage />} />
+            {GENERAL.filter((g) => !['/cronometro', '/liga', '/estadisticas', '/equipos', '/partidos', '/sedes', '/noticias', '/predicciones', '/sanciones', '/reglas', '/acerca', '/reportar'].includes(g.to)).map((g) => (
               <Route key={g.to} path={g.to} element={<Placeholder title={g.label} />} />
             ))}
 
@@ -168,6 +171,10 @@ function App() {
             </Route>
             <Route element={<ProtectedRoute need="registro_ediciones" />}>
               <Route path="/admin/ediciones" element={<EdicionesPage />} />
+            </Route>
+
+            <Route element={<ProtectedRoute need="reportes" />}>
+              <Route path="/admin/reportes" element={<ReportesPage />} />
             </Route>
 
             {PROTECTED.map(([key, it]) => (

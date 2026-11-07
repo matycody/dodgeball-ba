@@ -6,6 +6,7 @@ if (process.env.SENTRY_DSN) {
     Sentry.init({
       dsn: process.env.SENTRY_DSN,
       environment: process.env.NODE_ENV || "production",
+      release: process.env.RENDER_GIT_COMMIT || undefined, // Render lo define solo: cada error queda atado a su versión
       tracesSampleRate: 0, // solo errores, sin trazas
       sendDefaultPii: false,
     });

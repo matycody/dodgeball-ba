@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { NavLink, Link, useLocation } from 'react-router-dom'
+import { api } from '../lib/api'
 import { X, LogOut, LogIn, Info } from 'lucide-react'
 import { tourKeyFor, startTour } from '../lib/tours'
 import { useAuthStore } from '../stores/authStore'
@@ -7,7 +9,7 @@ import PersonName from './PersonName'
 import { ITEMS, SECTIONS, generalFor, roleLabel, navEnd } from '../lib/navConfig'
 import { useMenuPrefs, sortKeys } from '../stores/menuPrefsStore'
 
-function Item({ to, label, Icon, soon, onClose }) {
+function Item({ to, label, Icon, soon, badge, onClose }) {
   return (
     <NavLink
       to={to}
@@ -20,6 +22,7 @@ function Item({ to, label, Icon, soon, onClose }) {
     >
       <Icon size={20} className="shrink-0" />
       <span className="flex-1">{label}</span>
+      {badge > 0 && <span className="grid min-w-6 place-items-center rounded-full bg-danger px-1.5 text-[11px] font-extrabold text-white">{badge}</span>}
       {soon && <span className="text-[10px] font-bold uppercase text-muted">Próximamente</span>}
     </NavLink>
   )
@@ -34,6 +37,13 @@ export default function Drawer({ open, onClose }) {
   const order = useMenuPrefs((s) => s.byUser[user?.id]?.order)
   const { pathname } = useLocation()
   const tourKey = tourKeyFor(pathname)
+  const [newReports, setNewReports] = useState(0)
+  const isAdmin = menu.includes('reportes')
+  // Reportes nuevos (burbuja): se consulta cada vez que se abre el menú
+  useEffect(() => {
+    if (!open || !isAdmin) return
+    api('GET', '/reports/new-count').then((r) => setNewReports(r.count)).catch(() => {})
+  }, [open, isAdmin])
 
   return (
     <div className={'fixed inset-0 z-40 ' + (open ? '' : 'pointer-events-none')}>
@@ -82,7 +92,7 @@ export default function Drawer({ open, onClose }) {
             return (
               <div key={s.title}>
                 <Title>{s.title}</Title>
-                {keys.map((k) => <Item key={k} {...ITEMS[k]} onClose={onClose} />)}
+                {keys.map((k) => <Item key={k} {...ITEMS[k]} badge={k === 'reportes' ? newReports : 0} onClose={onClose} />)}
               </div>
             )
           })}

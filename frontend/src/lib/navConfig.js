@@ -1,6 +1,6 @@
 ﻿import {
   Home, Heart, User, CalendarDays, Users, BarChart3, ClipboardList,
-  LayoutDashboard, Target, Trophy, Shield, UserCog, History as HistoryIcon, Timer, BookOpen, Info, Newspaper, MapPin, Gavel, ClipboardCheck,
+  LayoutDashboard, Target, Trophy, Shield, UserCog, History as HistoryIcon, Timer, BookOpen, Info, Newspaper, MapPin, Gavel, ClipboardCheck, Bug,
 } from 'lucide-react'
 
 // Claves que manda el backend en GET /me → menu (importar_excel no se usa)
@@ -23,13 +23,14 @@ export const ITEMS = {
   usuarios: { to: '/admin/usuarios', label: 'Usuarios y roles', Icon: Shield },
   planillas: { to: '/admin/planillas', label: 'Planillas de juego', Icon: ClipboardCheck },
   registro_ediciones: { to: '/admin/ediciones', label: 'Registro de ediciones', Icon: HistoryIcon },
+  reportes: { to: '/admin/reportes', label: 'Reportes', Icon: Bug },
 }
 
 // Secciones del drawer, en orden
 export const SECTIONS = [
   { title: 'Mi actividad', keys: ['mis_partidos', 'mi_equipo', 'mis_estadisticas', 'favoritos'] },
   { title: 'Árbitro y mesa', keys: ['asignaciones', 'historial_asignaciones'] },
-  { title: 'Administración', keys: ['dashboard_canchas', 'torneos', 'partidos', 'equipos', 'sedes', 'sanciones', 'personas', 'usuarios', 'planillas', 'registro_ediciones'] },
+  { title: 'Administración', keys: ['dashboard_canchas', 'torneos', 'partidos', 'equipos', 'sedes', 'sanciones', 'personas', 'usuarios', 'planillas', 'registro_ediciones', 'reportes'] },
 ]
 
 // Rutas fijas del frontend (no dependen del menú del backend)
@@ -49,6 +50,7 @@ export const GENERAL = [
   // El organizador ya tiene 'Sedes' (con edición) en Administración
   { to: '/sedes', label: 'Sedes', Icon: MapPin, hideIf: 'sedes' }, // visitas: entrada visible, pero pide iniciar sesión,
   { to: '/reglas', label: 'Reglas del juego', Icon: BookOpen },
+  { to: '/reportar', label: 'Reportar un problema', Icon: Bug },
   { to: '/acerca', label: 'Acerca de / Contacto', Icon: Info },
 ]
 

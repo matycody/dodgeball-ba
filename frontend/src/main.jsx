@@ -8,11 +8,13 @@ import App from './App.jsx'
 import { ConfirmProvider } from './components/ConfirmProvider'
 import { useThemeStore } from './stores/themeStore'
 import './lib/syncPrefs'
+import { installReportContext } from './lib/reportContext'
 
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.MODE,
+    release: import.meta.env.VITE_RELEASE || undefined, // commit de Vercel (ver vite.config.js)
     tracesSampleRate: 0, // solo errores
     sendDefaultPii: false,
   })
@@ -22,6 +24,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 window.__sentryTest = () => Sentry.captureException(new Error('Prueba de Sentry (frontend)'))
 
 useThemeStore.getState().initTheme()
+installReportContext()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

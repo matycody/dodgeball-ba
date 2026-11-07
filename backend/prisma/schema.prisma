@@ -69,6 +69,7 @@ model User {
   clockActions   ClockAction[]
   playerRequests PlayerRequest[]
   predictions    Prediction[]
+  reports        BugReport[]
 }
 
 // Perfil inscripto por la organizaciÃ³n (jugador y/o Ã¡rbitro)
@@ -731,4 +732,41 @@ model TeamPenalty {
 
   @@index([stageId])
   @@index([teamId])
+}
+
+enum ReportKind {
+  ERROR
+  VISUAL
+  SUGGESTION
+  OTHER
+}
+
+enum ReportStatus {
+  NEW
+  IN_REVIEW
+  RESOLVED
+  DISCARDED
+}
+
+// Reporte de un problema enviado por cualquier persona (con o sin cuenta); solo lo lee la organización
+model BugReport {
+  id            String       @id @default(uuid())
+  kind          ReportKind   @default(ERROR)
+  message       String       @db.VarChar(2000)
+  status        ReportStatus @default(NEW)
+  page          String?      @db.VarChar(300) // pantalla donde estaba (ruta)
+  userAgent     String?      @db.VarChar(300)
+  viewport      String?      @db.VarChar(20)
+  consoleErrors Json? // últimos errores de consola del navegador
+  contactEmail  String?      @db.VarChar(120) // solo si no tiene cuenta y quiere que lo contacten
+  userId        String?
+  images        String[]     @default([]) // rutas en el bucket privado de reportes
+  uploadKey     String // permite subir las capturas solo a quien creó el reporte
+  adminNote     String?      @db.VarChar(1000)
+  createdAt     DateTime     @default(now())
+  resolvedAt    DateTime?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
 }

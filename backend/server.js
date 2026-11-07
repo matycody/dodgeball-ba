@@ -80,6 +80,7 @@ app.use("/favorites", require("./src/routes/favorites"));
 app.use("/predictions", require("./src/routes/predictions"));
 app.use("/me", require("./src/routes/account"));
 app.use("/photos", require("./src/routes/photos"));
+app.use("/reports", require("./src/routes/reports"));
 
 // Errores no controlados de Express -> Sentry (si está activo)
 if (process.env.SENTRY_DSN) {
