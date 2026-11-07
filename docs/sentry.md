@@ -1,6 +1,8 @@
 # Sentry — puesta en marcha (Dodgeball BA)
 
-El código ya está listo: Sentry se activa solo si existe el DSN. Falta crear el proyecto y cargar las variables.
+El código ya está listo: Sentry se activa solo si existe el DSN.
+
+**Estado al 07/11/2026:** activo en producción. Proyecto de backend (`dodgeball-backend`) y de frontend (`dodgeball-ba`, React) separados, ambas pruebas llegaron con `release` y `environment`, y hay alertas por mail al equipo en los dos (nuevo issue, escalada y regresión). `SENTRY_TEST_KEY` se borró de Render. Los bloqueadores de anuncios (`ERR_BLOCKED_BY_CLIENT`) impiden enviar errores del frontend; el backend no se afecta. Source maps: pendiente.
 Plan gratuito alcanza (5.000 errores/mes). Solo se registran errores: sin trazas ni datos personales.
 
 ## 1. Crear el proyecto (una vez, 10 min)
