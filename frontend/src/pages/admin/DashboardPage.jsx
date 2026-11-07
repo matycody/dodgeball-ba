@@ -5,7 +5,6 @@ import { dayOf, dayTab } from '../../lib/days'
 import { Link } from 'react-router-dom'
 import { Pin, PinOff } from 'lucide-react'
 import { socket } from '../../sockets/socket'
-import { onMatchTick } from '../../lib/tickFeed'
 import { api } from '../../lib/api'
 import { normMatch } from '../../lib/format'
 import { useMatchesFeed } from '../../hooks/useMatchesFeed'
@@ -268,11 +267,11 @@ export default function DashboardPage() {
     const onTick = (p) => setTicks((t) => ({ ...t, [p.matchId]: p }))
     if (socket.connected) join()
     socket.on('connect', join)
-    const offTick = onMatchTick(onTick)
+    socket.on('match:tick', onTick)
     return () => {
       ids.forEach((id) => socket.emit('match:leave', { matchId: id }))
       socket.off('connect', join)
-      offTick()
+      socket.off('match:tick', onTick)
     }
   }, [liveKey])
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { socket } from '../sockets/socket'
-import { onMatchTick } from './tickFeed'
 
 // Ultimo reloj conocido de cada partido en vivo, compartido por todas las tarjetas.
 // Cuenta cuantas tarjetas miran cada partido: se une a la sala una vez y sale cuando ya nadie lo mira.
@@ -12,7 +11,7 @@ let wired = false
 function wire() {
   if (wired) return
   wired = true
-  onMatchTick((p) => {
+  socket.on('match:tick', (p) => {
     ticks.set(p.matchId, p)
     subs.get(p.matchId)?.forEach((cb) => cb(p))
   })
