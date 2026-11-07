@@ -680,7 +680,9 @@ async function run() {
   r = await api('DELETE', '/teams/' + tD.id, A);
   eq('un equipo sin partidos se elimina (200)', r.status, 200);
   r = await api('DELETE', '/tournaments/' + tour.id, A);
-  eq('un torneo con partidos no se elimina (409)', r.status, 409);
+  eq('eliminar un torneo lo manda a "Eliminados" (200)', r.status, 200);
+  r = await api('POST', '/tournaments/' + tour.id + '/restore', A);
+  eq('el torneo eliminado se restaura (200)', r.status, 200);
   r = await api('DELETE', '/profiles/' + profile.female, A);
   eq('baja de una jugadora (200)', r.status, 200);
   r = await api('GET', '/teams/' + tA.id);
