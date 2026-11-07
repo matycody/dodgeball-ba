@@ -251,7 +251,7 @@ async function run() {
 
   r = await api('GET', '/me', T.referee);
   check('árbitro: el mail verificado lo vincula (REFEREE + menú de árbitro)',
-    r.status === 200 && r.data.user.roles.includes('REFEREE') && r.data.menu.includes('mis_partidos_asignados'),
+    r.status === 200 && r.data.user.roles.includes('REFEREE') && r.data.menu.includes('asignaciones'),
     JSON.stringify(r.data));
   ids.referee = r.data.user.id;
   tracked.add(ids.referee);
@@ -302,8 +302,8 @@ async function run() {
 
   r = await api('GET', '/teams/' + tA.id);
   const txt = JSON.stringify(r.data);
-  check('plantel público: sin DNI ni mail', r.status === 200 && !txt.includes(dni(1)) && !txt.includes('@example.com'));
-  check('plantel del equipo A: 3 jugadores activos', r.data.roster && r.data.roster.length === 3, txt);
+  check('plantel público: sin DNI ni mail', r.status === 200 && !txt.includes(dni(1)) && !txt.includes('@example.com'), 'status ' + r.status + ' ' + txt.slice(0, 300));
+  check('plantel del equipo A: 3 jugadores activos', !!(r.data && r.data.roster) && r.data.roster.length === 3, txt);
 
   // ── 4. Torneo y partidos ──
   r = await api('GET', '/me/profile');
