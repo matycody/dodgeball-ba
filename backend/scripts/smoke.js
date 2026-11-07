@@ -21,6 +21,7 @@ const failures = [];
 const tracked = new Set(); // ids de User creados en esta corrida
 const openSockets = [];
 
+let lastCall = '';
 function check(name, ok, detail) {
   if (ok) {
     passed++;
@@ -28,7 +29,7 @@ function check(name, ok, detail) {
   } else {
     failed++;
     failures.push(name);
-    console.log('  FALLA  ' + name + (detail ? '   -> ' + detail : ''));
+    console.log('  FALLA  ' + name + (detail ? '   -> ' + detail : '') + (lastCall ? '   [última llamada: ' + lastCall + ']' : ''));
   }
 }
 const eq = (name, got, want) => check(name, got === want, 'esperado ' + want + ', llegó ' + got);
@@ -54,6 +55,7 @@ async function api(method, path, token, body, opts) {
   } catch (e) {
     data = null;
   }
+  lastCall = method + ' ' + path.split('?')[0] + ' -> ' + res.status + ' ' + raw.slice(0, 160);
   return { status: res.status, data, raw: raw.slice(0, 300) };
 }
 
