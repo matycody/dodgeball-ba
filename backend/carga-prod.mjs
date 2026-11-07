@@ -66,7 +66,7 @@ if (tanda === 'endpoints' || tanda === 'todo') {
 if (tanda === 'quiebre' || tanda === 'todo') {
   console.log('\n== Tanda quiebre (escalones) ==')
   for (const p of ['/matches', ...(process.env.QUIEBRE_EXTRA ? process.env.QUIEBRE_EXTRA.split(',') : [])]) {
-    for (const c of [60, 100, 200, 400]) {
+    for (const c of (process.env.QUIEBRE_STEPS ? process.env.QUIEBRE_STEPS.split(',').map(Number) : [60, 100, 200, 400])) {
       const r = run(p, c, 20); filas.push(r)
       if (r.errores > 0 || r.timeouts > 0 || r.non2xx > 0 || r.p975_ms > MAX_P975) { console.log(`CORTE en ${p} con ${c} conexiones`); break }
       await new Promise(r => setTimeout(r, 15000)) // enfriar
