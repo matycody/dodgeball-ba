@@ -6,7 +6,7 @@ import { tourKeyFor, startTour } from '../lib/tours'
 import { useAuthStore } from '../stores/authStore'
 import UserAvatar from './UserAvatar'
 import PersonName from './PersonName'
-import { ITEMS, SECTIONS, generalFor, roleLabel, navEnd } from '../lib/navConfig'
+import { ITEMS, SECTIONS, REPORTAR, generalFor, roleLabel, navEnd } from '../lib/navConfig'
 import { useMenuPrefs, sortKeys } from '../stores/menuPrefsStore'
 
 function Item({ to, label, Icon, soon, badge, onClose }) {
@@ -103,6 +103,9 @@ export default function Drawer({ open, onClose }) {
         </nav>
 
         <div className="mt-auto border-t border-line pt-4">
+          <Link to={REPORTAR.to} onClick={onClose} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-fg">
+            <REPORTAR.Icon size={20} /> {REPORTAR.label}
+          </Link>
           {tourKey && (
             <button
               onClick={() => { onClose(); setTimeout(() => startTour(tourKey, user, menu), 250) }} // espera a que cierre el menú

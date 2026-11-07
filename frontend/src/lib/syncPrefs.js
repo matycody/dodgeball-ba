@@ -26,6 +26,8 @@ function pushToAccount() {
 
 function applyFromAccount(user) {
   const m = user?.user_metadata ?? {}
+  // "No mostrar más tutoriales": si la cuenta lo tiene apagado, vale en este dispositivo también
+  if (m.pref_tours_off === true) { try { localStorage.setItem('tours-off', '1') } catch { /* sin storage */ } }
   if (m.pref_theme === undefined && m.pref_accent === undefined) {
     pushToAccount() // la cuenta todavia no tiene nada: se sube lo que ya tenia este dispositivo
     return

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { X } from 'lucide-react'
+import { X, EyeOff } from 'lucide-react'
 import { useTourStore } from '../stores/tourStore'
 
 const PAD = 6 // margen del resaltado alrededor del elemento
@@ -12,6 +12,7 @@ export default function TourOverlay() {
   const next = useTourStore((s) => s.next)
   const prev = useTourStore((s) => s.prev)
   const close = useTourStore((s) => s.close)
+  const disableAll = useTourStore((s) => s.disableAll)
   const step = active ? active.steps[active.index] : null
 
   const [rect, setRect] = useState(null)
@@ -93,9 +94,14 @@ export default function TourOverlay() {
       >
         <div className="flex items-start justify-between gap-3">
           <p className="text-base font-extrabold leading-tight">{step.title}</p>
-          <button aria-label="Saltar tutorial" onClick={close} className="-mr-1 -mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-line bg-surface-2">
-            <X size={16} />
-          </button>
+          <div className="-mr-1 -mt-1 flex shrink-0 gap-1.5">
+            <button aria-label="No mostrar más los tutoriales" title="No mostrar más los tutoriales" onClick={disableAll} className="grid h-8 w-8 place-items-center rounded-full border border-line bg-surface-2 text-muted">
+              <EyeOff size={16} />
+            </button>
+            <button aria-label="Saltar tutorial" onClick={close} className="grid h-8 w-8 place-items-center rounded-full border border-line bg-surface-2">
+              <X size={16} />
+            </button>
+          </div>
         </div>
         <p className="mt-2 text-sm leading-snug text-muted">{step.text}</p>
         <div className="mt-4 flex items-center justify-between gap-2">

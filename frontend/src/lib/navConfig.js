@@ -50,9 +50,11 @@ export const GENERAL = [
   // El organizador ya tiene 'Sedes' (con edición) en Administración
   { to: '/sedes', label: 'Sedes', Icon: MapPin, hideIf: 'sedes' }, // visitas: entrada visible, pero pide iniciar sesión,
   { to: '/reglas', label: 'Reglas del juego', Icon: BookOpen },
-  { to: '/reportar', label: 'Reportar un problema', Icon: Bug },
   { to: '/acerca', label: 'Acerca de / Contacto', Icon: Info },
 ]
+
+// Entrada fija al pie del menú (junto al tutorial y Cerrar sesión), no va en General
+export const REPORTAR = { to: '/reportar', label: 'Reportar un problema', Icon: Bug }
 
 // Los 3 primeros que existan en el menú van al bottom nav (+ Perfil)
 export const NOTICIAS = GENERAL.find((g) => g.to === '/noticias')

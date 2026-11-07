@@ -209,7 +209,7 @@ export default function PerfilPage() {
       <MenuPrefsCard />
 
       <button
-        onClick={() => { resetTours(user?.id); startTour('inicio', user, menu); navigate('/') }}
+        onClick={() => { resetTours(); startTour('inicio', user, menu); navigate('/') }}
         className="flex w-full items-center justify-center gap-2 rounded-2xl border border-line bg-surface py-3 font-bold"
       >
         <Info size={18} /> Ver los tutoriales de nuevo
