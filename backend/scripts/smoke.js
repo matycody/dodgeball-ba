@@ -137,6 +137,13 @@ async function cleanup() {
     where: { OR: [{ matchId: { in: matchIds } }, { userId: { in: userIds } }, { profileId: { in: profileIds } }] },
   });
   await prisma.match.deleteMany({ where: { id: { in: matchIds } } });
+  const tourStages = { stage: { tournamentId: { in: tournamentIds } } };
+  await prisma.stageStanding.deleteMany({ where: tourStages });
+  await prisma.stageTeam.deleteMany({ where: tourStages });
+  await prisma.matchday.deleteMany({ where: tourStages });
+  await prisma.stage.deleteMany({ where: { tournamentId: { in: tournamentIds } } });
+  await prisma.tiebreaker.deleteMany({ where: { tournamentId: { in: tournamentIds } } });
+  await prisma.tournamentTeam.deleteMany({ where: { tournamentId: { in: tournamentIds } } });
   await prisma.tournament.deleteMany({ where: { id: { in: tournamentIds } } });
   await prisma.favorite.deleteMany({
     where: { OR: [{ userId: { in: userIds } }, { targetId: { in: [...teamIds, ...profileIds] } }] },
