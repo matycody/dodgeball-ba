@@ -1,16 +1,16 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Bug, ImagePlus, X, CheckCircle2 } from 'lucide-react'
+import { Bug, ImagePlus, X, CheckCircle2, AlertTriangle, LayoutTemplate, Lightbulb, MessageSquare, ShieldCheck } from 'lucide-react'
 import { api, apiUploadReportImage } from '../lib/api'
 import { getReportContext } from '../lib/reportContext'
 import { useAuthStore } from '../stores/authStore'
 import { Btn, Alert, inputCls } from '../components/ui'
 
 const KINDS = [
-  ['ERROR', 'Algo no funciona'],
-  ['VISUAL', 'Se ve mal'],
-  ['SUGGESTION', 'Sugerencia'],
-  ['OTHER', 'Otra cosa'],
+  ['ERROR', 'Algo no funciona', 'Un error o algo que no responde', AlertTriangle],
+  ['VISUAL', 'Se ve mal', 'Texto cortado, colores o pantalla desordenada', LayoutTemplate],
+  ['SUGGESTION', 'Sugerencia', 'Una idea para mejorar la app', Lightbulb],
+  ['OTHER', 'Otra cosa', 'Cualquier otro comentario', MessageSquare],
 ]
 const MAX_IMAGES = 3
 
@@ -72,57 +72,83 @@ export default function ReportarPage() {
   if (done) {
     return (
       <div className="space-y-4 rounded-3xl border border-line bg-surface p-6 text-center">
-        <CheckCircle2 size={40} className="mx-auto text-live" />
-        <p className="text-lg font-extrabold">¡Gracias! Recibimos tu reporte</p>
+        <CheckCircle2 size={44} className="mx-auto text-live" />
+        <p className="text-xl font-extrabold">¡Gracias! Recibimos tu reporte</p>
         <p className="text-sm text-muted">La organización lo va a revisar.{done.failed ? ' No pudimos subir ' + done.failed + ' captura(s); si podés, mandá otro reporte con la imagen.' : ''}</p>
         <Link to="/" className="inline-block rounded-2xl border border-line bg-surface-2 px-5 py-3 text-sm font-extrabold">Volver al inicio</Link>
       </div>
     )
   }
 
+  const ready = message.trim().length >= 5
+
   return (
-    <form onSubmit={send} className="space-y-4">
-      <div className="flex items-center gap-3">
-        <Bug size={22} className="text-accent" />
-        <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Reportar un problema</h1>
-      </div>
-      <p className="text-sm text-muted">Si algo falla, se ve raro o se te ocurre una mejora, contanos. Sumamos solos la pantalla en la que estabas y tu dispositivo.</p>
-
-      <div className="flex flex-wrap gap-2">
-        {KINDS.map(([k, l]) => (
-          <button key={k} type="button" onClick={() => setKind(k)} className={'rounded-full border px-4 py-2 text-sm font-bold ' + (kind === k ? 'border-accent bg-accent text-black' : 'border-line bg-surface text-fg')}>{l}</button>
-        ))}
+    <form onSubmit={send} className="space-y-5 rounded-3xl border border-line bg-surface p-5">
+      <div className="flex items-start gap-3">
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent"><Bug size={22} /></div>
+        <div className="min-w-0">
+          <h1 className="text-xl font-extrabold leading-tight">Reportar un problema</h1>
+          <p className="mt-1 text-sm text-muted">Tu aviso llega directo a la organización y nos ayuda a mejorar la app.</p>
+        </div>
       </div>
 
-      <label className="block text-xs text-muted">¿Qué pasó?
-        <textarea className={inputCls + ' mt-1 min-h-32 text-sm text-fg'} maxLength={2000} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Ej.: toqué el partido de Panthers y la pantalla quedó en blanco" />
-        <span className="mt-1 block text-right">{message.length}/2000</span>
-      </label>
+      <fieldset className="space-y-2">
+        <legend className="mb-2 text-sm font-bold">¿Qué tipo de problema es?</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {KINDS.map(([k, l, hint, Icon]) => {
+            const on = kind === k
+            return (
+              <button key={k} type="button" aria-pressed={on} onClick={() => setKind(k)} className={'flex flex-col items-start gap-1 rounded-2xl border p-3 text-left transition ' + (on ? 'border-accent bg-accent-soft' : 'border-line bg-surface-2')}>
+                <Icon size={20} className={on ? 'text-accent' : 'text-muted'} />
+                <span className="text-sm font-extrabold">{l}</span>
+                <span className="text-xs leading-snug text-muted">{hint}</span>
+              </button>
+            )
+          })}
+        </div>
+      </fieldset>
+
+      <div className="space-y-1.5">
+        <label htmlFor="rep-msg" className="block text-sm font-bold">Contanos qué pasó</label>
+        <textarea id="rep-msg" className={inputCls + ' min-h-36 text-sm text-fg'} maxLength={2000} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Qué estabas haciendo, qué esperabas que pasara y qué pasó en cambio." />
+        <p className="text-right text-xs text-muted">{message.length} / 2000</p>
+      </div>
 
       <div className="space-y-2">
-        <p className="text-xs text-muted">Capturas (opcional, hasta {MAX_IMAGES})</p>
-        <div className="flex flex-wrap gap-2">
-          {files.map((f, i) => (
-            <div key={f.url} className="relative h-24 w-24 overflow-hidden rounded-2xl border border-line">
-              <img src={f.url} alt={'Captura ' + (i + 1)} className="h-full w-full object-cover" />
-              <button type="button" aria-label="Quitar captura" onClick={() => setFiles((c) => c.filter((x) => x !== f))} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/70 text-white"><X size={14} /></button>
-            </div>
-          ))}
-          {files.length < MAX_IMAGES && (
-            <button type="button" onClick={() => input.current?.click()} className="grid h-24 w-24 place-items-center rounded-2xl border border-dashed border-line bg-surface text-muted"><ImagePlus size={24} /></button>
-          )}
-        </div>
+        <p className="text-sm font-bold">Capturas <span className="font-normal text-muted">(opcional, hasta {MAX_IMAGES})</span></p>
+        {files.length > 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            {files.map((f, i) => (
+              <div key={f.url} className="relative aspect-square overflow-hidden rounded-2xl border border-line">
+                <img src={f.url} alt={'Captura ' + (i + 1)} className="h-full w-full object-cover" />
+                <button type="button" aria-label="Quitar captura" onClick={() => setFiles((c) => c.filter((x) => x !== f))} className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/70 text-white"><X size={14} /></button>
+              </div>
+            ))}
+          </div>
+        )}
+        {files.length < MAX_IMAGES && (
+          <button type="button" onClick={() => input.current?.click()} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line bg-surface-2 px-4 py-4 text-sm font-bold text-muted">
+            <ImagePlus size={20} /> {files.length ? 'Agregar otra captura' : 'Adjuntar captura de pantalla'}
+          </button>
+        )}
         <input ref={input} type="file" accept="image/*" multiple hidden onChange={pick} />
       </div>
 
       {!user && (
-        <label className="block text-xs text-muted">Tu mail (opcional, por si necesitamos preguntarte algo)
-          <input type="email" className={inputCls + ' mt-1 text-sm text-fg'} maxLength={120} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nombre@mail.com" />
-        </label>
+        <div className="space-y-1.5">
+          <label htmlFor="rep-mail" className="block text-sm font-bold">Tu mail <span className="font-normal text-muted">(opcional)</span></label>
+          <input id="rep-mail" type="email" className={inputCls + ' text-sm text-fg'} maxLength={120} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nombre@mail.com" />
+          <p className="text-xs text-muted">Solo lo usamos si necesitamos preguntarte algo sobre el reporte.</p>
+        </div>
       )}
 
+      <div className="flex items-start gap-2 rounded-2xl border border-line bg-surface-2 p-3 text-xs text-muted">
+        <ShieldCheck size={16} className="mt-0.5 shrink-0 text-live" />
+        <p>Con el reporte enviamos solos la pantalla en la que estabas, el tipo de dispositivo y los últimos errores técnicos. No se envía tu contraseña ni datos privados.</p>
+      </div>
+
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
-      <Btn type="submit" tone="accent" disabled={busy} className="w-full">{busy ? 'Enviando…' : 'Enviar reporte'}</Btn>
+      <Btn type="submit" tone="accent" disabled={busy || !ready} className="w-full">{busy ? 'Enviando…' : 'Enviar reporte'}</Btn>
     </form>
   )
 }

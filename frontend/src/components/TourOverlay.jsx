@@ -94,17 +94,17 @@ export default function TourOverlay() {
       >
         <div className="flex items-start justify-between gap-3">
           <p className="text-base font-extrabold leading-tight">{step.title}</p>
-          <div className="-mr-1 -mt-1 flex shrink-0 gap-1.5">
-            <button aria-label="No mostrar más los tutoriales" title="No mostrar más los tutoriales" onClick={disableAll} className="grid h-8 w-8 place-items-center rounded-full border border-line bg-surface-2 text-muted">
-              <EyeOff size={16} />
-            </button>
-            <button aria-label="Saltar tutorial" onClick={close} className="grid h-8 w-8 place-items-center rounded-full border border-line bg-surface-2">
-              <X size={16} />
-            </button>
-          </div>
+          <button aria-label="Saltar tutorial" onClick={close} className="-mr-1 -mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-line bg-surface-2">
+            <X size={16} />
+          </button>
         </div>
         <p className="mt-2 text-sm leading-snug text-muted">{step.text}</p>
-        <div className="mt-4 flex items-center justify-between gap-2">
+        <div className="mt-3 flex justify-end">
+          <button onClick={disableAll} className="flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-xs font-bold text-muted">
+            <EyeOff size={14} /> No mostrar más
+          </button>
+        </div>
+        <div className="mt-3 flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-muted">{active.index + 1} / {active.steps.length}</span>
           <div className="flex gap-2">
             {active.index > 0 && (
