@@ -23,7 +23,9 @@ test.describe('Visitante', () => {
     await page.goto('/liga')
     // "Competiciones" también está en el menú: se apunta al título de la página
     await expect(page.getByRole('heading', { name: 'Competiciones' })).toBeVisible()
-    await expect(page.getByText(/Cargando|No hay torneos|Año/).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: /En curso/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Finalizadas/ })).toBeVisible()
+    await expect(page.getByText(/Todos los años/)).toBeVisible()
   })
 
   test('equipos: se puede buscar un equipo', async ({ page }) => {
