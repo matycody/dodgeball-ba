@@ -61,9 +61,22 @@ export default function HomeInicio({ byId, loading, error, children }) {
   useEffect(() => {
     let alive = true
     const iso = (d) => new Date(Date.now() + d * 864e5).toLocaleDateString('en-CA') // solo el día: la dirección se repite y el servidor puede reutilizar la respuesta
+    // Los finalizados van aparte y por tandas: en una sola consulta de 200 el servidor corta los más nuevos (ordena por fecha)
+    const loadFinished = async () => {
+      const out = []
+      for (let offset = 0; offset < 1000; offset += 200) {
+        const rows = await api('GET', '/matches?status=FINISHED&limit=200&offset=' + offset + '&from=' + iso(-CAL_BACK) + '&to=' + iso(2))
+        out.push(...rows)
+        if (rows.length < 200) break
+      }
+      return out
+    }
     const load = () =>
-      api('GET', '/matches?status=LIVE,READY,SCHEDULED,SUSPENDED,FINISHED&includeUndated=true&limit=200&from=' + iso(-CAL_BACK) + '&to=' + iso(CAL_AHEAD))
-        .then((r) => { if (alive) { const rows = r.map(normMatch); setCal(rows); saveCal(rows) } })
+      Promise.all([
+        api('GET', '/matches?status=LIVE,READY,SCHEDULED,SUSPENDED&includeUndated=true&limit=200&from=' + iso(-CAL_BACK) + '&to=' + iso(CAL_AHEAD)),
+        loadFinished(),
+      ])
+        .then(([open, done]) => { if (alive) { const rows = [...open, ...done].map(normMatch); setCal(rows); saveCal(rows) } })
         .catch(() => { if (alive && calTry < 3) setTimeout(() => alive && setCalTry((n) => n + 1), 2000) })
     load()
     socket.on('connect', load)
