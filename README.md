@@ -86,7 +86,7 @@ Hace falta **Git** y **Node.js 24 (LTS)**. El backend corre en el puerto 3001 y 
 |---|---|---|
 | `backend` | `npm run dev` / `npm start` | Levanta el servidor |
 | `backend` | `npm run seed` | Crea los administradores de `ADMIN_EMAILS` en una base vacía |
-| `backend` | `npm run smoke` | Más de 130 chequeos contra un backend en marcha |
+| `backend` | `npm run smoke` | Más de 200 chequeos contra un backend en marcha (usar la base `dev-torneos`) |
 | `backend` | `npm test` | Tests unitarios (Vitest) |
 | `frontend` | `npm run dev` / `build` / `preview` | Desarrollo, compilación y prueba del build (PWA) |
 | `frontend` | `npm run lint` | ESLint |

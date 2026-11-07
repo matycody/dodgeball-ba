@@ -4,7 +4,7 @@
 | Tipo | Herramienta | Dónde | Estado |
 |---|---|---|---|
 | Unitarias | Vitest | `backend` (`npm test`): motor de timers y partidos extra | 21/21 aprobadas (Sprint 3) |
-| Humo contra un backend en marcha | `npm run smoke` | `backend` | Más de 130 chequeos; crea y borra usuarios `SMOKE` |
+| Humo contra un backend en marcha | `npm run smoke` | `backend` | 210 chequeos (última corrida: 210 OK, 0 fallas, 07/11/2026); crea y borra datos `SMOKE`. Correr solo contra `dev-torneos` |
 | E2E | Playwright | `frontend` (`npm run test:e2e`), contra la web de producción | 24 aprobadas, 2 omitidas (piden `E2E_EMAIL` y `E2E_PASSWORD`) |
 | Carga HTTP | autocannon (`backend/carga-prod.mjs`) | producción, solo lectura | Ver informe |
 | Sockets | `socket-carga.js` y Artillery | producción | 100, 150 y 190 espectadores sin perder ticks |
