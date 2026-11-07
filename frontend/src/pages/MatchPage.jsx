@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { socket } from '../sockets/socket'
+import { onMatchTick } from '../lib/tickFeed'
 import { useSanctions } from '../hooks/useSanctions'
 import { normMatch } from '../lib/format'
 import { useWakeLock } from '../hooks/useWakeLock'
@@ -31,7 +32,7 @@ export default function MatchPage() {
     socket.connect()
     if (socket.connected) join()
     socket.on('connect', join)
-    socket.on('match:tick', onTick)
+    const offTick = onMatchTick(onTick)
     socket.on('match:updated', onUpdated)
     socket.on('match:setExpired', onMsg)
     socket.on('match:finished', onMsg)
@@ -41,7 +42,7 @@ export default function MatchPage() {
     return () => {
       socket.emit('match:leave', { matchId: id })
       socket.off('connect', join)
-      socket.off('match:tick', onTick)
+      offTick()
       socket.off('match:updated', onUpdated)
       socket.off('match:setExpired', onMsg)
       socket.off('match:finished', onMsg)

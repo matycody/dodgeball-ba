@@ -5,6 +5,7 @@ import ScoreTimeline from '../components/ScoreTimeline'
 import { ChevronLeft, Play, Pause, RotateCcw, Minus, Plus, X } from 'lucide-react'
 import { api } from '../lib/api'
 import { socket } from '../sockets/socket'
+import { onMatchTick } from '../lib/tickFeed'
 import { normMatch, MODALITY, courtLabel } from '../lib/format'
 import StatusPill from '../components/StatusPill'
 import Versus from '../components/Versus'
@@ -268,7 +269,7 @@ export default function ControlPage() {
     socket.connect()
     if (socket.connected) join()
     socket.on('connect', join)
-    socket.on('match:tick', onTick)
+    const offTick = onMatchTick(onTick)
     socket.on('match:permissions', onPerms)
     socket.on('match:tableFree', onTableFree)
     socket.on('match:action', onAction)
@@ -283,7 +284,7 @@ export default function ControlPage() {
       socket.emit('match:controlLeave', { matchId: id })
       socket.emit('match:leave', { matchId: id })
       socket.off('connect', join)
-      socket.off('match:tick', onTick)
+      offTick()
       socket.off('match:permissions', onPerms)
       socket.off('match:tableFree', onTableFree)
       socket.off('match:action', onAction)

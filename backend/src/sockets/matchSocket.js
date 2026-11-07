@@ -8,6 +8,7 @@ const tableLock = require('../services/tableLock');
 const { CLIENT_EVENTS, SERVER_EVENTS } = require('../timers/timerEvents');
 const { getOrCreateMatch, getMatch, pauseMatch, resumeMatch } = require('../timers/matchManager');
 const clockStore = require('../timers/clockStore');
+const { createThrottle } = require('./tickThrottle');
 const { listSanctions, emitSanctions, publicName } = require('../services/sanctions');
 
 const MAX_ROOMS = 12;
@@ -19,14 +20,24 @@ const controlRoom = (id) => 'control:' + id;
 
 // Último estado emitido por partido: sirve de snapshot al unirse
 const lastTick = new Map();
+// Frecuencia del reloj hacia los espectadores (1 = un tick por segundo, como siempre; 5 = cada 5 s y el cliente cuenta en el medio)
+const throttle = createThrottle(process.env.SPECTATOR_TICK_SECONDS);
 
 function buildCallbacks(io, matchId) {
   return {
     onPersist: (state, opts) => clockStore.persist(matchId, state, opts),
-    onTick: ({ matchTime, setTime, isMatchPaused, isSetPaused, matchHalf, timeoutTime, timeoutTeam, isTimeoutRunning, timeoutsUsed, recovered, matchEnded, sanctions }) => {
+    onTick: ({ matchTime, setTime, isMatchPaused, isSetPaused, matchHalf, timeoutTime, timeoutTeam, isTimeoutRunning, timeoutsUsed, recovered, matchEnded, sanctions }, meta) => {
       const payload = { matchId, matchTime, setTime, isMatchPaused, isSetPaused, matchHalf, timeoutTime, timeoutTeam, isTimeoutRunning, timeoutsUsed, recovered, matchEnded, sanctions };
-      lastTick.set(matchId, payload);
-      io.to(publicRoom(matchId)).emit(SERVER_EVENTS.MATCH_TICK, payload);
+      lastTick.set(matchId, payload); // el snapshot de quien se une siempre es el estado exacto
+      if (throttle.every <= 1) {
+        io.to(publicRoom(matchId)).emit(SERVER_EVENTS.MATCH_TICK, payload);
+        return;
+      }
+      // Mesa y árbitros (sala de control): un tick por segundo. Espectadores: según SPECTATOR_TICK_SECONDS, sin repetir a los de control
+      io.to(controlRoom(matchId)).emit(SERVER_EVENTS.MATCH_TICK, payload);
+      if (throttle.shouldEmit(matchId, payload, !!(meta && meta.fromTick))) {
+        io.to(publicRoom(matchId)).except(controlRoom(matchId)).emit(SERVER_EVENTS.MATCH_TICK, payload);
+      }
     },
     // La amarilla o la azul terminó (por tiempo, por sets o porque se cerró el partido): queda anotado
     onSanctionEnd: ({ id }) => {

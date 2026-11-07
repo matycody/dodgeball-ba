@@ -433,7 +433,7 @@ class TimerEngine {
         recovered: this.recovered,
         matchEnded: this.matchEnded,
         sanctions: this.sanctions.map((x) => ({ id: x.id, side: x.side, kind: x.kind, label: x.label, left: x.left, time: formatTime(x.left), setsLeft: x.setsLeft })),
-      });
+      }, { fromTick }); // fromTick: el conteo normal de cada segundo (los demás son cambios de estado)
     }
   }
 }

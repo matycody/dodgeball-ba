@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { socket } from '../sockets/socket'
+import { onMatchTick } from '../lib/tickFeed'
 
 export const useTimerStore = create((set, get) => ({
   matchId: null,
@@ -79,7 +80,7 @@ export const useTimerStore = create((set, get) => ({
   },
 }))
 
-socket.on('match:tick', ({ matchId, matchTime, setTime, isMatchPaused, isSetPaused, matchHalf }) => {
+onMatchTick(({ matchId, matchTime, setTime, isMatchPaused, isSetPaused, matchHalf }) => {
   if (useTimerStore.getState().matchId !== matchId) return
   useTimerStore.setState({ matchTime, setTime, isMatchPaused, isSetPaused, currentHalf: matchHalf })
 })
