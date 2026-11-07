@@ -1,281 +1,117 @@
-# 🏐 Dodgeball BA Cronómetro — Guía de instalación (estado: fin del Sprint 2)
+# 🏐 Dodgeball BA — Cronómetro y gestión de partidos
 
-Cronómetro y gestión de partidos de Dodgeball Buenos Aires: cronómetro de partido y de set sincronizado en tiempo real, roles (visitante, usuario, jugador, árbitro, admin), registro de jugadores con código por mail, auditoría, personalización y PWA.
+Aplicación web (PWA) para seguir y administrar los partidos de **Dodgeball Buenos Aires** en tiempo real: reloj de partido y de set sincronizado para todos, torneos con fixture, tablas y llaves, roles, sanciones, estadísticas y predicciones. Trabajo de la Práctica Profesional Supervisada (PPS 2026) con cliente real.
 
-Esta guía asume una PC **en blanco**: sin Git, sin Node y sin el proyecto. Siguiéndola de arriba abajo queda todo funcionando en local.
+**Producción:** https://dodgeball-ba.vercel.app · API: https://dodgeball-ba.onrender.com
 
-**Producción (ya deployado):** https://dodgeball-ba.vercel.app/ (frontend en Vercel, backend en Render, base en Neon, auth en Supabase).
+## Qué incluye
+- **Cronómetro en vivo:** dos relojes independientes (partido de 2 tiempos de 20 min y set de 3 min), pausa grupal, tiempo muerto, modalidades Foam y Cloth con sus automatismos, reloj flotante (Picture-in-Picture) y modo offline. El reloj llega por Socket.IO segundo a segundo y se recupera si el servidor se reinicia.
+- **Torneos:** ligas, copas y llaves con zonas y playoffs; fixture a mano o por sorteo; tabla con desempates; podio y campeón; dashboard de canchas y "Armar jornada".
+- **Roles:** visitante, usuario, jugador, árbitro/mesa y organización, con menús propios.
+- **Disciplina:** tarjetas en partido, suspensiones, sanciones a jugadores sin partido y quita de puntos a equipos.
+- **Contenido:** equipos y jugadores con banner público, Ranking, Sedes, Noticias, Reglas del juego, Prode (predicciones con puntos, sin dinero) y Mis estadísticas.
+- **Planilla de juego por foto:** lectura con IA (Gemini) y confirmación de la mesa; la foto queda como evidencia.
+- **Calidad y operación:** reporte de problemas con capturas, monitoreo con Sentry, tutoriales dentro de la app y pruebas de carga y E2E.
 
-## Cómo está armado
+## Stack
+| Capa | Tecnología | Servicio | Carpeta |
+|---|---|---|---|
+| Frontend | React + Vite (PWA) | Vercel | `frontend/` |
+| Backend | Node.js, Express, Socket.IO | Render | `backend/` |
+| Base de datos | PostgreSQL + Prisma | Neon | `backend/prisma/` |
+| Autenticación y archivos | Supabase Auth y Storage | Supabase | — |
+| Extras | Sentry (errores), Gemini (planillas) | — | — |
 
-| Parte | Tecnología | Carpeta |
+El frontend habla con el backend por HTTP (REST) y por WebSocket (Socket.IO); Supabase valida las sesiones.
+
+## Documentación
+Todo está en [`docs/`](docs/README.md):
+
+| Documento | Contenido |
+|---|---|
+| [Manual de usuario](docs/manual-usuario.md) | Uso de la app por rol, con capturas |
+| [Documentación técnica](docs/documentacion-tecnica.md) | Arquitectura, variables de entorno, API, Socket.IO, modelo de datos |
+| [Deploy](docs/deploy.md) | Render, Vercel, migraciones, Supabase, Neon |
+| [Sentry](docs/sentry.md) | Monitoreo de errores |
+| [Pruebas](docs/pruebas.md) | Vitest, E2E, carga y estrés |
+| [Bitácora](docs/bitacora/) | Informes por sprint |
+
+## Levantar el proyecto en local
+Hace falta **Git** y **Node.js 24 (LTS)**. El backend corre en el puerto 3001 y el frontend en el 5173, cada uno en su terminal.
+
+1. **Credenciales:** no están en el repo. Pedíselas al equipo por un canal privado: connection string de Neon (directa, sin `-pooler`), URL y claves `anon` y `service_role` de Supabase, y un mail de administrador.
+2. **Clonar:**
+   ```bash
+   git clone https://github.com/matycody/dodgeball-ba.git
+   cd dodgeball-ba
+   ```
+3. **Backend:**
+   ```bash
+   cd backend
+   npm install
+   ```
+   Crear `backend/.env`:
+   ```
+   PORT=3001
+   DATABASE_URL=<connection string de Neon>
+   SUPABASE_URL=<url del proyecto>
+   SUPABASE_ANON_KEY=<clave anon>
+   SUPABASE_SERVICE_ROLE_KEY=<clave service_role>
+   ADMIN_EMAILS=<mail de admin>
+   ```
+   Después:
+   ```bash
+   npx prisma generate
+   npm run dev
+   ```
+   La clave `service_role` es secreta: va solo en el backend. Las variables opcionales (Gemini, Sentry, caché) están en la documentación técnica.
+4. **Frontend** (otra terminal):
+   ```bash
+   cd frontend
+   npm install
+   ```
+   Crear `frontend/.env.local`:
+   ```
+   VITE_BACKEND_URL=http://localhost:3001
+   VITE_SUPABASE_URL=<la misma URL>
+   VITE_SUPABASE_ANON_KEY=<la misma clave anon>
+   ```
+   y `npm run dev` (abre http://localhost:5173). Vite lee las variables solo al arrancar.
+5. **Verificar:** `http://localhost:3001/health` debe responder `{"status":"ok"}` y la consola del navegador debe decir `[socket] conectado`.
+
+> ⚠️ No corras `npx prisma migrate deploy` ni `npm run seed` contra una base compartida o de producción sin backup. Las migraciones se aplican a mano (ver [Deploy](docs/deploy.md)).
+
+## Scripts
+| Carpeta | Comando | Qué hace |
 |---|---|---|
-| Frontend | React + Vite (PWA) | `frontend/` |
-| Backend | Node.js + Express + Socket.IO | `backend/` |
-| Base de datos | PostgreSQL en Neon, con Prisma | `backend/prisma/` |
-| Autenticación | Supabase Auth (+ Storage para fotos y escudos) | — |
-
-Son **dos programas separados**: el backend (puerto 3001) y el frontend (puerto 5173). Hay que tener los dos corriendo, cada uno en su propia terminal.
-
----
-
-## 1️⃣ Programas a instalar
-
-Solo **2**. Todo lo demás (React, Express, Prisma, Supabase, etc.) se instala solo con `npm install`.
-
-### Git
-1. Descargar de https://git-scm.com/downloads e instalar con las opciones por defecto.
-2. En una terminal (cmd, PowerShell o Git Bash):
-```bash
-git --version
-```
-Tiene que mostrar una versión. Si no la reconoce, cerrá y abrí la terminal.
-
-### Node.js 24 (LTS)
-1. Descargar la versión **LTS** de https://nodejs.org (NO la "Current"). Se probó con `v24.x`.
-2. Instalar con las opciones por defecto.
-3. **Cerrar y volver a abrir la terminal** (obligatorio) y verificar:
-```bash
-node --version
-npm --version
-```
-`node --version` tiene que empezar con `v24`.
-
-### ⚠️ Solo Windows con PowerShell
-Si `npm` da el error "la ejecución de scripts está deshabilitada", corré una sola vez:
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-Cerrá la terminal y reintentá. Alternativa: usar cmd o Git Bash.
-
-### Opcionales
-- **Visual Studio Code** (https://code.visualstudio.com) como editor.
-- **Postman**, para probar la API a mano.
-- **Chrome** (recomendado para probar la PWA y el sonido).
-
----
-
-## 2️⃣ Credenciales (pedirlas al equipo)
-
-Por seguridad **no están en el repo** (que es público). Pedírselas a Matías o Rodri por un canal privado (nunca por mail ni por Discord en texto plano):
-
-- **Connection string de Neon** (base de datos compartida del equipo).
-- **Supabase**: URL del proyecto, clave anónima (`anon`) y clave `service_role`.
-- **Un mail de admin**: el que se usa para entrar como administrador (ver paso 6).
-
-Sin esto podés instalar todo, pero el backend no queda funcional.
-
-> La base de Neon y el proyecto de Supabase son **compartidos y ya están configurados** (tablas creadas, administradores cargados, envío de mails con Brevo, buckets de fotos). No hay que crear ni migrar nada.
-
----
-
-## 3️⃣ Clonar el repositorio
-
-```bash
-git clone https://github.com/matycody/dodgeball-ba.git
-cd dodgeball-ba
-git branch
-```
-El último comando tiene que mostrar que estás en `main`.
-
-> Elegí una carpeta que **no** esté sincronizada con OneDrive/Google Drive: `node_modules` genera miles de archivos y la sincronización lo vuelve todo lento.
-
----
-
-## 4️⃣ Backend
-
-Abrí una terminal y quedate siempre en `backend/` para estos pasos.
-
-```bash
-cd backend
-npm install
-```
-Instala Express, Socket.IO, Prisma, el cliente de Supabase, etc.
-
-**Crear el archivo `backend/.env`** (a mano, con tu editor) con este contenido y los valores del paso 2:
-
-```
-PORT=3001
-DATABASE_URL=<connection string de Neon>
-SUPABASE_URL=<url del proyecto de Supabase>
-SUPABASE_ANON_KEY=<clave anon>
-SUPABASE_SERVICE_ROLE_KEY=<clave service_role>
-ADMIN_EMAILS=<mail de admin>
-```
-
-- `ADMIN_EMAILS`: mails de los administradores iniciales, separados por coma.
-- `SUPABASE_SERVICE_ROLE_KEY` es secreta: va **solo** en el backend, nunca en el frontend ni en git.
-- Usá la connection string de Neon **directa** (el host sin `-pooler`) en local.
-
-Generar el cliente de Prisma:
-```bash
-npx prisma generate
-```
-
-> ⚠️ **No corras** `npx prisma migrate deploy` ni `npm run seed` contra la base compartida: ya está migrada y sembrada. Solo si te conectás a una base de Neon **vacía y nueva**: primero `npx prisma migrate deploy` y después `npm run seed` (crea los admins de `ADMIN_EMAILS`).
-> Corré siempre los comandos de Prisma parado en `backend/`, no en la raíz.
-
-Levantar el servidor:
-```bash
-npm run dev
-```
-Tiene que aparecer en la terminal que el servidor escucha en `http://localhost:3001`. **Dejá esta terminal abierta.**
-
-Scripts del backend: `npm run dev` / `npm start` (servidor), `npm run seed` (crea admins), `npm run smoke` (tests automáticos).
-
----
-
-## 5️⃣ Frontend
-
-Abrí una **segunda terminal** (sin cerrar la del backend):
-
-```bash
-cd dodgeball-ba/frontend
-npm install
-```
-
-**Crear el archivo `frontend/.env.local`** (a mano) con:
-
-```
-VITE_BACKEND_URL=http://localhost:3001
-VITE_SUPABASE_URL=<la misma URL de Supabase del paso 4>
-VITE_SUPABASE_ANON_KEY=<la misma clave anon del paso 4>
-```
-
-> Vite lee estas variables **solo al arrancar**: si las cambiás, reiniciá `npm run dev`.
-> Acá va la clave `anon`, **nunca** la `service_role`.
-
-Levantar el frontend:
-```bash
-npm run dev
-```
-Va a mostrar una URL, normalmente **http://localhost:5173**.
-
-Scripts del frontend: `npm run dev` (desarrollo), `npm run build` (compilar), `npm run preview` (probar el build), `npm run lint`.
-
----
-
-## 6️⃣ Verificar que todo funciona
-
-**a) El backend responde.** Abrí http://localhost:3001/health: tiene que devolver algo como `{"status":"ok"}`.
-> `http://localhost:3001` a secas no tiene interfaz (muestra "Cannot GET /"). Es normal: es solo la API.
-
-**b) Test automático completo (recomendado).** Con el backend corriendo, en una tercera terminal:
-```bash
-cd dodgeball-ba/backend
-npm run smoke
-```
-Corre más de 130 chequeos contra el backend real (autenticación, roles, permisos, equipos, partidos, sockets, auditoría). Crea y borra usuarios de prueba con prefijo `SMOKE`; no toca datos reales. Si todos terminan en OK, Node, Prisma, Neon y Supabase están bien conectados.
-
-**c) La app se ve.** Abrí **http://localhost:5173** (no la 3001). En la consola del navegador (F12) tiene que decir `[socket] conectado`.
-
-**d) Entrar como administrador.**
-1. Entrá a http://localhost:5173/login.
-2. Con el mail de admin que te pasó el equipo, ingresá con su contraseña. Si es la primera vez y no tiene contraseña, creá el usuario en el dashboard de Supabase → **Authentication → Users → Add user**, con **"Auto Confirm User" activado**, usando un mail que esté en `ADMIN_EMAILS` (o ya sembrado en la base).
-3. Tiene que aparecer el menú de administración (partidos, equipos, personas, usuarios, ediciones/auditoría).
-
-**e) Registro de jugador con código por mail.**
-1. Cerrá sesión y andá a http://localhost:5173/registro.
-2. Ingresá un mail real al que tengas acceso: llega un **código de verificación**.
-3. Cargá el código y completá el registro. La cuenta queda **pendiente** hasta que la organización la valide contra la planilla de jugadores (desde el panel de administración).
-
-> El envío de mails sale del SMTP de Brevo ya configurado en Supabase (remitente: el Gmail del proyecto). Puede caer en spam/Promociones, y tiene un **límite de mails por hora**: si no llega, esperá unos minutos o revisá la carpeta de spam.
-> Para probar sin depender de mails: crear usuarios en Supabase con "Auto Confirm User".
-
-**f) Cronómetro offline.** Andá a http://localhost:5173/cronometro: es el cronómetro que funciona sin conexión y no requiere login. Si recargás la página con el cronómetro corriendo, **mantiene el tiempo**.
-
----
-
-## 7️⃣ Probar la PWA (app instalable)
-
-El service worker **solo existe en el build**: en `npm run dev` está desactivado. Para probarla en local:
-
-```bash
-cd dodgeball-ba/frontend
-npm run build
-npm run preview
-```
-Abrí la URL que muestra `preview` (normalmente http://localhost:4173) en Chrome: en la barra de direcciones aparece el ícono de **instalar**.
-
-- Instalarla en el **celular** exige HTTPS: usá https://dodgeball-ba.vercel.app/ (menú del navegador → "Instalar app" / "Agregar a pantalla de inicio").
-- No requiere variables de entorno ni paquetes extra (`vite-plugin-pwa` ya viene en `package.json`).
-- La app guarda en el dispositivo: tema, color, sonido silenciado y el estado del cronómetro offline. Para resetear, borrar los datos del sitio desde el navegador.
-
----
-
-## 8️⃣ Funciones principales (qué probar)
-
-- **Roles:** visitante (sin cuenta), usuario registrado, jugador, árbitro, admin/organización. El menú cambia según el rol.
-- **Cronómetro de partido:** dos tiempos de 20 min, cronómetro de set independiente, pausa grupal, tiempo muerto (1 min por equipo y por mitad), modalidades Foam y Cloth, varias canchas.
-- **Sincronización en tiempo real:** abrí el mismo partido en dos pantallas; lo que hace la mesa/árbitro se ve al instante en la otra.
-- **Sonidos:** sirena en eventos, silenciable; en torneo suena solo en mesa/árbitro. La pantalla no se apaga mientras corre el cronómetro.
-- **Personalización (Perfil):** tema claro/oscuro/sistema, color personal y menú configurable (barra inferior, orden del lateral, tarjetas de inicio).
-- **Auditoría (admin → Ediciones):** movimientos de usuarios y ediciones de resultados, con desplegable equipo → jugador.
-- **Aún no incluido (Sprint 3):** formatos flexibles de torneo y estadísticas por jugador.
-
----
-
-## 9️⃣ Deploy (producción)
-
-Se hace desde `main`.
-
-**Backend → Render** (Web Service, carpeta raíz `backend`):
-- Build Command: `npm install && npx prisma generate`
-- Start Command: `npm start`
-- Variables: las mismas del `backend/.env` (con la connection string de Neon **con `-pooler`**) y `NODE_VERSION=24`.
-- El plan gratuito **se duerme por inactividad**: la primera petición puede tardar ~30–60 s.
-
-**Frontend → Vercel** (carpeta raíz `frontend`, preset Vite):
-- Variables: `VITE_BACKEND_URL` (URL pública de Render), `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
-- ⚠️ Plan Hobby: un deploy a Production se **bloquea** si el autor del commit no es el dueño de la cuenta de Vercel. Flujo del equipo: cada uno trabaja en su rama, abre un **Pull Request** hacia `main` y **Matías hace el merge** (así el commit de merge queda a su nombre). Nunca se pushea directo a `main`: todo entra por PR revisado.
-
-Para verificar producción: correr `npm run smoke` con `BASE_URL=<url de Render>` apuntando al backend deployado.
-
----
-
-## 🔟 Probar entre dos personas con ngrok (opcional)
-
-Si uno solo corre el backend y el otro solo el frontend: quien tiene el backend corre
-```bash
-ngrok http 3001 --request-header-add "ngrok-skip-browser-warning: true"
-```
-y quien tiene el frontend pone esa URL de ngrok en `VITE_BACKEND_URL` de su `frontend/.env.local` y reinicia Vite.
-
----
-
-## 1️⃣1️⃣ Problemas comunes
-
+| `backend` | `npm run dev` / `npm start` | Levanta el servidor |
+| `backend` | `npm run seed` | Crea los administradores de `ADMIN_EMAILS` en una base vacía |
+| `backend` | `npm run smoke` | Más de 130 chequeos contra un backend en marcha |
+| `backend` | `npm test` | Tests unitarios (Vitest) |
+| `frontend` | `npm run dev` / `build` / `preview` | Desarrollo, compilación y prueba del build (PWA) |
+| `frontend` | `npm run lint` | ESLint |
+| `frontend` | `npm run test:e2e` | Pruebas E2E con Playwright |
+
+La PWA solo existe en el build: para probarla, `npm run build` y `npm run preview`.
+
+## Deploy
+Producción sale de `main`: Render (backend, carpeta `backend`) y Vercel (frontend, carpeta `frontend`) redeployan con cada push. Las migraciones de la base **no** son automáticas. Cada push reinicia el backend y pausa los relojes en vivo, así que no conviene pushear durante un partido. Detalle en [docs/deploy.md](docs/deploy.md).
+
+## Problemas comunes
 | Problema | Qué hacer |
 |---|---|
 | `node` o `npm` no se reconocen | Cerrá y abrí la terminal; si sigue, reinstalá Node.js |
-| Error de ejecución de scripts en PowerShell | Ver el paso ⚠️ de la sección 1 |
-| `ENOENT ... package.json` | Estás en la carpeta equivocada: `npm install`/`npm run ...` siempre dentro de `backend/` o `frontend/`, nunca en la raíz |
-| `Port 3001 is already in use` | Hay otro proceso en ese puerto: cerralo, o cambiá `PORT` en `backend/.env` (y `VITE_BACKEND_URL`) |
-| El backend no arranca / error de base de datos | Revisá `DATABASE_URL` en `backend/.env` y que hayas corrido `npx prisma generate` |
-| Prisma dice que una migración fue modificada | Solo en una base de prueba propia: `npx prisma migrate reset` y luego `npm run seed` |
-| `Missing SUPABASE...` o error al loguear | Revisá las claves de Supabase en ambos `.env`; reiniciá backend y frontend |
-| El frontend no conecta con el backend | Verificá que el backend siga corriendo, revisá `VITE_BACKEND_URL` y reiniciá `npm run dev` del frontend |
-| Cambié `frontend/.env.local` y no pasa nada | Vite lee las variables solo al arrancar: reiniciá `npm run dev` |
-| No llega el mail con el código | Mirá spam/Promociones; hay límite de mails por hora; o creá el usuario en Supabase con "Auto Confirm User" |
-| El registro no confirma el mail | Crear el usuario en Supabase con "Auto Confirm User" en vez de registrarte desde la app |
-| La PWA no se instala | Probar con `npm run build` + `npm run preview`, o desde la URL https de Vercel; en `npm run dev` está desactivada |
-| El sonido no suena | El navegador exige un toque/click previo en la página; revisá que no esté silenciado en la app |
-| La primera carga de producción tarda | Render/Neon gratuitos se duermen por inactividad: esperá ~1 min y recargá |
+| Error de scripts en PowerShell | `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` o usá cmd/Git Bash |
+| `ENOENT ... package.json` | Corré los comandos dentro de `backend/` o `frontend/`, no en la raíz |
+| `Port 3001 is already in use` | Cerrá el otro proceso o cambiá `PORT` y `VITE_BACKEND_URL` |
+| El backend no arranca | Revisá `DATABASE_URL` y que hayas corrido `npx prisma generate` |
+| Error al loguear o `Missing SUPABASE...` | Revisá las claves de Supabase en ambos archivos y reiniciá |
+| El frontend no conecta con el backend | Verificá que el backend corra y `VITE_BACKEND_URL`; reiniciá Vite |
+| La primera carga de producción tarda | Render gratuito se duerme: esperá ~1 min y recargá |
+| No llega el mail con el código | Mirá spam; hay límite por hora; o creá el usuario en Supabase con "Auto Confirm User" |
 | `npm install` tarda muchísimo | La carpeta está en OneDrive/Drive: cloná el repo en otra ubicación |
 
----
-
-## ✅ Checklist final
-
-- [ ] `git --version` funciona y `node --version` empieza con `v24`
-- [ ] Repo clonado, estás en `main`
-- [ ] `backend/.env` completo (6 variables)
-- [ ] `frontend/.env.local` completo (3 variables)
-- [ ] `npx prisma generate` corrido sin errores
-- [ ] Backend corriendo: `http://localhost:3001/health` responde OK
-- [ ] `npm run smoke` pasa todos los chequeos
-- [ ] Frontend corriendo: la app se ve en `http://localhost:5173` y la consola dice `[socket] conectado`
-- [ ] Login como admin probado y se ve el menú de administración
-- [ ] Registro de jugador con código por mail probado (o usuario creado con Auto Confirm)
-- [ ] `/cronometro` funciona y mantiene el tiempo al recargar
-- [ ] (Opcional) PWA probada con `npm run build` + `npm run preview`
+## Equipo
+- Matías Luis Sosa — Backend
+- Rodrigo Ezequiel Olivera Calvo — Frontend
+- Product Owner: la cátedra

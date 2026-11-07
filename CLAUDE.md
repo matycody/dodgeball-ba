@@ -1,94 +1,44 @@
-# Dodgeball BA (repo dodgeball-ba; TP de la PPS 2026) — Cronómetro y gestión de partidos de Dodgeball
+# Dodgeball BA — contexto para Claude Code
 
-Contexto del proyecto para Claude Code. Este proyecto es el TP de Práctica Profesional Supervisada (PPS), curso de ingeniería de software basado en Scrum, con cliente real (Dodgeball Buenos Aires).
+TP de la Práctica Profesional Supervisada (PPS 2026, Scrum, cliente real: Dodgeball Buenos Aires). Cronómetro y gestión de partidos de dodgeball en tiempo real. Documentación completa en `docs/` (empezar por `docs/README.md`).
 
 ## Equipo
-- Matías Luis Sosa — Backend
-- Rodrigo Ezequiel Olivera Calvo — Frontend
-- Juan Ignacio Marcos Merlo
-- Scrum Master rota por sprint (Matías → S1, Rodrigo → S2, Juan Ignacio → S3)
-- Product Owner: el profesor de la cátedra
+- Matías Luis Sosa (Backend) y Rodrigo Ezequiel Olivera Calvo (Frontend). Product Owner: la cátedra.
+- Responder en español, directo y sin relleno.
 
-## Qué es el proyecto
-Sistema de cronómetro y gestión de partidos de dodgeball, con dos timers simultáneos e independientes:
-- **Timer de partido**: 20 minutos
-- **Timer de set**: 3 minutos
+## Stack (fijo)
+- Frontend: React + Vite (PWA) en Vercel (`frontend/`).
+- Backend: Node.js, Express, Socket.IO en Render (`backend/`).
+- Base de datos: PostgreSQL + Prisma en Neon (`backend/prisma/`).
+- Auth y archivos: Supabase (Auth nunca a mano). Extras: Sentry (errores) y Gemini (lectura de planillas).
+- Producción: https://dodgeball-ba.vercel.app y https://dodgeball-ba.onrender.com.
 
-Dos modalidades de juego:
-- **Foam**: al expirar el set, pasa a "muerte súbita"
-- **Cloth**: al expirar el set, se suman 2 puntos al equipo con más jugadores en cancha y el set se reinicia
+## Reglas del dominio
+- Dos relojes independientes: partido (2 tiempos de 20 min) y set (3 min). El reloj llega por Socket.IO segundo a segundo; no reducir los ticks ni contar el tiempo en el cliente.
+- Foam: al vencer el set, muerte súbita. Cloth: al vencer el set, se suman 2 puntos al equipo con más jugadores en cancha y el set se reinicia.
+- FINALIZADO solo lo pone la mesa o el árbitro, no el 00:00.
+- Contrato de sockets con prefijo `match:` (ver `docs/documentacion-tecnica.md`).
+- Roles: visitante, usuario, jugador, árbitro/mesa y organización (ADMIN). Mesa única por partido.
+- La etapa de promoción (ascenso/permanencia) no define campeón ni podio.
 
-Roles del sistema (Sprint 2 en adelante): organización, árbitro, mesa, jugador.
+## Trabajo en git
+- Se sube directo a `main` (acuerdo del equipo desde el 04/11). Cada push redeploya Render y Vercel y reinicia el backend, que pausa los relojes en vivo: no pushear durante un partido.
+- Commitear y pushear solo cuando Matías lo pida ("commit"). Los commits terminan con las líneas de atribución de la sesión.
 
-## Stack (fijo para todo el curso, no negociable)
-- **Frontend**: React + Vite → deploy en Vercel
-- **Backend**: Node.js + Express + Socket.IO → deploy en Render
-- **Base de datos**: PostgreSQL + Prisma → hosting en Neon
-- **Auth**: Supabase Auth (nunca implementado a mano)
+## Base de datos y migraciones
+- Render solo corre `npm install`: las migraciones se aplican a mano (`npx prisma migrate deploy` y `npx prisma generate`) con la URL directa de Neon (sin `-pooler`), siempre con backup previo. Avisar antes de tocar producción.
+- Nunca correr scripts de escritura masiva (`seed`, `copiar-bd`, `cargar-torneos`) contra producción sin backup y confirmación.
 
-## Estructura del repo (monorepo)
-```
-/backend   → Node/Express/Socket.IO
-/frontend  → React/Vite
-```
+## Seguridad
+- No poner credenciales, claves ni DSN en el repo, en la documentación ni en chats. Solo nombres de variables.
+- `SUPABASE_SERVICE_ROLE_KEY` va solo en el backend; el frontend usa la clave `anon`.
 
-## Flujo de git (obligatorio)
-- `main`: protegida, requiere PR + 1 aprobación. Nunca commitear directo acá.
-- `develop`: rama de integración.
-- `feature/<nombre>`: una por tarea, sale de `develop`, vuelve a `develop` vía PR.
-- Ramas activas: `feature/backend-timer-engine` (Matías), `feature/frontend-setup` (Rodri).
+## Definition of Done
+Una historia está terminada cuando: funciona en local y cumple el criterio de aceptación; no rompe lo existente ni deja errores de consola; tiene datos de prueba realistas; está probada manualmente; está deployada y accesible; Confluence queda al día si cambia la arquitectura o el alcance; y recién entonces el issue de Jira pasa a "Listo".
 
-## Plan de sprints
-- **Sprint 1** (actual): motor de timers únicamente. Sin roles, sin estadísticas.
-- **Sprint 2**: roles, autenticación (Supabase), sincronización en tiempo real.
-- **Sprint 3**: estadísticas (quemadas/catches), pestaña "Cronograma", tests.
+## Gestión
+- Jira: proyecto `PC` en proyectopps2026.atlassian.net. Confluence: espacio `DDS`.
+- Comunicación: Discord; sesiones de trabajo viernes y sábados de 18:00 a 22:00.
 
-## Backlog de Sprint 1 (con estimación consensuada en Planning Poker)
-| # | Historia | Puntos |
-|---|----------|--------|
-| 1 | Selección de modalidad (Foam/Cloth) | 1 |
-| 2 | Timer de partido individual (start/pausa/reset) | 5 |
-| 3 | Timer de set individual (start/pausa/reset) | 3 |
-| 4 | Pausa grupal (detiene ambos timers al mismo instante) | 8 |
-| 5 | Automatismo Foam (muerte súbita) | 5 |
-| 6 | Automatismo Cloth (+2 pts y reinicio de set) | 8 |
-
-**Total: 30 puntos.** El timer de set (historia 3) debe construirse reutilizando la lógica del timer de partido (historia 2) como componente base — no desde cero.
-
-## Modelo de datos
-Entidades: `Usuario`, `Equipo`, `Jugador`, `Partido`, `SetPartido`, `Evento`.
-- Un Equipo tiene muchos Jugadores.
-- Un Partido referencia dos Equipos (local y visitante).
-- Un Partido tiene muchos SetPartido y muchos Eventos.
-- Un Jugador tiene muchos Eventos (para estadísticas).
-- Usuario es independiente: tiene un rol pero no está necesariamente ligado a un Jugador.
-
-Diagrama completo en `/docs/modelo-datos.drawio` (si se copió al repo).
-
-## Arquitectura
-- Frontend habla con Backend por **HTTP (REST)** para operaciones CRUD y por **WebSocket (Socket.IO)** para el estado del cronómetro en tiempo real.
-- Backend habla con la base de datos vía **Prisma ORM**.
-- Supabase Auth valida tokens en el Backend (a partir de Sprint 2).
-
-Diagrama completo en `/docs/arquitectura.drawio` (si se copió al repo).
-
-## Pendiente / a definir antes de programar en paralelo
-- **Payloads de eventos Socket.IO nuevos del Sprint 3**: el contrato base (prefijo `match:`) está cerrado y documentado en el Manual de Backend; falta documentar los payloads de los eventos agregados en el Sprint 3.
-- Figma: se usó solo al inicio; el diseño posterior se hizo con Claude. Ya no hace falta cuenta de equipo.
-- Confirmar que Juan Ignacio validó la estimación de Sprint 1 (Planning Poker se hizo con Matías + Rodri).
-
-## Definition of Done del equipo
-Una historia se considera terminada cuando:
-- El código funciona en local y cumple el criterio de aceptación.
-- Pasó por PR revisado por al menos otro integrante (nunca merge directo a main).
-- No rompe funcionalidad existente ni deja errores de consola.
-- Tiene datos de prueba realistas cargados (nunca placeholders).
-- Está probada manualmente contra su criterio de aceptación.
-- Está deployada y accesible públicamente (desde Sprint 2).
-- Confluence está actualizado si hay cambios de arquitectura o alcance.
-- El issue de Jira se movió a "Listo" recién al cumplir todo lo anterior.
-
-## Gestión del proyecto
-- Jira: proyecto `PC` ("PPS cronómetro") en proyectopps2026.atlassian.net
-- Confluence: espacio `DDS` ("Desarrollo de software")
-- Comunicación de equipo: Discord, sesiones de trabajo viernes y sábados 18:00–22:00
+## Pendiente (Sprint final)
+Estadísticas de quemadas y catches, alinear automatismos con el reglamento WDBF 2026, limpiar usuarios demo de producción, pruebas de estrés largas, filtros de build en Render, proteger `main` y dominio propio. Ver `docs/bitacora/`.
