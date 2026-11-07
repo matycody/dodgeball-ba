@@ -140,6 +140,7 @@ async function cleanup() {
   await prisma.user.deleteMany({ where: { id: { in: userIds } } });
   await prisma.playerTeam.deleteMany({ where: { OR: [{ profileId: { in: profileIds } }, { teamId: { in: teamIds } }] } });
   await prisma.teamBranch.deleteMany({ where: { teamId: { in: teamIds } } });
+  await prisma.teamModality.deleteMany({ where: { teamId: { in: teamIds } } });
   await prisma.team.deleteMany({ where: { id: { in: teamIds } } });
   await prisma.profile.deleteMany({ where: { id: { in: profileIds } } });
 
