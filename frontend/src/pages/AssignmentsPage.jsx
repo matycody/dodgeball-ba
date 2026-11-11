@@ -121,10 +121,10 @@ function AssignmentList({ items, fn, history }) {
 
           {sections.map((s) => (
             <section key={s.id} className="space-y-4">
-              <h2 className="border-b border-line pb-1 text-sm font-extrabold">{s.name} <span className="font-normal text-muted">· {s.list.length} {s.list.length === 1 ? 'partido' : 'partidos'}</span></h2>
+              <h2 className="inline-flex max-w-full items-center gap-1 rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-extrabold">{s.name} <span className="font-normal text-muted">· {s.list.length} {s.list.length === 1 ? 'partido' : 'partidos'}</span></h2>
               {s.days.map((g) => (
                 <div key={g.day} className="space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted">{dayTitle(g.day, history)} · {g.list.length}</h3>
+                  <h3 className="inline-flex max-w-full items-center rounded-full border border-line bg-surface px-3.5 py-1.5 text-xs font-bold uppercase tracking-widest text-muted">{dayTitle(g.day, history)} · {g.list.length}</h3>
                   {g.list.map((m) => <Card key={m.id} m={m} />)}
                 </div>
               ))}
