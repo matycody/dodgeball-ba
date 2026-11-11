@@ -71,7 +71,7 @@ export default function PlanillasPage() {
   const clear = () => { setQ(''); setSt(''); setTn(''); setFrom(''); setTo('') }
 
   return (
-    <div className="space-y-4">
+    <div className="m-cascade space-y-4">
       <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Planillas de juego</h1>
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
       <div className="space-y-3 rounded-3xl border border-line bg-surface p-3">

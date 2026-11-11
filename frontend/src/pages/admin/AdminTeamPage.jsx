@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ChevronLeft, X, Search } from 'lucide-react'
 import BackLink from '../../components/BackLink'
@@ -86,7 +86,7 @@ export default function AdminTeamPage() {
   if (!team) return <p className="mt-10 text-center text-muted">{err || 'Cargando…'}</p>
 
   return (
-    <div className="space-y-4">
+    <div className="m-stagger space-y-4">
       <BackLink to="/admin/equipos" className="inline-flex items-center gap-1 text-sm font-semibold text-muted">
         <ChevronLeft size={16} /> Equipos
       </BackLink>

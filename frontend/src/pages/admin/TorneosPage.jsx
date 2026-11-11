@@ -138,7 +138,7 @@ export default function TorneosPage() {
         ))}
       </div>
 
-      <form onSubmit={save} className={(view === 'deleted' ? 'hidden ' : '') + 'space-y-3 rounded-3xl border border-line bg-surface p-5'}>
+      <form onSubmit={save} className={(view === 'deleted' ? 'hidden ' : 'm-page ') + 'space-y-3 rounded-3xl border border-line bg-surface p-5'}>
         <p className="text-sm font-bold">{editId ? 'Editar torneo' : 'Nuevo torneo'}</p>
         {editId && !editDraft && <p className="text-xs text-muted">El torneo ya está en curso: el formato no se puede cambiar.</p>}
         <input className={inputCls} placeholder="Nombre" required value={form.name} onChange={(e) => set('name', e.target.value)} />
@@ -216,7 +216,7 @@ export default function TorneosPage() {
       {list === null && <Skeleton />}
       {list?.length === 0 && <p className="text-muted">{view === 'deleted' ? 'No hay torneos eliminados.' : 'No hay torneos.'}</p>}
       {view === 'deleted' && list?.length > 0 && <p className="text-xs">Los torneos eliminados no los ve nadie. Restauralos para que vuelvan, o borralos definitivamente.</p>}
-      <div className="space-y-2">
+      <div className="m-cascade space-y-2">
         {view === 'deleted' && (list ?? []).map((t) => (
           <div key={t.id} className="space-y-3 rounded-2xl border border-line bg-surface p-4">
             <div className="min-w-0">

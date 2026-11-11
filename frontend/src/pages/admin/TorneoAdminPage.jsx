@@ -43,7 +43,7 @@ function TeamsTab({ t, reload, setErr }) {
   const toggleAll = () => setSel((s) => { const n = new Set(s); shown.forEach((x) => (allShown ? n.delete(x.id) : n.add(x.id))); return n })
 
   return (
-    <div className="space-y-3">
+    <div className="m-cascade space-y-3">
       <p className="text-sm text-muted">
         Equipos habilitados para {BRANCH[t.branch]} · {MODALITY[t.modality]}. {draft ? 'Elegí los que participan.' : 'Solo se editan en borrador o con el torneo pausado.'}
       </p>
@@ -179,7 +179,7 @@ function StructureTab({ t, reload, setErr }) {
   )
 
   return (
-    <div className="space-y-4">
+    <div className="m-cascade space-y-4">
       <p className="text-sm text-muted">
         Zonas de liga (con ascensos y descensos) y llaves de eliminación. {draft ? '' : 'La estructura solo se edita en borrador o con el torneo pausado.'}
       </p>
@@ -289,7 +289,7 @@ function FixtureTab({ t, setErr }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="m-cascade space-y-4">
       {leagues.length === 0 && <p className="text-muted">No hay zonas de liga. Definilas en Estructura.</p>}
       {leagues.length > 0 && days !== null && (
         <div className="space-y-3 rounded-3xl border border-line bg-surface p-4">
@@ -497,7 +497,7 @@ function BracketsSection({ t, setErr, reload }) {
 
   if (!knockouts.length) return null
   return (
-    <div className="space-y-6">
+    <div className="m-cascade space-y-6">
       <p className="text-xs text-muted">Llaves de eliminación: acá se arman los cruces. Los resultados se cargan desde Fixture y se ven en Playoffs.</p>
       {knockouts.map((s) => (
         <div key={s.id} className="space-y-3 rounded-3xl border border-line bg-surface p-3">
@@ -549,7 +549,7 @@ function BracketTab({ t, goStructure }) {
   const knockouts = t.stages.filter((s) => s.type === 'KNOCKOUT')
   if (!knockouts.length) return <p className="text-muted">Este torneo no tiene llaves. Se agregan en Estructura.</p>
   return (
-    <div className="space-y-6">
+    <div className="m-cascade space-y-6">
       {knockouts.map((s) => (
         <div key={s.id} className="rounded-3xl border border-line bg-surface p-3 space-y-3">
           <p className="text-xs font-bold uppercase tracking-widest text-muted">{s.name}</p>
@@ -656,7 +656,7 @@ function SummaryTab({ t, reload, setErr, setMsg }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="m-cascade space-y-4">
       <div className="space-y-1 rounded-3xl border border-line bg-surface p-4 text-sm">
         <p><span className="text-muted">Formato:</span> {formatName(t)}</p>
         <p><span className="text-muted">Rama / modalidad:</span> {BRANCH[t.branch]} · {MODALITY[t.modality]}</p>
@@ -745,6 +745,7 @@ export default function TorneoAdminPage() {
 
   return (
     <div className="space-y-4">
+      <div className="m-cascade space-y-4">
       <BackLink to="/admin/torneos" className="flex items-center gap-1 text-sm text-muted"><ArrowLeft size={16} /> Torneos</BackLink>
       <div>
         <h1 className="text-xl font-extrabold">{t.name}{t.edition ? ' · ' + t.edition : ''}</h1>
@@ -762,10 +763,12 @@ export default function TorneoAdminPage() {
           <button key={k} onClick={() => setTab(k)} className={'shrink-0 rounded-full px-4 py-2 text-sm font-bold ' + (tab === k ? 'bg-accent text-black' : 'border border-line bg-surface')}>{label}</button>
         ))}
       </div>
+      </div>
+      <div key={tab} className="space-y-4">
       {tab === 'resumen' && <SummaryTab t={t} reload={load} setErr={setErr} setMsg={setMsg} />}
       {tab === 'equipos' && <TeamsTab t={t} reload={load} setErr={setErr} />}
       {tab === 'estructura' && (
-        <div className="space-y-6">
+        <div className="m-stagger space-y-6">
           <StructureTab key={t.stages.map((s) => s.id).join()} t={t} reload={load} setErr={setErr} />
           <BracketsSection t={t} setErr={setErr} reload={load} />
         </div>
@@ -774,7 +777,7 @@ export default function TorneoAdminPage() {
       {tab === 'llave' && <BracketTab t={t} goStructure={() => setTab('estructura')} />}
       {tab === 'tabla' && <StandingsView branch={t.branch} tournamentId={t.id} finished={t.status === 'FINISHED'} />}
       {tab === 'sanciones' && (
-        <div className="space-y-6">
+        <div className="m-stagger space-y-6">
           <PenaltiesPanel t={t} setErr={setErr} />
           <section className="space-y-3">
             <div>
@@ -786,6 +789,7 @@ export default function TorneoAdminPage() {
           </section>
         </div>
       )}
+      </div>
     </div>
   )
 }

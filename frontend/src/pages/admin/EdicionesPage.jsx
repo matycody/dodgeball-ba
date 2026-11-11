@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../../lib/api'
 import MatchPicker from '../../components/admin/MatchPicker'
 import MovimientosPanel from './MovimientosPanel'
@@ -54,7 +54,7 @@ export default function EdicionesPage() {
       <MatchPicker matches={matches} value={sel} onChange={setSel} />
 
       {log?.length === 0 && <p className="text-muted">Sin actividad registrada en este partido.</p>}
-      <div className="space-y-2">
+      <div className="m-cascade space-y-2">
         {(log ?? []).map((l, i) => (
           <div key={i} className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 text-sm">
             <span className={'mt-1.5 h-2 w-2 shrink-0 rounded-full ' + (DOT[l.type] ?? 'bg-muted')} />

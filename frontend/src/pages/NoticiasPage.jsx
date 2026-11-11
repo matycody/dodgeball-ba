@@ -117,7 +117,7 @@ export function NoticiaDetalle() {
   if (n === false) return <div className="space-y-3"><Link to="/noticias" className="text-sm text-accent">← Noticias</Link><p className="text-danger">{err || 'No se encontró la noticia.'}</p></div>
   if (edit) return <Editor initial={n} teams={teams} onCancel={() => setEdit(false)} onSaved={(row) => { setN(row); setEdit(false) }} />
   return (
-    <article className="space-y-4">
+    <article className="m-stagger space-y-4">
       <Link to="/noticias" className="inline-flex items-center gap-1 text-sm font-bold text-accent"><ChevronLeft size={16} /> Noticias</Link>
       {n.imageUrl && <img src={n.imageUrl} alt="" className="max-h-72 w-full rounded-2xl object-cover" />}
       <h1 className="text-2xl font-extrabold leading-tight">{n.title}</h1>
@@ -127,7 +127,7 @@ export function NoticiaDetalle() {
         <span>· {new Date(n.publishedAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
       </p>
       {n.summary && <p className="text-base font-semibold text-muted">{n.summary}</p>}
-      <div className="space-y-3 text-[15px] leading-relaxed">
+      <div className="m-cascade space-y-3 text-[15px] leading-relaxed">
         {n.body.split(/\n{2,}/).map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}
       </div>
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
@@ -181,7 +181,7 @@ export default function NoticiasPage() {
         {admin && !writing && <button onClick={() => setWriting(true)} className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-extrabold uppercase text-black"><Plus size={14} /> Nueva</button>}
       </div>
       {writing && <Editor teams={teams} onCancel={() => setWriting(false)} onSaved={() => { setWriting(false); setTab('all'); load() }} />}
-      <div className="flex gap-2">
+      <div className="m-cascade flex gap-2">
         {[['all', 'Todas'], ['mine', 'Mi equipo']].map(([v, l]) => (
           <button key={v} onClick={() => setTab(v)} className={'rounded-full border px-4 py-1.5 text-xs font-bold ' + (tab === v ? 'border-accent bg-accent text-black' : 'border-line bg-surface')}>{l}</button>
         ))}
@@ -193,7 +193,7 @@ export default function NoticiasPage() {
           {tab === 'mine' ? (teamIds ? 'Todavía no hay noticias de tus equipos.' : 'Seguí un equipo (desde su página) y acá vas a ver sus noticias.') : 'Todavía no hay noticias.'}
         </p>
       )}
-      <div className="space-y-3">{(list ?? []).map((n) => <NewsCard key={n.id} n={n} />)}</div>
+      <div className="m-cascade space-y-3">{(list ?? []).map((n) => <NewsCard key={n.id} n={n} />)}</div>
       {list && more && list.length > 0 && <button onClick={loadMore} className="w-full rounded-xl border border-line py-2.5 text-xs font-extrabold uppercase tracking-wide text-accent">Ver más</button>}
     </div>
   )

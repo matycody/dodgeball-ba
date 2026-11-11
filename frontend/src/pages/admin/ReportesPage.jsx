@@ -112,7 +112,7 @@ export default function ReportesPage() {
 
       {!data && !err && <p className="text-muted">Cargando…</p>}
       {data?.items.length === 0 && <p className="text-muted">No hay reportes con este filtro.</p>}
-      <div className="space-y-3">
+      <div className="m-cascade space-y-3">
         {(data?.items ?? []).map((r) => <Report key={r.id} r={r} onChange={load} onError={setErr} />)}
       </div>
     </div>

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Search } from 'lucide-react'
 import { api } from '../../lib/api'
 import { Btn, Alert, inputCls, Skeleton } from '../../components/ui'
@@ -101,7 +101,7 @@ export default function PersonasPage() {
 
       {list === null && <Skeleton />}
       {list?.length === 0 && <p className="text-muted">No hay personas.</p>}
-      <div className="space-y-2">
+      <div className="m-cascade space-y-2">
         {(list ?? []).map((p) => (
           <div key={p.id} className="space-y-2 rounded-2xl border border-line bg-surface p-4">
             <div className="flex items-start justify-between gap-2">
