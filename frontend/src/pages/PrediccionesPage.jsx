@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { X } from 'lucide-react'
+import { useAuthStore } from '../stores/authStore'
 import { api } from '../lib/api'
 import { dayOf, dayTab } from '../lib/days'
 import { Skeleton } from '../components/ui'
@@ -100,6 +102,16 @@ export default function PrediccionesPage() {
   const [err, setErr] = useState('')
   const [tId, setTId] = useState(null) // torneo elegido en la pestaña Torneos
   const [mineView, setMineView] = useState('abiertas')
+  // Avisos de predicción anulada que la persona ya cerró (por usuario, en este dispositivo). La predicción sigue figurando como "Anulada" en Mis predicciones
+  const uid = useAuthStore((s) => s.user?.id)
+  const dismissKey = 'pred-void-dismissed:' + uid
+  const [dismissed, setDismissed] = useState(() => new Set())
+  useEffect(() => { try { setDismissed(new Set(JSON.parse(localStorage.getItem(dismissKey) || '[]'))) } catch { setDismissed(new Set()) } }, [dismissKey])
+  const dismissVoid = (id) => setDismissed((prev) => {
+    const next = new Set(prev).add(id)
+    try { localStorage.setItem(dismissKey, JSON.stringify([...next])) } catch { /* sin storage */ }
+    return next
+  })
   const [rankScope, setRankScope] = useState('general') // 'general' o id de torneo
   const [rank, setRank] = useState({})
   const [tRank, setTRank] = useState(null)
@@ -180,8 +192,11 @@ export default function PrediccionesPage() {
       </div>
       {err && <p className="text-sm text-danger">{err}</p>}
 
-      {(me?.predictions ?? []).filter((p) => p.voidReason).map((p) => (
-        <div key={p.matchId} className="rounded-2xl border box-warn px-4 py-3 text-sm">
+      {(me?.predictions ?? []).filter((p) => p.voidReason && !dismissed.has(p.matchId)).map((p) => (
+        <div key={p.matchId} className="relative rounded-2xl border box-warn py-3 pl-4 pr-11 text-sm">
+          <button type="button" aria-label="Quitar aviso" onClick={() => dismissVoid(p.matchId)} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full text-warn active:bg-warn/15">
+            <X size={18} />
+          </button>
           <p className="font-bold text-warn">Tu predicción no es válida</p>
           <p className="mt-0.5 text-xs">{p.match.teamA?.name} vs {p.match.teamB?.name}: {p.voidReason}</p>
         </div>
