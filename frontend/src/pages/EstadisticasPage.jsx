@@ -77,7 +77,7 @@ function TeamStats({ teamId, filter }) {
   const pct = r.played ? Math.round((r.won / r.played) * 100) : 0
   const w = (n) => (r.played ? (n / r.played) * 100 : 0) + '%'
   return (
-    <div className="space-y-3">
+    <div className="m-stagger space-y-3">
       <Link to={'/equipo/' + d.team.id} className="flex items-center gap-3 rounded-3xl border border-line bg-surface p-4">
         <TeamBadge team={d.team} size="lg" />
         <div className="min-w-0 flex-1">
@@ -94,7 +94,7 @@ function TeamStats({ teamId, filter }) {
         <div className="flex items-center gap-4">
           <Ring pct={pct} />
           <div className="min-w-0 flex-1">
-            <div className="flex h-2.5 overflow-hidden rounded-full bg-surface-2">
+            <div className="m-grow flex h-2.5 overflow-hidden rounded-full bg-surface-2">
               <div className="bg-accent" style={{ width: w(r.won) }} />
               <div className="bg-warn" style={{ width: w(r.drawn) }} />
               <div className="bg-danger" style={{ width: w(r.lost) }} />
@@ -107,7 +107,7 @@ function TeamStats({ teamId, filter }) {
 
       {(d.form ?? []).length > 0 && (
         <Card title="Forma reciente">
-          <div className="flex gap-1.5">
+          <div className="m-cascade flex gap-1.5">
             {d.form.map((f, i) => <span key={i} className={'grid h-7 w-7 place-items-center rounded-lg text-xs font-extrabold ' + FORM[f][1]}>{FORM[f][0]}</span>)}
           </div>
         </Card>
@@ -115,7 +115,7 @@ function TeamStats({ teamId, filter }) {
 
       {(d.career ?? []).length > 0 && (
         <Card title="Recorrido por torneo">
-          <div className="space-y-1.5">
+          <div className="m-cascade space-y-1.5">
             {d.career.map((c) => {
               const Icon = RESULT_ICON[c.result?.kind] ?? Flag
               return (
@@ -166,7 +166,7 @@ function HeadToHead({ teams, filter }) {
             <div><p className="text-3xl font-extrabold">{d.winsB}</p><p className="truncate text-[11px] uppercase text-muted">{d.teamB.name}</p></div>
           </div>
           {tot > 0 && (
-            <div className="flex h-2 overflow-hidden rounded-full bg-surface-2">
+            <div className="m-grow flex h-2 overflow-hidden rounded-full bg-surface-2">
               <div className="bg-accent" style={{ width: w(d.winsA) }} />
               <div className="bg-muted/50" style={{ width: w(d.draws) }} />
               <div className="bg-live" style={{ width: w(d.winsB) }} />
@@ -190,7 +190,7 @@ function Resumen({ champ, rec, teamsCount }) {
   const t = rec?.totals
   const r = rec?.records
   return (
-    <div className="space-y-3">
+    <div className="m-stagger space-y-3">
       {last && (
         <Link to={'/liga/' + last.id} className="flex items-center gap-3 rounded-3xl border border-accent bg-surface p-4">
           <TeamBadge team={last.champion} size="lg" />
@@ -203,7 +203,7 @@ function Resumen({ champ, rec, teamsCount }) {
         </Link>
       )}
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="m-cascade grid grid-cols-2 gap-2">
         <Metric value={t?.matches} label="Partidos jugados" />
         <Metric value={t?.sets} label="Sets disputados" />
         <Metric value={t?.tournaments ?? (champ ? champ.tournaments.length : undefined)} label="Torneos cerrados" />
@@ -214,14 +214,14 @@ function Resumen({ champ, rec, teamsCount }) {
         {rec === null && <p className="text-muted">Cargando…</p>}
         {rec === false && <p className="text-sm text-danger">No se pudo cargar.</p>}
         {rec && rec.ranking.length === 0 && <p className="text-sm text-muted">Todavía no hay partidos terminados con estos filtros.</p>}
-        <div className="space-y-1">
+        <div className="m-cascade space-y-1">
           {(rec?.ranking ?? []).slice(0, 5).map((x, i) => (
             <Link key={x.team.id} to={'/equipo/' + x.team.id} className="flex items-center gap-3 rounded-2xl px-1 py-2">
               <span className="w-4 text-center text-sm font-extrabold text-muted">{i + 1}</span>
               <TeamBadge team={x.team} size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold">{x.team.name}</p>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-2"><div className="h-full bg-accent" style={{ width: x.pct + '%' }} /></div>
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-2"><div className="m-grow h-full bg-accent" style={{ '--d': 350 + i * 90 + 'ms', width: x.pct + '%' }} /></div>
               </div>
               <div className="shrink-0 text-right">
                 <p className="flex items-center justify-end gap-1 text-sm font-extrabold"><Trophy size={13} className="text-accent" /> {x.titles}</p>
@@ -234,7 +234,7 @@ function Resumen({ champ, rec, teamsCount }) {
 
       {r && (r.streak || r.blowout || r.unbeaten || r.longest) && (
         <Card title="Récords">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="m-cascade grid grid-cols-2 gap-2">
             {r.streak && <Record Icon={Flame} value={r.streak.n + (r.streak.n === 1 ? ' victoria' : ' seguidas')} label={'Mayor racha · ' + r.streak.team.name} />}
             {r.blowout && <Record Icon={Zap} value={r.blowout.score[0] + ' a ' + r.blowout.score[1]} label={'Mayor paliza en sets · ' + r.blowout.winner.name} />}
             {r.unbeaten && <Record Icon={ShieldCheck} value="Invicto" label={r.unbeaten.team.name + ' · ' + r.unbeaten.played + ' partidos'} />}
@@ -245,7 +245,7 @@ function Resumen({ champ, rec, teamsCount }) {
 
       {champ?.tournaments?.length > 0 && (
         <Card title="Campeones por torneo" action={<span className="text-xs text-muted">{champ.tournaments.length}</span>}>
-          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+          <div className="m-cascade -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
             {champ.tournaments.slice(0, 8).map((x) => (
               <Link key={x.id} to={'/liga/' + x.id} className="w-36 shrink-0 rounded-2xl bg-surface-2 p-3">
                 <p className="truncate text-xs text-muted">{x.year} · {MODALITY[x.modality] ?? x.modality}</p>
@@ -264,7 +264,7 @@ function Resumen({ champ, rec, teamsCount }) {
 function TablaEquipos({ rec }) {
   const rows = rec?.ranking ?? []
   return (
-    <div className="space-y-3">
+    <div className="m-stagger space-y-3">
       <Card title="Tabla de equipos">
         {rec === null && <p className="text-muted">Cargando…</p>}
         {rec === false && <p className="text-sm text-danger">No se pudo cargar.</p>}
@@ -285,7 +285,7 @@ function TablaEquipos({ rec }) {
               </thead>
               <tbody>
                 {rows.map((x, i) => (
-                  <tr key={x.team.id} className="border-t border-line">
+                  <tr key={x.team.id} className="m-row border-t border-line" style={{ '--d': 120 + Math.min(i, 14) * 70 + 'ms' }}>
                     <td className="px-1 py-2 font-extrabold text-muted">{i + 1}</td>
                     <td className="px-1 py-2">
                       <Link to={'/equipo/' + x.team.id} className="flex items-center gap-2"><TeamBadge team={x.team} size="sm" /><span className="truncate font-bold">{x.team.name}</span></Link>
@@ -315,7 +315,7 @@ function SalonFama({ champ }) {
   const wins = (id) => (champ?.tournaments ?? []).filter((t) => t.champion?.id === id)
   const top = titles[0]
   return (
-    <div className="space-y-3">
+    <div className="m-stagger space-y-3">
       {champ === null && <p className="text-muted">Cargando…</p>}
       {champ === false && <p className="text-sm text-danger">No se pudo cargar.</p>}
       {champ && titles.length === 0 && <Card><p className="text-sm text-muted">Todavía no hay campeones con estos filtros. El primero que cierre un torneo entra acá.</p></Card>}
@@ -345,7 +345,7 @@ function SalonFama({ champ }) {
             <span className="min-w-0 flex-1 truncate font-extrabold">{x.team.name}</span>
             <span className="flex items-center gap-1 font-extrabold"><Trophy size={14} className="text-accent" /> {x.titles}</span>
           </Link>
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="m-cascade mt-3 flex flex-wrap gap-1.5">
             {wins(x.team.id).map((t) => (
               <Link key={t.id} to={'/liga/' + t.id} className="rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-bold">{t.year} · {t.name}{t.edition ? ' · ' + t.edition : ''}</Link>
             ))}

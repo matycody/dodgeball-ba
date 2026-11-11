@@ -244,6 +244,9 @@ html.plain-bg p.text-muted { background: none; border: 0; padding: 0; border-rad
 @keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
 .motion-ok .m-bk { animation: m-bk-in 460ms var(--ease-out) backwards; animation-delay: var(--d, 0ms); }
 .motion-ok .m-bk-links { animation: m-fade 500ms ease-out backwards; animation-delay: var(--d, 0ms); }
+/* Barras que se llenan de izquierda a derecha (efectividad, ranking, ganados/perdidos) */
+@keyframes m-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.motion-ok .m-grow { transform-origin: left center; animation: m-grow 800ms var(--ease-out) backwards; animation-delay: var(--d, 350ms); }
 .motion-ok .m-pop { animation: m-pop 420ms var(--ease-pop); }
 .motion-ok .m-score { display: inline-block; animation: m-score 600ms var(--ease-out); }
 .motion-ok .m-rise { transform-origin: bottom; animation: m-rise 700ms var(--ease-out) both; }
