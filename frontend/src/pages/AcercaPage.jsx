@@ -29,7 +29,7 @@ export default function AcercaPage() {
     <div className="m-stagger space-y-4">
       {/* Banner */}
       <section
-        className="relative overflow-hidden rounded-3xl border border-line p-5"
+        className="relative overflow-hidden rounded-3xl border border-line bg-surface p-5"
         style={{ background: 'linear-gradient(135deg, color-mix(in srgb, var(--accent) 40%, var(--surface-2)) 0%, var(--surface) 75%)' }}
       >
         <Info size={120} strokeWidth={1.2} className="pointer-events-none absolute -right-5 -top-4 text-accent opacity-20" />

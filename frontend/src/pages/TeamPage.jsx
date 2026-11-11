@@ -118,13 +118,13 @@ export default function TeamPage() {
 
   const matchList = (
     <section className="space-y-3">
-      <div className="flex gap-2">
+      <div className="m-cascade flex gap-2">
         {[['proximos', 'Próximos' + (matches ? ' · ' + next.length : '')], ['resultados', 'Resultados' + (matches ? ' · ' + done.length : '')]].map(([k, label]) => (
           <button key={k} onClick={() => setPtab(k)} className={'rounded-full border px-4 py-2 text-sm font-bold ' + (ptab === k ? 'border-accent bg-accent text-black' : 'border-line bg-surface')}>{label}</button>
         ))}
       </div>
       {ptab === 'proximos' && (
-        <>
+        <div key="proximos" className="m-cascade space-y-3">
           {matches === null && <p className="text-muted">Cargando…</p>}
           {matches && next.length === 0 && <p className="text-muted">No hay partidos programados.</p>}
           {live.map((m) => <MatchCard key={m.id} m={m} />)}
@@ -144,10 +144,10 @@ export default function TeamPage() {
               {more.next ? 'Ver menos' : 'Ver todos (' + upcoming.length + ')'}
             </button>
           )}
-        </>
+        </div>
       )}
       {ptab === 'resultados' && (
-        <>
+        <div key="resultados" className="m-cascade space-y-3">
           {matches && done.length === 0 && <p className="text-muted">Todavía no jugó partidos.</p>}
           {(more.done ? done : done.slice(0, 5)).map((m) => <ResultRow key={m.id} m={m} teamIds={[id]} />)}
           {done.length > 5 && (
@@ -155,7 +155,7 @@ export default function TeamPage() {
               {more.done ? 'Ver menos' : 'Ver todos (' + done.length + ')'}
             </button>
           )}
-        </>
+        </div>
       )}
     </section>
   )

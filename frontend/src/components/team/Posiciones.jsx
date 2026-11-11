@@ -34,10 +34,10 @@ function Tabla({ rows, teamId, zone }) {
         </tr>
       </thead>
       <tbody>
-        {view.map((r) => {
+        {view.map((r, i) => {
           const me = r.team.id === teamId
           return (
-            <tr key={r.team.id} className={(ZONE_CLS[r.zone] ?? '') + (me ? ' font-extrabold ring-1 ring-inset ring-accent' : '')}>
+            <tr key={r.team.id} style={{ '--d': 80 + i * 70 + 'ms' }} className={'m-row ' + (ZONE_CLS[r.zone] ?? '') + (me ? ' font-extrabold ring-1 ring-inset ring-accent' : '')}>
               <td className="py-1.5 pl-1"><span className={'grid h-6 w-6 place-items-center rounded-full text-xs font-extrabold tabular-nums ' + (ZONE_POS[r.zone] ?? '')}>{rows.indexOf(r) + 1}</span></td>
               <td className="max-w-0 truncate py-1.5">{r.team.name}</td>
               <td className="py-1.5 text-center tabular-nums">{r.played}</td>
@@ -86,7 +86,7 @@ function Card({ it, teamId, open, onToggle }) {
         <ChevronDown size={18} className={'shrink-0 text-muted transition-transform ' + (open ? 'rotate-180' : '')} />
       </button>
       {open && (
-        <div className="space-y-3 px-4 pb-4">
+        <div className="m-cascade space-y-3 px-4 pb-4">
           {it.rows.length > 0 ? <Tabla rows={it.rows} teamId={teamId} zone={it.zone} /> : <p className="text-sm text-muted">Este torneo no tiene tabla de posiciones.</p>}
           {place && <p className="text-center text-sm font-bold">{place}</p>}
           <Link to={'/liga/' + t.id} className="block text-center text-sm font-bold text-accent">Ver torneo completo ›</Link>
@@ -125,7 +125,7 @@ export default function Posiciones({ teamId, mod, br }) {
   })
 
   return (
-    <div className="space-y-3">
+    <div className="m-cascade space-y-3">
       {shown.map((it) => <Card key={it.tournament.id} it={it} teamId={teamId} open={isOpen(it)} onToggle={() => toggle(it)} />)}
     </div>
   )
