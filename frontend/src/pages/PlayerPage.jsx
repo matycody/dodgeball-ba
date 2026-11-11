@@ -34,13 +34,13 @@ function Avatar({ p, size = 'h-28 w-28', text = 'text-4xl' }) {
 function Teammates({ team, selfId }) {
   const [list, setList] = useState(null)
   useEffect(() => {
-    api('GET', '/teams/' + team.teamId).then((t) => setList((t.roster ?? []).filter((r) => r.profileId !== selfId && r.branch === team.branch))).catch(() => setList([]))
+    api('GET', '/teams/' + team.teamId).then((t) => setList((t.roster ?? []).filter((r, i, a) => r.profileId !== selfId && r.branch === team.branch && a.findIndex((x) => x.profileId === r.profileId && x.branch === r.branch) === i))).catch(() => setList([]))
   }, [team.teamId, team.branch, selfId])
   if (!list?.length) return null
   return (
-    <section className="space-y-2">
+    <section className="m-cascade space-y-2">
       <Title>También en {team.name}</Title>
-      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+      <div className="m-cascade -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
         {list.map((r) => {
           const nm = splitName(r)
           return (
@@ -79,7 +79,7 @@ function Block({ title, s }) {
   return (
     <section className="space-y-3 rounded-3xl border border-line bg-surface p-4">
       <Title>{title}</Title>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="m-cascade grid grid-cols-4 gap-2">
         <Stat value={s.played} label="Partidos" />
         <Stat value={s.won} label="Ganados" tone="text-live" />
         <Stat value={s.lost} label="Perdidos" tone="text-danger" />
@@ -117,11 +117,11 @@ export default function PlayerPage() {
   return (
     <div className="-mt-1 space-y-5">
       {/* Banner: nombre arriba, franja con el equipo y la foto encimada */}
-      <section className="overflow-hidden rounded-3xl border border-line bg-surface">
+      <section className="m-zone overflow-hidden rounded-3xl border border-line bg-surface">
         <div className="relative px-5 pb-16 pt-5">
           <div className="absolute right-3 top-3"><FavHeart type="PLAYER" id={p.id ?? id} name={p.name} /></div>
           <p className="pr-10 text-2xl font-light leading-tight">{nm.bottom ? nm.top : ' '}</p>
-          <h1 className="pr-10 text-3xl font-extrabold leading-tight">{nm.bottom ?? nm.top}</h1>
+          <h1 className="m-bk pr-10 text-3xl font-extrabold leading-tight" style={{ '--d': '150ms' }}>{nm.bottom ?? nm.top}</h1>
           {p.nickname && <p className="text-sm font-semibold text-accent">{p.name}</p>}
           {p.age != null && <p className="text-xs text-muted">{p.age} años</p>}
         </div>
@@ -132,14 +132,14 @@ export default function PlayerPage() {
               <span className="min-w-0 truncate text-lg font-extrabold">{main.name}</span>
             </Link>
           ) : <span className="text-sm font-semibold text-muted">Sin equipo actual</span>}
-          <div className="absolute -top-14 right-5">
+          <div className="m-badge absolute -top-14 right-5">
             <Avatar p={p} />
             {p.number != null && (
               <span className="absolute -bottom-1 -right-1 grid h-9 min-w-9 place-items-center rounded-full bg-accent px-1 font-mono text-sm font-extrabold text-black">{p.number}</span>
             )}
           </div>
         </div>
-        <div className="flex border-t border-line" role="tablist">
+        <div className="m-cascade flex border-t border-line" role="tablist">
           {[['resumen', 'Resumen'], ['estadisticas', 'Estadísticas'], ['carrera', 'Carrera']].map(([k, label]) => (
             <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={'flex-1 border-b-2 py-3 text-sm font-bold ' + (tab === k ? 'border-accent' : 'border-transparent text-muted')}>
               {label}
@@ -151,8 +151,8 @@ export default function PlayerPage() {
       <SuspensionNotice s={p.suspension} />
 
       {tab === 'resumen' && (
-        <>
-          <section className="space-y-2">
+        <div className="m-stagger space-y-5">
+          <section className="m-cascade space-y-2">
             <Title n={p.next.length}>Próximos partidos</Title>
             {p.next.length === 0 && <p className="text-muted">No hay partidos programados.</p>}
             {(moreNext ? p.next : p.next.slice(0, 3)).map((m) => <MatchRow key={m.id} m={m} />)}
@@ -165,7 +165,7 @@ export default function PlayerPage() {
 
           {main && <Teammates team={main} selfId={p.id ?? id} />}
 
-          <section className="space-y-2">
+          <section className="m-cascade space-y-2">
             <Title n={p.recent.length}>Partidos recientes</Title>
             {p.recent.length === 0 && <p className="text-muted">Todavía no hay resultados.</p>}
             {(moreDone ? p.recent : p.recent.slice(0, 5)).map((m) => <ResultRow key={m.id} m={m} teamIds={teamIds} />)}
@@ -176,11 +176,11 @@ export default function PlayerPage() {
             )}
             <p className="text-[11px] text-muted">Son los partidos de sus equipos mientras formó parte de ellos.</p>
           </section>
-        </>
+        </div>
       )}
 
       {tab === 'estadisticas' && (
-        <div className="space-y-4">
+        <div className="m-stagger space-y-4">
           {!p.stats || p.stats.total.played === 0 ? (
             <p className="rounded-3xl border border-line bg-surface p-6 text-center text-sm text-muted">Todavía no hay partidos terminados con sus equipos.</p>
           ) : (
@@ -194,7 +194,7 @@ export default function PlayerPage() {
       )}
 
       {tab === 'carrera' && (
-        <section className="space-y-2">
+        <section className="m-cascade space-y-2">
           <Title n={p.teams.length + p.history.length}>Historial de equipos</Title>
           {p.teams.length + p.history.length === 0 && <p className="text-muted">Todavía no tiene equipos.</p>}
           {[...p.teams.map((t) => ({ ...t, from: t.since, to: null })), ...p.history].map((t) => (

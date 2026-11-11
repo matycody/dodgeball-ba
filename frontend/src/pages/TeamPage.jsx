@@ -105,7 +105,16 @@ export default function TeamPage() {
   const medals = st && (cnt('CHAMPION') || cnt('RUNNER_UP') || cnt('THIRD')) ? { gold: cnt('CHAMPION'), silver: cnt('RUNNER_UP'), bronze: cnt('THIRD') } : null
   // Qué categoría muestran los números y las listas
   const scope = mod === 'all' && br === 'all' ? 'Total: todas las ramas y modalidades' : [br === 'all' ? 'Todas las ramas' : BRANCH[br], mod === 'all' ? 'Todas las modalidades' : MODALITY[mod]].join(' · ')
-  const players = (team.roster ?? []).filter((r) => br === 'all' || r.branch === br)
+  const players = [
+    ...(team.roster ?? [])
+      .filter((r) => br === 'all' || r.branch === br)
+      .reduce((m, r) => {
+        const prev = m.get(r.profileId)
+        m.set(r.profileId, prev ? { ...prev, coach: prev.coach || r.coach, number: prev.number ?? r.number } : r)
+        return m
+      }, new Map())
+      .values(),
+  ]
 
   const matchList = (
     <section className="space-y-3">
@@ -156,11 +165,11 @@ export default function TeamPage() {
       {err && <p className="text-sm text-danger">{err}</p>}
 
       {/* Banner: nombre arriba, franja con ramas y modalidades, escudo encimado */}
-      <section className="overflow-hidden rounded-3xl border border-line bg-surface">
+      <section className="m-zone overflow-hidden rounded-3xl border border-line bg-surface">
         <div className="relative px-5 pb-16 pt-5" style={bannerBg ? { background: 'linear-gradient(135deg, color-mix(in srgb, ' + bannerBg + ' 55%, #0b0b0d) 0%, color-mix(in srgb, ' + bannerBg + ' 12%, #0b0b0d) 70%)' } : undefined}>
           <div className="absolute right-3 top-3">{heart('TEAM', team.id)}</div>
           <p className="pr-10 text-lg font-light leading-tight">{team.nickname ? '"' + team.nickname + '"' : ' '}</p>
-          <h1 className="pr-10 text-3xl font-extrabold leading-tight">{team.name}</h1>
+          <h1 className="m-bk pr-10 text-3xl font-extrabold leading-tight" style={{ '--d': '150ms' }}>{team.name}</h1>
           {(team.city || team.foundedYear) && (
             <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
               {team.city && <span className="inline-flex items-center gap-1"><MapPin size={12} />{team.city}</span>}
@@ -168,13 +177,13 @@ export default function TeamPage() {
             </p>
           )}
         </div>
-        <div className="relative flex min-h-16 flex-wrap items-center gap-1.5 bg-accent-soft py-3 pl-5 pr-28">
+        <div className="m-cascade relative flex min-h-16 flex-wrap items-center gap-1.5 bg-accent-soft py-3 pl-5 pr-28">
           {brs.map((b) => <span key={b} className="rounded-full bg-bg/60 px-2.5 py-1 text-[11px] font-bold uppercase">{BRANCH[b] ?? b}</span>)}
           {mods.map((m) => <span key={m} className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold uppercase text-black">{MODALITY[m] ?? m}</span>)}
-          <div className="absolute -top-12 right-4"><TeamBadge team={team} size="xl" branch={br !== 'all' ? br : null} /></div>
+          <div className="absolute -top-12 right-4"><div className="m-badge"><TeamBadge team={team} size="xl" branch={br !== 'all' ? br : null} /></div></div>
         </div>
         {medals && <div className="border-t border-line px-5 pb-3 pt-4"><MedalPodium {...medals} className="mx-auto max-w-xs" /></div>}
-        <div className="flex overflow-x-auto border-t border-line" role="tablist">
+        <div className="m-cascade flex overflow-x-auto border-t border-line" role="tablist">
           {[['resumen', 'Resumen'], ['partidos', 'Partidos'], ['posiciones', 'Posiciones'], ['estadisticas', 'Estadísticas'], ['plantel', 'Plantel'], ['historial', 'Historial']].map(([k, label]) => (
             <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={'shrink-0 border-b-2 px-4 py-3 text-sm font-bold ' + (tab === k ? 'border-accent' : 'border-transparent text-muted')}>
               {label}
@@ -184,15 +193,15 @@ export default function TeamPage() {
       </section>
 
       {(mods.length > 1 || brs.length > 1) && tab !== 'plantel' && (
-        <div className="space-y-2">
+        <div className="m-cascade space-y-2">
           {mods.length > 1 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="m-cascade flex flex-wrap gap-2">
               <Chip on={mod === 'all'} onClick={() => setMod('all')}>Todas las modalidades</Chip>
               {mods.map((m) => <Chip key={m} on={mod === m} onClick={() => setMod(m)}>{MODALITY[m] ?? m}</Chip>)}
             </div>
           )}
           {brs.length > 1 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="m-cascade flex flex-wrap gap-2">
               <Chip on={br === 'all'} onClick={() => setBr('all')}>Todas las ramas</Chip>
               {brs.map((b) => <Chip key={b} on={br === b} onClick={() => setBr(b)}>{BRANCH[b] ?? b}</Chip>)}
             </div>
@@ -201,10 +210,10 @@ export default function TeamPage() {
       )}
 
       {tab === 'resumen' && (
-        <>
+        <div className="m-stagger space-y-5">
           <section className="space-y-2 rounded-3xl border border-line bg-surface p-4">
             <p className="text-center text-xs font-bold uppercase tracking-widest text-accent">{scope}</p>
-            <div className="grid grid-cols-4 gap-2 text-center">
+            <div className="m-cascade grid grid-cols-4 gap-2 text-center">
               {[['PJ', done.length], ['G', rec.G], ['E', rec.E], ['P', rec.P]].map(([k, v]) => (
                 <div key={k} className="rounded-2xl bg-surface-2 py-2">
                   <p className="font-mono text-xl font-extrabold tabular-nums">{v}</p>
@@ -214,7 +223,7 @@ export default function TeamPage() {
             </div>
           </section>
 
-          <section className="space-y-2">
+          <section className="m-cascade space-y-2">
             <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Próximo partido</h2>
             {matches === null && <p className="text-muted">Cargando…</p>}
             {matches && next.length === 0 && <p className="text-muted">No hay partidos programados.</p>}
@@ -224,15 +233,15 @@ export default function TeamPage() {
           </section>
 
           {players.length > 0 && (
-            <section className="space-y-2">
+            <section className="m-cascade space-y-2">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Jugadores</h2>
-              <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+              <div className="m-cascade -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
                 {players.slice(0, 14).map((r) => {
                   const parts = String(r.nickname || r.name).trim().split(/\s+/)
                   const top = r.nickname || parts.length < 2 ? ' ' : parts.slice(0, -1).join(' ')
                   const bottom = r.nickname || parts.length < 2 ? (r.nickname || r.name) : parts[parts.length - 1]
                   return (
-                    <Link key={r.profileId + r.branch} to={'/jugador/' + r.profileId} className="w-36 shrink-0 overflow-hidden rounded-2xl border border-line bg-surface">
+                    <Link key={r.profileId} to={'/jugador/' + r.profileId} className="w-36 shrink-0 overflow-hidden rounded-2xl border border-line bg-surface">
                       <div className="h-16 px-3 pt-3">
                         <p className="truncate text-sm leading-tight text-muted">{top}</p>
                         <p className="truncate text-base font-extrabold leading-tight">{bottom}</p>
@@ -251,13 +260,13 @@ export default function TeamPage() {
           )}
 
           {done.length > 0 && (
-            <section className="space-y-2">
+            <section className="m-cascade space-y-2">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Últimos resultados</h2>
               {done.slice(0, 3).map((m) => <ResultRow key={m.id} m={m} teamIds={[id]} />)}
               {done.length > 3 && <button onClick={() => { setTab('partidos'); setPtab('resultados') }} className="w-full rounded-2xl border border-line bg-surface py-2 text-sm font-bold">Ver todos los resultados</button>}
             </section>
           )}
-        </>
+        </div>
       )}
 
       {tab === 'partidos' && matchList}
@@ -271,7 +280,7 @@ export default function TeamPage() {
           {st === false && <p className="text-center text-sm text-muted">No se pudieron cargar las estadísticas.</p>}
           {st && (
             <>
-              <div className="grid grid-cols-4 gap-2 text-center">
+              <div className="m-cascade grid grid-cols-4 gap-2 text-center">
                 {[['Partidos', st.record.played, ''], ['Ganados', st.record.won, 'text-live'], ['Perdidos', st.record.lost, 'text-danger'], ['Títulos', st.titles, 'text-accent']].map(([l, v, c]) => (
                   <div key={l} className="flex flex-col items-center gap-2">
                     <span className={'grid h-16 w-16 place-items-center rounded-full border-2 border-line bg-surface-2 font-mono text-xl font-extrabold tabular-nums ' + c}>{v}</span>
@@ -279,7 +288,7 @@ export default function TeamPage() {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="m-cascade grid grid-cols-3 gap-2 text-center">
                 {[['Empatados', st.record.drawn], ['Sets a favor', st.record.setsFor], ['Sets en contra', st.record.setsAgainst]].map(([l, v]) => (
                   <div key={l} className="rounded-2xl bg-surface-2 py-2">
                     <p className="font-mono text-lg font-extrabold tabular-nums">{v}</p>
@@ -294,7 +303,7 @@ export default function TeamPage() {
       )}
 
       {tab === 'plantel' && (
-        <section className="space-y-2">
+        <section className="m-cascade space-y-2">
           <Roster roster={team.roster} meProfileId={user?.profileId} extra={(r) => heart('PLAYER', r.profileId)} />
         </section>
       )}
@@ -303,7 +312,7 @@ export default function TeamPage() {
         <section className="space-y-3">
           {st === null && <p className="text-muted">Cargando…</p>}
           {st && st.titlesList?.length > 0 && (
-            <div className="space-y-2">
+            <div className="m-cascade space-y-2">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Títulos · {st.titles}</h2>
               {st.titlesList.map((t) => (
                 <GoTo key={t.id} to={'/liga/' + t.id} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
@@ -315,7 +324,7 @@ export default function TeamPage() {
             </div>
           )}
           {st && (
-            <div className="space-y-2">
+            <div className="m-cascade space-y-2">
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Torneos · {(st.career ?? []).length}</h2>
               {(st.career ?? []).length === 0 && <p className="text-muted">Todavía no disputó torneos.</p>}
               {(st.career ?? []).map((h) => {
