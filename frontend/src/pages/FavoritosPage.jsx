@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, X, ChevronDown } from 'lucide-react'
 import { api } from '../lib/api'
@@ -101,7 +101,7 @@ export default function FavoritosPage() {
   )
 
   return (
-    <div className="space-y-5">
+    <div className="m-stagger space-y-5">
       {err && <p className="text-danger">{err}</p>}
 
       <div className="flex items-start gap-2 overflow-hidden rounded-2xl border border-line bg-surface p-3">
@@ -130,7 +130,7 @@ export default function FavoritosPage() {
       {adding && (
         <div className="space-y-3">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Torneos</h2>
-          <div className="space-y-2">
+          <div className="m-cascade space-y-2">
             {tournaments.map((t) => (
               <div key={t.id} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
                 <TeamBadge team={t} />
@@ -143,7 +143,7 @@ export default function FavoritosPage() {
             ))}
           </div>
           <h2 className="pt-2 text-xs font-bold uppercase tracking-widest text-muted">Equipos</h2>
-          <div className="space-y-2">
+          <div className="m-cascade space-y-2">
             {teams.map((t) => (
               <div key={t.id} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
                 <TeamBadge team={t} />
@@ -164,7 +164,7 @@ export default function FavoritosPage() {
       )}
 
       {!adding && tab === 'posiciones' && !nothing && (
-        <div className="space-y-4">
+        <div className="m-cascade space-y-4">
           {tourList === null && <p className="text-muted">Cargando…</p>}
           {tourList && favTours.size === 0 && favTeams.size === 0 && (
             <p className="rounded-2xl border border-line bg-surface p-4 text-sm">Seguí equipos o torneos para ver sus posiciones acá.</p>

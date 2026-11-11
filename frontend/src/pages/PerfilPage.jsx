@@ -87,7 +87,7 @@ export default function PerfilPage() {
   const field = 'w-full rounded-xl border border-line bg-surface-2 px-4 py-3 outline-none focus:border-accent'
 
   return (
-    <div className="space-y-4">
+    <div className="m-stagger space-y-4">
       {err && <p className="rounded-2xl border box-danger px-4 py-3 text-sm font-bold text-danger">{err}</p>}
       {msg && <p className="rounded-2xl border box-live px-4 py-3 text-sm font-bold text-live">{msg}</p>}
       <PlayerRequestBanner cta />

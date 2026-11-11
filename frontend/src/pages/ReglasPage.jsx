@@ -266,7 +266,7 @@ export default function ReglasPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="m-stagger space-y-4">
       {/* Banner */}
       <section
         className="relative overflow-hidden rounded-3xl border border-line p-5"
@@ -303,7 +303,7 @@ export default function ReglasPage() {
       </div>
 
       {/* Cloth vs Foam de un vistazo */}
-      <section className="overflow-hidden rounded-2xl border border-line bg-surface">
+      <section className="m-cascade overflow-hidden rounded-2xl border border-line bg-surface">
         <div className="grid grid-cols-[1.1fr_1fr_1fr] items-center gap-2 border-b border-line bg-surface-2 px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest">
           <span className="text-muted">En un vistazo</span>
           <span className={modo === 'cloth' ? 'text-accent' : 'text-muted'}>Cloth</span>
@@ -319,7 +319,7 @@ export default function ReglasPage() {
       </section>
 
       {/* Secciones de la modalidad elegida */}
-      <div className="space-y-2.5" key={modo}>
+      <div className="m-cascade space-y-2.5" key={modo}>
         {m.secciones.map((s, i) => <Seccion key={s.title} {...s} open={i === 0} />)}
         <Seccion {...COMUN} />
 
@@ -351,7 +351,7 @@ export default function ReglasPage() {
       {/* Documentos */}
       <section className="space-y-2.5 rounded-2xl border border-line bg-surface p-4">
         <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted"><FileText size={14} /> Documentos oficiales (PDF, en inglés)</h2>
-        <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
+        <div className="m-cascade grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
           {[DOCS.cloth, DOCS.foam, ...ADAPTACIONES].map((d) => (
             <a
               key={d.url}

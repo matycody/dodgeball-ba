@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Trash2, ChevronRight } from 'lucide-react'
 import { api, apiUpload } from '../../lib/api'
@@ -104,7 +104,7 @@ export default function EquiposPage() {
 
       {list === null && <Skeleton />}
       {list?.length === 0 && <p className="text-muted">Todavía no hay equipos.</p>}
-      <div className="space-y-2">
+      <div className="m-cascade space-y-2">
         {(list ?? []).map((t) => (
           <div key={t.id} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
             <TeamBadge team={t} />

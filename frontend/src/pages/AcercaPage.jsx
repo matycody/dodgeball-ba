@@ -26,7 +26,7 @@ const QUE_HACE = [
 
 export default function AcercaPage() {
   return (
-    <div className="space-y-4">
+    <div className="m-stagger space-y-4">
       {/* Banner */}
       <section
         className="relative overflow-hidden rounded-3xl border border-line p-5"
@@ -39,7 +39,7 @@ export default function AcercaPage() {
       </section>
 
       {/* Contacto */}
-      <section className="space-y-2.5">
+      <section className="m-cascade space-y-2.5">
         <h2 className="px-1 text-xs font-bold uppercase tracking-widest text-muted">Contacto</h2>
         {CUENTAS.map((c) => (
           <a
@@ -70,7 +70,7 @@ export default function AcercaPage() {
         <p className="text-sm leading-relaxed">
           Dodgeball BA es la web para seguir los partidos de Dodgeball Buenos Aires en vivo, desde el celular o la computadora. Para mirar no hace falta tener cuenta.
         </p>
-        <ul className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
+        <ul className="m-cascade grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
           {QUE_HACE.map(([Icon, txt]) => (
             <li key={txt} className="flex items-center gap-2.5 rounded-xl border border-line bg-surface-2 px-3 py-2.5 text-sm font-semibold">
               <Icon size={16} className="shrink-0 text-accent" />

@@ -36,11 +36,11 @@ function Destacados({ open, renderCard }) {
   }, [open])
   if (!groups.length) return null
   return (
-    <div className="space-y-4">
+    <div className="m-stagger space-y-4">
       {groups.map(([title, sub, list]) => (
         <section key={title}>
           <p className="mb-2 flex items-baseline gap-2"><span className="text-sm font-extrabold">{title}</span><span className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-[11px] text-muted [text-shadow:none]">{sub}</span></p>
-          <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+          <div className="m-cascade -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
             {list.map((m) => <div key={m.id} className="w-[85%] max-w-sm shrink-0 snap-start">{renderCard(m)}</div>)}
           </div>
         </section>
@@ -62,9 +62,9 @@ function ByDay({ list, renderCard, limit = 6 }) {
   }, [list])
   if (!days.length) return <Empty>No hay partidos abiertos para predecir.</Empty>
   return (
-    <div className="space-y-4">
+    <div className="m-stagger space-y-4">
       {(all ? days : days.slice(0, limit)).map(([d, ms]) => (
-        <section key={d} className="space-y-2">
+        <section key={d} className="m-cascade space-y-2">
           <p className="text-sm font-extrabold">{d === 'sin-fecha' ? 'Sin fecha' : dayTab(d)}</p>
           {ms.map((m) => <div key={m.id}>{renderCard(m)}</div>)}
         </section>
@@ -79,7 +79,7 @@ function Rank({ data, empty }) {
   if (data.total === 0) return <Empty>{empty}</Empty>
   return (
     <div className="space-y-3">
-      <div className="divide-y divide-line rounded-2xl border border-line bg-surface">
+      <div className="m-cascade divide-y divide-line rounded-2xl border border-line bg-surface">
         {data.top.map((e) => (
           <div key={e.userId} className={'flex items-center gap-3 px-3 py-3 ' + (e.isMe ? 'bg-surface-2' : '')}>
             <span className="w-7 text-center text-sm font-extrabold tabular-nums">{e.position}</span>
@@ -197,7 +197,7 @@ export default function PrediccionesPage() {
         <p className="text-sm text-muted">Elegí quién gana antes de que se habilite el partido. Cuanto más alta la cuota y más temprano predecís, más puntos.</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 text-center">
+      <div className="m-cascade grid grid-cols-3 gap-2 text-center">
         {[['Puntos', me ? me.total : '–'], ['Puesto', me?.position ? me.position + '°' : '–'], ['Racha', me ? me.streak : '–']].map(([l, v]) => (
           <div key={l} className="rounded-2xl border border-line bg-surface p-3">
             <p className="text-2xl font-extrabold tabular-nums">{v}</p>
@@ -206,7 +206,7 @@ export default function PrediccionesPage() {
         ))}
       </div>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4" role="tablist">
+      <div className="m-cascade -mx-4 flex gap-2 overflow-x-auto px-4" role="tablist">
         {TABS.map(([k, l]) => <Pill key={k} on={tab === k} onClick={() => setTab(k)}>{l}</Pill>)}
       </div>
       {err && <p className="text-sm text-danger">{err}</p>}
@@ -222,14 +222,14 @@ export default function PrediccionesPage() {
       ))}
 
       {tab === 'calendario' && (open === null ? <Skeleton /> : (
-        <div className="space-y-5">
+        <div className="m-stagger space-y-5">
           <Destacados open={open} renderCard={renderCard} />
           <ByDay list={open} renderCard={renderCard} />
         </div>
       ))}
 
       {tab === 'torneos' && (open === null ? <Skeleton /> : openTournaments.length === 0 ? <Empty>No hay torneos con partidos abiertos.</Empty> : (
-        <div className="space-y-4">
+        <div className="m-stagger space-y-4">
           <div className="-mx-4 flex gap-2 overflow-x-auto px-4">
             {openTournaments.map((t) => <Pill key={t.id} on={curT === t.id} onClick={() => setTId(t.id)}>{t.name}</Pill>)}
           </div>
@@ -252,7 +252,7 @@ export default function PrediccionesPage() {
             <Pill on={mineView === 'resueltas'} onClick={() => setMineView('resueltas')}>Resueltas</Pill>
           </div>
           {mias.length === 0 && <Empty>{mineView === 'abiertas' ? 'No tenés predicciones esperando resultado. Elegí un partido en el Calendario.' : 'Todavía no se resolvió ninguna de tus predicciones.'}</Empty>}
-          <div className="divide-y divide-line rounded-2xl border border-line bg-surface empty:hidden">
+          <div className="m-cascade divide-y divide-line rounded-2xl border border-line bg-surface empty:hidden">
             {mias.map((p) => {
               const r = p.voidReason ? { label: 'Anulada', cls: 'bg-warn/15 text-warn' } : RESULT[p.result]
               return (

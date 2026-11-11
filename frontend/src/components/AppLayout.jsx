@@ -15,7 +15,7 @@ import { tourSeen, useTourStore } from '../stores/tourStore'
 import { tourKeyFor, startTour } from '../lib/tours'
 
 // Pantallas del espectador donde se anima (lectura). Control de mesa, árbitro, Mis asignaciones y el panel de la organización quedan fuera
-const MOTION = /^\/($|partido\/|equipo\/|jugador\/|liga|buscar|equipos|noticias|partidos|predicciones|favoritos|estadisticas|mi-equipo|mis-partidos|mis-estadisticas|sanciones|sedes|perfil|reglas|acerca)/
+const MOTION = /^\/($|partido\/|equipo\/|jugador\/|liga|buscar|equipos|noticias|partidos|predicciones|favoritos|estadisticas|mi-equipo|mis-partidos|mis-estadisticas|sanciones|sedes|perfil|reglas|acerca|reportar|admin\/(partidos|equipos|sedes|sanciones)\/?$)/
 
 // Pantallas que ya traen su propio "volver" con el nombre de la lista a la que vuelven
 const OWN_BACK = /^\/(liga|control|admin\/(torneos|equipos|partidos))\/[^/]+$/

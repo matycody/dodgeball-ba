@@ -21,7 +21,7 @@ export default function SancionesPublicaPage() {
     <div className="mx-auto max-w-2xl space-y-4">
       <BackLink to="/" className="flex items-center gap-1 text-sm text-muted"><ArrowLeft size={16} /> Volver</BackLink>
       <h1 className="flex items-center gap-2 text-xl font-extrabold"><Gavel size={20} /> Sanciones</h1>
-      <div className="flex gap-2">
+      <div className="m-cascade flex gap-2">
         {[['players', 'Jugadores', d?.suspensions.length], ['teams', 'Equipos', d?.teamPenalties.length]].map(([k, l, n]) => (
           <button key={k} onClick={() => setTab(k)} className={'rounded-full px-4 py-2 text-sm font-bold ' + (tab === k ? 'bg-accent text-black' : 'border border-line bg-surface')}>{l}{n != null ? ' · ' + n : ''}</button>
         ))}
@@ -29,7 +29,7 @@ export default function SancionesPublicaPage() {
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
       {!d && !err && <p className="text-sm text-muted">Cargando…</p>}
       {d && tab === 'players' && (
-        <div className="space-y-3">
+        <div className="m-cascade space-y-3">
           {!d.suspensions.length && <div className="rounded-3xl border border-line bg-surface p-6 text-center text-sm text-muted">No hay jugadores suspendidos ahora.</div>}
           {d.suspensions.map((s) => (
             <div key={s.id} className="space-y-1 rounded-3xl border border-line bg-surface p-4">
@@ -45,7 +45,7 @@ export default function SancionesPublicaPage() {
         </div>
       )}
       {d && tab === 'teams' && (
-        <div className="space-y-3">
+        <div className="m-cascade space-y-3">
           {!d.teamPenalties.length && <div className="rounded-3xl border border-line bg-surface p-6 text-center text-sm text-muted">No hay sanciones a equipos.</div>}
           {d.teamPenalties.map((x) => (
             <div key={x.id} className="space-y-1 rounded-3xl border border-line bg-surface p-4">

@@ -83,7 +83,7 @@ export default function ReportarPage() {
   const ready = message.trim().length >= 5
 
   return (
-    <form onSubmit={send} className="space-y-5 rounded-3xl border border-line bg-surface p-5">
+    <form onSubmit={send} className="m-stagger space-y-5 rounded-3xl border border-line bg-surface p-5">
       <div className="flex items-start gap-3">
         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent"><Bug size={22} /></div>
         <div className="min-w-0">
@@ -94,7 +94,7 @@ export default function ReportarPage() {
 
       <fieldset className="space-y-2">
         <legend className="mb-2 text-sm font-bold">¿Qué tipo de problema es?</legend>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="m-cascade grid grid-cols-2 gap-2">
           {KINDS.map(([k, l, hint, Icon]) => {
             const on = kind === k
             return (

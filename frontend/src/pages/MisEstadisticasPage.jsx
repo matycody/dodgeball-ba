@@ -33,11 +33,11 @@ export default function MisEstadisticasPage() {
 
   const t = d.total
   return (
-    <div className="space-y-4">
+    <div className="m-stagger space-y-4">
       <h1 className="text-2xl font-extrabold">Mis estadísticas</h1>
 
       <section className="rounded-3xl border border-accent bg-surface p-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="m-cascade flex flex-wrap gap-2">
           {d.teams.map((x) => (
             <Link key={x.id + x.branch} to={'/equipo/' + x.id} className="flex items-center gap-2 rounded-full bg-surface-2 py-1 pl-1 pr-3">
               <TeamBadge team={x} size="sm" />
@@ -46,7 +46,7 @@ export default function MisEstadisticasPage() {
             </Link>
           ))}
         </div>
-        <div className="mt-4 grid grid-cols-4 gap-2 text-center">
+        <div className="m-cascade mt-4 grid grid-cols-4 gap-2 text-center">
           {[['Jugados', t.played], ['Ganados', t.won], ['Empates', t.drawn], ['Perdidos', t.lost]].map(([l, v]) => (
             <div key={l}><p className="text-2xl font-extrabold">{v}</p><p className="text-[10px] font-bold uppercase text-muted">{l}</p></div>
           ))}
@@ -84,7 +84,7 @@ export default function MisEstadisticasPage() {
 
       {d.career.length > 0 && (
         <Card title="Mis torneos" icon={<Flame size={14} />}>
-          <div className="divide-y divide-line">
+          <div className="m-cascade divide-y divide-line">
             {d.career.map((c) => (
               <Link key={c.tournamentId + c.teamId} to={'/liga/' + c.tournamentId} className="flex items-center gap-3 py-2">
                 <div className="min-w-0 flex-1">
@@ -100,7 +100,7 @@ export default function MisEstadisticasPage() {
 
       {d.recent.length > 0 && (
         <Card title="Últimos partidos">
-          <div className="space-y-2">
+          <div className="m-cascade space-y-2">
             {d.recent.map((m) => (
               <Link key={m.id} to={'/partido/' + m.id} className="flex items-center gap-3 rounded-2xl bg-surface-2 p-3">
                 <span className={'grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-extrabold ' + RES_CLS[m.res]}>{RES[m.res]}</span>
@@ -118,7 +118,7 @@ export default function MisEstadisticasPage() {
       <Card title="Sanciones" icon={<ShieldAlert size={14} />}>
         {d.sanctions?.total ? (
           <>
-            <div className="grid grid-cols-4 gap-2 text-center">
+            <div className="m-cascade grid grid-cols-4 gap-2 text-center">
               {SANC.map(([k, label, cls]) => (
                 <div key={k}><span className={'mx-auto grid h-9 w-9 place-items-center rounded-lg text-lg font-extrabold ' + cls}>{d.sanctions[k]}</span><p className="mt-1 text-[10px] font-bold uppercase text-muted">{label}</p></div>
               ))}

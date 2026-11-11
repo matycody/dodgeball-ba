@@ -200,7 +200,7 @@ export function SancionesPanel({ tournamentId = null }) {
   useEffect(() => { setList(null); load() }, [tab])
 
   return (
-    <div className="space-y-4">
+    <div className="m-cascade space-y-4">
       <div className="flex gap-1 rounded-2xl bg-surface-2 p-1 text-sm font-bold">
         {[['pending', 'Pendientes'], ['active', 'Vigentes'], ['decided', 'Evaluadas']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k)} className={'flex-1 rounded-xl py-2 ' + (tab === k ? 'bg-surface text-accent' : 'text-muted')}>{l}</button>
@@ -239,7 +239,7 @@ function TeamPenalties() {
     await api('DELETE', '/tournaments/' + x.tournament.id + '/stages/' + x.stage.id + '/penalties/' + x.id).then(load).catch((e) => setErr(e.message))
   }
   return (
-    <div className="space-y-3">
+    <div className="m-cascade space-y-3">
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
       {items === null && !err && <p className="text-sm text-muted">Cargando…</p>}
       {items && tours.length > 1 && (

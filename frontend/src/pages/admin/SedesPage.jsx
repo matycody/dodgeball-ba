@@ -138,7 +138,7 @@ export default function SedesPage() {
 
       {list === null && <div className="text-muted">Cargando…</div>}
       {list?.length === 0 && !form && <div className="rounded-2xl border border-line bg-surface p-6 text-center text-muted">Todavía no hay sedes. Cargá la primera con “Nueva sede”.</div>}
-      <div className="space-y-2">
+      <div className="m-cascade space-y-2">
         {(list ?? []).map((v) => {
           const links = mapLinks(v)
           return (

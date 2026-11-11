@@ -32,7 +32,7 @@ function TournamentBlock({ g, readOnly, children }) {
         </div>
         <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-muted">{g.list.length} {g.list.length === 1 ? 'partido' : 'partidos'}</span>
       </div>
-      <div className="divide-y divide-line">{children}</div>
+      <div className="m-cascade divide-y divide-line">{children}</div>
     </section>
   )
 }
@@ -311,7 +311,7 @@ export default function PartidosPage({ readOnly = false }) {
   const ready = tournaments && teams
 
   return (
-    <div className="space-y-4">
+    <div className="m-cascade space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Partidos</h1>
         {view === 'active' && !readOnly && (

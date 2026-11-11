@@ -92,7 +92,7 @@ export default function MisPartidosPage() {
       {/* Resumen */}
       <section className="rounded-3xl border border-line bg-surface p-4">
         <p className="text-xs font-bold uppercase tracking-widest text-muted">Mis partidos</p>
-        <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+        <div className="m-cascade mt-3 grid grid-cols-4 gap-2 text-center">
           {[['Próx.', upcoming.length, ''], ['G', rec.G, 'text-live'], ['E', rec.E, ''], ['P', rec.P, 'text-danger']].map(([k, v, c]) => (
             <div key={k} className="rounded-2xl bg-surface-2 py-2">
               <p className={'font-mono text-xl font-extrabold tabular-nums ' + c}>{v}</p>
@@ -103,7 +103,7 @@ export default function MisPartidosPage() {
       </section>
 
       {distinct.length > 1 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="m-cascade flex flex-wrap gap-2">
           <Chip on={team === 'all'} onClick={() => setTeam('all')}>Todos mis equipos</Chip>
           {distinct.map((t) => <Chip key={t.teamId} on={team === t.teamId} onClick={() => setTeam(t.teamId)}><TeamBadge team={t} size="sm" />{t.name}</Chip>)}
         </div>
@@ -116,7 +116,7 @@ export default function MisPartidosPage() {
       </div>
 
       {tab === 'proximos' && (
-        <section className="space-y-3">
+        <section className="m-cascade space-y-3">
           {upcoming.length === 0 && <p className="rounded-3xl border border-line bg-surface p-6 text-center text-sm text-muted">Sin partidos próximos.</p>}
           {live.map((m) => <MatchCard key={m.id} m={m} featured />)}
           {groups.map((g) => (
@@ -134,7 +134,7 @@ export default function MisPartidosPage() {
       )}
 
       {tab === 'jugados' && (
-        <section className="space-y-2">
+        <section className="m-cascade space-y-2">
           {past.length === 0 && <p className="rounded-3xl border border-line bg-surface p-6 text-center text-sm text-muted">Todavía no jugaste ninguno.</p>}
           {(moreDone ? past : past.slice(0, MAX_DONE)).map((m) => <ResultRow key={m.id} m={m} teamIds={myIds} />)}
           {past.length > MAX_DONE && (

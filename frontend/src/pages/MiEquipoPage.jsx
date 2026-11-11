@@ -67,7 +67,7 @@ export default function MiEquipoPage() {
   if (teams.length === 1) return <Navigate to={'/equipo/' + teams[0].teamId} replace />
 
   return (
-    <div className="space-y-5">
+    <div className="m-cascade space-y-5">
       <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Mis equipos · {teams.length}</h1>
       {teams.map((t) => <TeamCard key={t.teamId + t.branch} t={t} next={next[t.teamId + t.branch]} />)}
     </div>

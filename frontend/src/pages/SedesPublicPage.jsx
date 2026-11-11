@@ -7,7 +7,7 @@ export default function SedesPublicPage() {
   const [list, setList] = useState(null)
   useEffect(() => { api('GET', '/venues/public').then(setList).catch(() => setList(false)) }, [])
   return (
-    <div className="space-y-4">
+    <div className="m-cascade space-y-4">
       <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Sedes</h1>
       <p className="text-xs text-muted">Los lugares donde se juegan las fechas durante el año.</p>
       {list === null && <p className="text-muted">Cargando…</p>}

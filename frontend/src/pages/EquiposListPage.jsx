@@ -17,7 +17,7 @@ export default function EquiposListPage() {
   const list = useMemo(() => (teams ?? []).filter((t) => norm(t.name).includes(norm(q.trim()))), [teams, q])
 
   return (
-    <div className="space-y-3">
+    <div className="m-cascade space-y-3">
       <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Equipos{teams ? ' · ' + list.length : ''}</h2>
       <label className="flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-3">
         <Search size={18} className="text-muted" />
