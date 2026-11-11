@@ -19,32 +19,30 @@ function shortWhen(m) {
   return day + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-// Fila de un partido, pensada para el celular: primero equipos y resultado (con el estado a la derecha),
-// debajo el horario y, más chico, la sede y la cancha. En pantallas grandes el horario sube a la primera línea.
+// Fila de un partido, pensada para el celular: equipos y resultado centrados arriba;
+// debajo, a la izquierda, el horario con la sede y la cancha (más chico) y el estado a la derecha.
 export function MatchRow({ m, base, footer }) {
   const score = m.score && (m.status === 'FINISHED' || m.status === 'LIVE')
   const where = (m.venue ? m.venue.name + ' · ' : '') + courtLabel(m.court)
   return (
     <div className={'rounded-2xl bg-surface-2 px-3 py-2 text-sm' + (m.paused ? ' opacity-70' : '')}>
       <Link to={base + m.id} className="block">
-        <div className="flex items-start gap-2">
-          <span className="min-w-0 flex-1 font-semibold leading-snug">
-            {m.teamA?.name ?? m.fromA?.label ?? '—'}
-            {score
-              ? <b className="mx-1.5 whitespace-nowrap rounded-lg bg-surface px-2 py-0.5 font-mono tabular-nums">{m.score.teamA} - {m.score.teamB}</b>
-              : ' vs '}
-            {m.teamB?.name ?? m.fromB?.label ?? '—'}
-          </span>
-          <span className="hidden shrink-0 whitespace-nowrap pt-0.5 text-xs font-bold sm:block">{shortWhen(m)}</span>
+        <p className="text-center font-semibold leading-snug">
+          {m.teamA?.name ?? m.fromA?.label ?? '—'}
+          {score
+            ? <b className="mx-1.5 whitespace-nowrap rounded-lg bg-surface px-2 py-0.5 font-mono tabular-nums">{m.score.teamA} - {m.score.teamB}</b>
+            : ' vs '}
+          {m.teamB?.name ?? m.fromB?.label ?? '—'}
+        </p>
+        <div className="mt-1 flex items-center gap-2">
+          <p className="min-w-0 flex-1 truncate text-left text-xs text-muted">
+            <span className="font-bold text-fg">{shortWhen(m)}</span> · {where}
+          </p>
           <span className="flex shrink-0 items-center gap-2">
             {m.paused && <span className="rounded-full bg-warn/20 px-2 py-0.5 text-xs font-bold uppercase text-warn">Pausado</span>}
             <StatusPill status={m.status} />
           </span>
         </div>
-        <p className="mt-0.5 truncate text-xs text-muted">
-          <span className="font-bold text-fg sm:hidden">{shortWhen(m)}</span>
-          <span className="sm:hidden"> · </span>{where}
-        </p>
       </Link>
       <MatchNotice m={m} compact className="mt-1" />
       {footer}
