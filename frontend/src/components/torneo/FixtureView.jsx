@@ -9,24 +9,42 @@ import { Btn, Alert, inputCls } from '../ui'
 import StatusPill from '../StatusPill'
 import MatchNotice from '../MatchNotice'
 
-// Fila de un partido: equipos (o lugar por definir), marcador, hora, cancha y estado
+// Día corto y hora ("Dom 13:00"): lo primero que se busca después de los equipos
+function shortWhen(m) {
+  if (!m.scheduledAt) return 'Sin programación'
+  const d = new Date(m.scheduledAt)
+  const wd = d.toLocaleDateString('es-AR', { weekday: 'short' }).replace('.', '')
+  const day = wd.charAt(0).toUpperCase() + wd.slice(1)
+  if (m.timeSet === false) return day + ' · a confirmar'
+  return day + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
+// Fila de un partido, pensada para el celular: primero equipos y resultado (con el estado a la derecha),
+// debajo el horario y, más chico, la sede y la cancha. En pantallas grandes el horario sube a la primera línea.
 export function MatchRow({ m, base, footer }) {
+  const score = m.score && (m.status === 'FINISHED' || m.status === 'LIVE')
+  const where = (m.venue ? m.venue.name + ' · ' : '') + courtLabel(m.court)
   return (
     <div className={'rounded-2xl bg-surface-2 px-3 py-2 text-sm' + (m.paused ? ' opacity-70' : '')}>
-      <Link to={base + m.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        {/* En el celular los equipos ocupan toda la línea y el horario y el estado van debajo; en pantallas grandes, todo en una fila */}
-        <span className="w-full min-w-0 font-semibold sm:w-auto sm:flex-1 sm:truncate">
-          {m.teamA?.name ?? m.fromA?.label ?? '—'}
-          {m.score && (m.status === 'FINISHED' || m.status === 'LIVE')
-            ? <b className="mx-1.5 rounded-lg bg-surface px-2 py-0.5 font-mono tabular-nums">{m.score.teamA} - {m.score.teamB}</b>
-            : ' vs '}
-          {m.teamB?.name ?? m.fromB?.label ?? '—'}
-        </span>
-        <span className="min-w-0 text-xs text-muted sm:shrink-0">{m.scheduledAt ? fmtWhen(m.scheduledAt, m.timeSet) : 'Sin programación'} · {m.venue ? m.venue.name + ' · ' : ''}{courtLabel(m.court)}</span>
-        <span className="ml-auto flex shrink-0 items-center gap-2">
-          {m.paused && <span className="rounded-full bg-warn/20 px-2 py-0.5 text-xs font-bold uppercase text-warn">Pausado</span>}
-          <StatusPill status={m.status} />
-        </span>
+      <Link to={base + m.id} className="block">
+        <div className="flex items-start gap-2">
+          <span className="min-w-0 flex-1 font-semibold leading-snug">
+            {m.teamA?.name ?? m.fromA?.label ?? '—'}
+            {score
+              ? <b className="mx-1.5 whitespace-nowrap rounded-lg bg-surface px-2 py-0.5 font-mono tabular-nums">{m.score.teamA} - {m.score.teamB}</b>
+              : ' vs '}
+            {m.teamB?.name ?? m.fromB?.label ?? '—'}
+          </span>
+          <span className="hidden shrink-0 whitespace-nowrap pt-0.5 text-xs font-bold sm:block">{shortWhen(m)}</span>
+          <span className="flex shrink-0 items-center gap-2">
+            {m.paused && <span className="rounded-full bg-warn/20 px-2 py-0.5 text-xs font-bold uppercase text-warn">Pausado</span>}
+            <StatusPill status={m.status} />
+          </span>
+        </div>
+        <p className="mt-0.5 truncate text-xs text-muted">
+          <span className="font-bold text-fg sm:hidden">{shortWhen(m)}</span>
+          <span className="sm:hidden"> · </span>{where}
+        </p>
       </Link>
       <MatchNotice m={m} compact className="mt-1" />
       {footer}
