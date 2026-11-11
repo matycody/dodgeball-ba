@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronDown, Users } from 'lucide-react'
 import { api } from '../lib/api'
@@ -69,7 +69,9 @@ function TeamRoster({ team, side, matchBranch, noLink, suspended, sanctions, abs
                   return (
                     <div key={r.profileId + r.branch} className={'flex items-center rounded-xl bg-surface-2 text-xs ' + (absent?.has(r.profileId) ? 'opacity-40 grayscale' : '')}>
                       <L to={'/jugador/' + r.profileId} className="flex min-w-0 flex-1 items-center gap-2 py-1.5 pl-2">
-                        <span className="w-8 shrink-0 font-mono text-[11px] font-bold text-muted">{n != null ? '#' + n : ''}</span>
+                        {r.photoUrl
+                          ? <img src={r.photoUrl} alt="" loading="lazy" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+                          : <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface text-xs font-extrabold text-muted">{(r.nickname?.trim() || r.name).charAt(0).toUpperCase()}</span>}
                         <span className="min-w-0 flex-1 break-words font-semibold leading-tight">
                           {nm.top}
                           {r.coach && <span className="ml-1.5 text-[10px] font-bold text-accent">(DT)</span>}
@@ -79,6 +81,7 @@ function TeamRoster({ team, side, matchBranch, noLink, suspended, sanctions, abs
                             <span key={s.id} className="mt-1 block"><PlayerSanctionTag s={s} live={liveById.get(s.id)} /></span>
                           ))}
                         </span>
+                        <span className="shrink-0 pr-1 text-right font-mono text-[11px] font-bold text-muted">{n != null ? '#' + n : ''}</span>
                       </L>
                       {noLink ? <span className="w-2" /> : <FavHeart type="PLAYER" id={r.profileId} name={r.name} compact />}
                     </div>
