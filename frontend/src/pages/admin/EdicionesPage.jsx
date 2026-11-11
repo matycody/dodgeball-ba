@@ -1,7 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { api } from '../../lib/api'
-import { inputCls } from '../../components/ui'
-import { fmtWhen } from '../../lib/format'
+import MatchPicker from '../../components/admin/MatchPicker'
 import MovimientosPanel from './MovimientosPanel'
 import ResumenPanel from './ResumenPanel'
 
@@ -20,7 +19,20 @@ export default function EdicionesPage() {
   const [err, setErr] = useState('')
   const [tab, setTab] = useState('summary')
 
-  useEffect(() => { api('GET', '/matches?limit=200').then(setMatches).catch((e) => setErr(e.message)) }, [])
+  // Todos los partidos, por tandas de 200 (el servidor no entrega más por pedido)
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      const all = []
+      for (let offset = 0; offset < 4000; offset += 200) {
+        const rows = await api('GET', '/matches?limit=200&offset=' + offset)
+        all.push(...rows)
+        if (rows.length < 200) break
+      }
+      if (alive) setMatches(all)
+    })().catch((e) => alive && setErr(e.message))
+    return () => { alive = false }
+  }, [])
   useEffect(() => {
     if (!sel) return setLog(null)
     setErr('')
@@ -39,14 +51,7 @@ export default function EdicionesPage() {
       {tab === 'users' && <MovimientosPanel />}
       {tab === 'matches' && <>
       {err && <p className="text-danger">{err}</p>}
-      <select className={inputCls} value={sel} onChange={(e) => setSel(e.target.value)}>
-        <option value="">Elegí un partido…</option>
-        {matches.map((m) => (
-          <option key={m.id} value={m.id}>
-            {(m.teamA?.name ?? '—') + ' vs ' + (m.teamB?.name ?? '—') + ' · ' + fmtWhen(m.scheduledAt, m.timeSet)}
-          </option>
-        ))}
-      </select>
+      <MatchPicker matches={matches} value={sel} onChange={setSel} />
 
       {log?.length === 0 && <p className="text-muted">Sin actividad registrada en este partido.</p>}
       <div className="space-y-2">
