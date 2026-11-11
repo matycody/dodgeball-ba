@@ -6,6 +6,7 @@ import Forma from './torneo/Forma'
 import { BRANCH, MODALITY, STATUS, courtLabel } from '../lib/format'
 import { statusBorder } from '../lib/statusStyle'
 import { usePipClock } from '../hooks/usePipClock'
+import ScoreNum from './ScoreNum'
 
 const hour = (iso, timeSet) => (iso && timeSet !== false ? new Date(iso).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--')
 
@@ -34,7 +35,7 @@ function Side({ t, slot, form, rank, score, live, branch }) {
       <GoTo to={'/equipo/' + t.id} className="shrink-0"><TeamBadge team={t} size="sm" branch={branch} /></GoTo>
       <span className="min-w-0 flex-1 truncate text-sm font-bold">{t.name}</span>
       {/* Con resultado (finalizado o en vivo) el marcador va pegado al nombre; la posición y la racha quedan a su derecha */}
-      {score != null && <span className={'w-6 shrink-0 text-right font-mono text-lg font-extrabold tabular-nums ' + (live ? 'text-live' : '')}>{score}</span>}
+      {score != null && <span className={'w-6 shrink-0 text-right font-mono text-lg font-extrabold tabular-nums ' + (live ? 'text-live' : '')}><ScoreNum value={score} /></span>}
       {/* Con marcador, posición y racha van en un bloque de ancho fijo (aunque falten, p. ej. en una final) para que los marcadores queden alineados entre filas */}
       {(() => {
         const extra = (

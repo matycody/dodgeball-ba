@@ -342,6 +342,7 @@ export default function HomeInicio({ byId, loading, error, children }) {
               <h2 className="pt-2 text-xs font-bold uppercase tracking-widest text-muted">Todos los partidos</h2>
             </section>
           )}
+          <div key={(v.sel ?? '') + '|' + v.tCur} className="m-stagger space-y-4">
           {v.groups.map((g) => {
             const capped = v.sel === 'none' && v.tCur === 'all' && !openGroups.has(g.id) && g.list.length > 3
             const rows = capped ? g.list.slice(0, 3) : g.list
@@ -364,6 +365,7 @@ export default function HomeInicio({ byId, loading, error, children }) {
             </section>
             )
           })}
+          </div>
           {v.groups.length === 0 && (cal !== null || calTry >= 3) && (
             <p className="rounded-2xl border border-line bg-surface px-4 py-6 text-center text-sm font-bold text-muted">
               {all.length === 0 ? 'No hay partidos.' : 'No hay partidos esta fecha.'}

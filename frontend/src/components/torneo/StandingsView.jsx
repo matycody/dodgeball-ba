@@ -4,6 +4,7 @@ import { penaltyWhy } from '../../lib/format'
 import { Link } from 'react-router-dom'
 import TeamBadge from '../TeamBadge'
 import Forma from './Forma'
+import { useFlip } from '../../hooks/useFlip'
 import { socket } from '../../sockets/socket'
 import { Skeleton } from '../ui'
 
@@ -59,12 +60,13 @@ export default function StandingsView({ tournamentId, finished, branch = null })
     return () => { clearTimeout(timer); socket.off('match:updated', onUpdated); socket.emit('matches:unsubscribe') }
   }, [tournamentId, finished])
 
+  const flipRef = useFlip() // antes de los return: los hooks no pueden ir después
   if (err) return <p className="text-danger">{err}</p>
   if (!stages) return <Skeleton />
   if (!stages.length) return <p className="text-muted">Este torneo no tiene zonas de liga.</p>
 
   return (
-    <div className="space-y-5">
+    <div ref={flipRef} className="space-y-5">
       {stages.map((s) => (
         <div key={s.id} className="overflow-hidden rounded-3xl border border-line bg-surface">
           <p className="px-4 pt-4 text-xs font-bold uppercase tracking-widest text-muted">
@@ -94,7 +96,7 @@ export default function StandingsView({ tournamentId, finished, branch = null })
                 {s.rows.map((r, i) => {
                   const zone = r.zone !== undefined ? r.zone : zoneOf(s, i + 1, s.rows.length)
                   return (
-                  <tr key={r.team.id} className={'border-t border-line text-center ' + (ZONE_CLS[zone] ?? '')}>
+                  <tr key={r.team.id} data-flip={s.id + ':' + r.team.id} className={'border-t border-line text-center ' + (ZONE_CLS[zone] ?? '')}>
                     <td className="px-3 py-2 text-left"><span className={'grid h-6 w-6 place-items-center rounded-full text-xs font-extrabold tabular-nums ' + (ZONE_POS[zone] ?? '')}>{i + 1}</span></td>
                     <td className="px-2 py-2 text-left">
                       <Link to={'/equipo/' + r.team.id} className="flex items-center gap-2">

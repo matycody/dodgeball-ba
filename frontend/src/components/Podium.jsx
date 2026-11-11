@@ -11,7 +11,7 @@ function Slot({ place, team, count }) {
       {place === 1 && <Trophy size={20} className="mb-1 text-warn" />}
       {team !== undefined && <TeamBadge team={team ?? { name: '?' }} size={crest} />}
       {team !== undefined && <p className="mt-1 w-full truncate px-1 text-center text-[11px] font-extrabold">{team?.name ?? '—'}</p>}
-      <div className={'mt-1 grid w-full place-items-center rounded-t-xl text-2xl font-extrabold ' + BLOCK[place]}>
+      <div className={'m-rise mt-1 grid w-full place-items-center rounded-t-xl text-2xl font-extrabold ' + BLOCK[place]} style={{ animationDelay: (place === 1 ? 350 : place === 3 ? 220 : 100) + 'ms' }}>
         {count ?? place}
       </div>
       <p className="w-full bg-surface-2 py-0.5 text-center text-[9px] font-bold uppercase tracking-widest text-muted">{place}.º lugar</p>

@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Menu, Search, ChevronLeft, LogIn } from 'lucide-react'
 import Drawer from './Drawer'
@@ -13,6 +13,9 @@ import TourOverlay from './TourOverlay'
 import OfflineBanner from './OfflineBanner'
 import { tourSeen, useTourStore } from '../stores/tourStore'
 import { tourKeyFor, startTour } from '../lib/tours'
+
+// Pantallas del espectador donde se anima (lectura). Control de mesa, árbitro, Mis asignaciones y el panel de la organización quedan fuera
+const MOTION = /^\/($|partido\/|equipo\/|jugador\/|liga|buscar|equipos|noticias|partidos|predicciones|favoritos|estadisticas|mi-equipo|mis-partidos|mis-estadisticas|sanciones|sedes|perfil|reglas|acerca)/
 
 // Pantallas que ya traen su propio "volver" con el nombre de la lista a la que vuelven
 const OWN_BACK = /^\/(liga|control|admin\/(torneos|equipos|partidos))\/[^/]+$/
@@ -36,6 +39,8 @@ export default function AppLayout() {
   const menu = useAuthStore((s) => s.menu)
   const authLoading = useAuthStore((s) => s.loading)
   const { pathname } = useLocation()
+  const navType = useNavigationType()
+  const motion = MOTION.test(pathname)
   const look = useMenuPrefs((s) => s.look)
   useEffect(() => { installDragScroll() }, [])
 
@@ -59,7 +64,7 @@ export default function AppLayout() {
   }, [look])
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-2xl flex-col">
+    <div className={'mx-auto flex min-h-screen max-w-2xl flex-col' + (motion ? ' motion-ok' : '')}>
       <header className="sticky top-0 z-30 flex items-center gap-2 menu-glass px-3 pb-3 sm:gap-3 sm:px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
         <button
           aria-label="Abrir menú"
@@ -87,7 +92,9 @@ export default function AppLayout() {
 
       <main className="flex-1 px-4 pb-28 pt-2">
         <BackBar />
-        <Outlet />
+        <div key={motion ? pathname : undefined} className={motion ? (navType === 'POP' ? 'm-page-back' : 'm-page') : undefined}>
+          <Outlet />
+        </div>
       </main>
 
       <BottomNav />

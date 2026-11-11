@@ -24,7 +24,7 @@ export function Skeleton({ rows = 3, className = '' }) {
   return (
     <div className={'space-y-2 ' + className} role="status" aria-label="Cargando">
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="h-14 animate-pulse rounded-2xl border border-line bg-surface-2/70" style={{ opacity: 1 - i * 0.18 }} />
+        <div key={i} className="m-skel h-14 animate-pulse rounded-2xl border border-line bg-surface-2/70" style={{ opacity: 1 - i * 0.18 }} />
       ))}
     </div>
   )

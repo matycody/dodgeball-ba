@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import ScoreNum from '../ScoreNum'
 import { Link } from 'react-router-dom'
 import { CalendarDays, ClipboardList, Pin, PinOff, Trophy, User, X } from 'lucide-react'
 import { api } from '../../lib/api'
@@ -86,7 +87,7 @@ function Header({ m, tick, over, pip }) {
   const when = m.scheduledAt ? [dayTab(dayOf(m.scheduledAt)), hourOf(m.scheduledAt, m.timeSet)].filter(Boolean).join(' · ') : 'Sin fecha'
   const score = (
     <span className={'font-mono text-4xl font-extrabold tabular-nums ' + (live ? 'text-live' : '')}>
-      {m.score?.teamA ?? 0} <span className="text-lg text-muted">-</span> {m.score?.teamB ?? 0}
+      <ScoreNum value={m.score?.teamA ?? 0} /> <span className="text-lg text-muted">-</span> <ScoreNum value={m.score?.teamB ?? 0} />
     </span>
   )
   let center

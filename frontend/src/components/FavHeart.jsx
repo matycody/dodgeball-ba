@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Heart, Star } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
@@ -8,6 +8,7 @@ import { useFavorites } from '../stores/favoritesStore'
 export default function FavHeart({ type = 'TEAM', id, name = '', className = '', compact = false }) {
   const uid = useAuthStore((s) => s.user?.id)
   const { teams, tournaments, players, loaded, load, toggle } = useFavorites()
+  const [pop, setPop] = useState(false) // solo al tocar, no al cargar la lista
   useEffect(() => { if (uid && !loaded) load() }, [uid, loaded, load])
   if (!id) return null
 
@@ -20,8 +21,8 @@ export default function FavHeart({ type = 'TEAM', id, name = '', className = '',
     return <Link to="/login" aria-label={label} className={base + ' text-muted'}><Icon size={compact ? 16 : 18} /></Link>
   }
   return (
-    <button type="button" aria-label={label} aria-pressed={on} onClick={() => toggle(type, id).catch(() => {})} className={base + (on ? ' text-accent' : ' text-muted')}>
-      <Icon size={compact ? 16 : 18} className={on ? 'fill-current' : ''} />
+    <button type="button" aria-label={label} aria-pressed={on} onClick={() => { setPop(true); toggle(type, id).catch(() => {}) }} className={base + (on ? ' text-accent' : ' text-muted')}>
+      <Icon size={compact ? 16 : 18} onAnimationEnd={() => setPop(false)} className={(on ? 'fill-current' : '') + (pop ? ' m-pop' : '')} />
     </button>
   )
 }

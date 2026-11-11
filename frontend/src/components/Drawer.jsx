@@ -53,7 +53,7 @@ export default function Drawer({ open, onClose }) {
       />
       <aside
         className={
-          'absolute left-0 top-0 flex h-full w-80 max-w-[88%] flex-col sm:w-96 overflow-y-auto menu-glass-drawer px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] transition-transform duration-200 ' +
+          'absolute left-0 top-0 flex h-full w-80 max-w-[88%] flex-col sm:w-96 overflow-y-auto menu-glass-drawer px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)] ' +
           (open ? 'translate-x-0' : '-translate-x-full')
         }
       >
