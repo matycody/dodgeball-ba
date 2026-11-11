@@ -1,7 +1,8 @@
 const express = require('express');
 const prisma = require('../db');
 const { VENUE_SELECT } = require('../lib/venue');
-const { authenticate, requireRole } = require('../middleware/auth');
+const { authenticate, optionalAuth, requireRole } = require('../middleware/auth');
+const storage = require('../services/storage');
 const { activeSuspensions } = require('../services/sanctions');
 
 const router = express.Router();
@@ -84,8 +85,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Detalle con plantel activo (pÃºblico: solo nombre, sin DNI ni mail ni foto)
-router.get('/:id', async (req, res) => {
+// Detalle con plantel activo (público: solo nombre, sin DNI ni mail; la foto solo con sesión y si el jugador la hizo pública)
+router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const team = await prisma.team.findUnique({
       where: { id: req.params.id },
@@ -94,11 +95,14 @@ router.get('/:id', async (req, res) => {
         modalities: true,
         players: {
           where: { to: null, profile: { active: true } },
-          include: { profile: { select: { id: true, name: true, nickname: true, number: true, showNickname: true, showNumber: true } } },
+          include: { profile: { select: { id: true, name: true, nickname: true, number: true, showNickname: true, showNumber: true, showPhoto: true, photo: true } } },
         },
       },
     });
     if (!team) return res.status(404).json({ error: 'Equipo no encontrado' });
+
+    const photoPaths = req.user ? [...new Set(team.players.filter((p) => p.profile.showPhoto && p.profile.photo).map((p) => p.profile.photo))] : [];
+    const photoByPath = new Map((await storage.signedUrls(photoPaths).catch(() => [])).map((s) => [s.path, s.signedUrl]));
 
     const sus = await activeSuspensions(team.players.map((p) => p.profile.id)).catch(() => new Map());
 
@@ -119,6 +123,7 @@ router.get('/:id', async (req, res) => {
         number: p.profile.showNumber ? p.profile.number : null,
         branch: p.branch,
         coach: p.isCoach,
+        photoUrl: (p.profile.showPhoto && photoByPath.get(p.profile.photo)) || null,
         suspension: sus.get(p.profile.id) || null,
       })),
     });

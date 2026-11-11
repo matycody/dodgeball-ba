@@ -52,9 +52,13 @@ function Teammates({ team, selfId }) {
               <div className="relative flex h-14 items-center bg-accent-soft px-3">
                 <TeamBadge team={team} size="sm" />
                 {r.number != null && <span className="ml-2 font-mono text-sm font-extrabold tabular-nums text-fg">#{r.number}</span>}
-                <span className="absolute -top-5 right-3 grid h-14 w-14 place-items-center rounded-full border-2 border-bg bg-surface-2 text-lg font-extrabold text-muted">
-                  {(r.nickname || r.name).charAt(0).toUpperCase()}
-                </span>
+                {r.photoUrl
+                  ? <img src={r.photoUrl} alt="" loading="lazy" className="absolute -top-5 right-3 h-14 w-14 rounded-full border-2 border-bg bg-surface-2 object-cover" />
+                  : (
+                    <span className="absolute -top-5 right-3 grid h-14 w-14 place-items-center rounded-full border-2 border-bg bg-surface-2 text-lg font-extrabold text-muted">
+                      {(r.nickname || r.name).charAt(0).toUpperCase()}
+                    </span>
+                  )}
               </div>
             </Link>
           )
