@@ -4,6 +4,7 @@ const { matchResult } = require('../services/bracket');
 const { teamCareer } = require('../services/teamCareer');
 const { resolveChampions } = require('../services/champion');
 const { podiums } = require('../services/podium');
+const { matchPoints } = require('../services/standings');
 
 const router = express.Router();
 const TEAM_SELECT = { id: true, name: true, logo: true };
@@ -298,6 +299,49 @@ router.get('/records', async (req, res) => {
         unbeaten: unbeaten ? { team: unbeaten.team, played: unbeaten.played } : null,
       },
     });
+  } catch (err) {
+    fail(err, res);
+  }
+});
+
+// Tablas por equipo: sets y puntos a favor / en contra (Foam 1 por set, Cloth 2 por set y 1 cada uno si el set empata)
+// y sanciones recibidas (sin contar las deshechas por la mesa). Mismos filtros que el resto.
+router.get('/team-tables', async (req, res) => {
+  try {
+    const f = tournamentFilter(req.query);
+    if (f.error) return res.status(400).json({ error: f.error });
+    const where = { hiddenAt: null, teamAId: { not: null }, teamBId: { not: null }, tournament: f.where };
+    const [matches, sanctions] = await Promise.all([
+      prisma.match.findMany({
+        where: { ...where, status: 'FINISHED' },
+        select: { teamAId: true, teamBId: true, modality: true, sets: { select: { winnerTeamId: true } }, teamA: { select: TEAM_SELECT }, teamB: { select: TEAM_SELECT } },
+      }),
+      prisma.matchSanction.findMany({
+        where: { revokedAt: null, match: where },
+        select: { side: true, kind: true, match: { select: { teamAId: true, teamBId: true, teamA: { select: TEAM_SELECT }, teamB: { select: TEAM_SELECT } } } },
+      }),
+    ]);
+    const teams = new Map();
+    const get = (t) => {
+      if (!teams.has(t.id)) teams.set(t.id, { team: t, played: 0, setsWon: 0, setsLost: 0, pointsFor: 0, pointsAgainst: 0, sanctions: { WARNING: 0, YELLOW: 0, BLUE: 0, RED: 0, total: 0 } });
+      return teams.get(t.id);
+    };
+    for (const m of matches) {
+      const r = matchResult(m);
+      if (!r) continue; // ningún set decidido: no suma
+      const pts = matchPoints(m);
+      const a = get(m.teamA);
+      const b = get(m.teamB);
+      a.played++; b.played++;
+      a.setsWon += r.setsA; a.setsLost += r.setsB; a.pointsFor += pts.a; a.pointsAgainst += pts.b;
+      b.setsWon += r.setsB; b.setsLost += r.setsA; b.pointsFor += pts.b; b.pointsAgainst += pts.a;
+    }
+    for (const x of sanctions) {
+      const e = get(x.side === 'A' ? x.match.teamA : x.match.teamB);
+      if (e.sanctions[x.kind] !== undefined) e.sanctions[x.kind]++;
+      e.sanctions.total++;
+    }
+    res.json({ teams: [...teams.values()] });
   } catch (err) {
     fail(err, res);
   }

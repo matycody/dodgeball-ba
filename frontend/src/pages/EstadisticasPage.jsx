@@ -262,8 +262,47 @@ function Resumen({ champ, rec, teamsCount }) {
   )
 }
 
+// Tabla corta de equipos (top 10) con columnas configurables; `tt` son los datos de /stats/team-tables
+function RankTable({ title, note, tt, pick, sort, cols, empty }) {
+  const rows = tt ? tt.teams.filter(pick).sort(sort).slice(0, 10) : []
+  return (
+    <Card title={title}>
+      {tt === null && <p className="text-muted">Cargando…</p>}
+      {tt === false && <p className="text-sm text-danger">No se pudo cargar.</p>}
+      {tt && rows.length === 0 && <p className="text-sm text-muted">{empty}</p>}
+      {rows.length > 0 && (
+        <div className="-mx-1 overflow-x-auto">
+          <table className="w-full min-w-[320px] text-sm">
+            <thead>
+              <tr className="text-left text-[11px] uppercase tracking-wider text-muted">
+                <th className="px-1 pb-2 font-bold">#</th>
+                <th className="px-1 pb-2 font-bold">Equipo</th>
+                {cols.map((c) => <th key={c.label} className="px-1 pb-2 text-center font-bold">{c.label}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((x, i) => (
+                <tr key={x.team.id} className="m-row border-t border-line" style={{ '--d': 120 + Math.min(i, 14) * 70 + 'ms' }}>
+                  <td className="px-1 py-2 font-extrabold text-muted">{i + 1}</td>
+                  <td className="px-1 py-2">
+                    <Link to={'/equipo/' + x.team.id} className="flex items-center gap-2"><TeamBadge team={x.team} size="sm" /><span className="truncate font-bold">{x.team.name}</span></Link>
+                  </td>
+                  {cols.map((c) => <td key={c.label} className={'px-1 py-2 text-center ' + (c.strong ? 'font-extrabold' : '')}>{c.get(x)}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {note && <p className="mt-3 text-[11px] text-muted">{note}</p>}
+    </Card>
+  )
+}
+
+const PTS_NOTE = 'Puntos: Foam 1 por set ganado; Cloth 2 por set ganado (y 1 para cada uno si el set empata). Sets y puntos de los partidos terminados con estos filtros.'
+
 // Tabla general de equipos con los filtros activos (los datos por jugador llegan cuando se carguen quemadas y catches)
-function TablaEquipos({ rec }) {
+function TablaEquipos({ rec, tt }) {
   const rows = rec?.ranking ?? []
   return (
     <div className="m-stagger space-y-3">
@@ -304,6 +343,15 @@ function TablaEquipos({ rec }) {
           </div>
         )}
       </Card>
+      <RankTable title="Sets y puntos a favor" note={PTS_NOTE} tt={tt} empty="Todavía no hay partidos terminados con estos filtros."
+        pick={(x) => x.played > 0} sort={(a, b) => b.pointsFor - a.pointsFor || b.setsWon - a.setsWon}
+        cols={[{ label: 'PJ', get: (x) => x.played }, { label: 'Sets', get: (x) => x.setsWon }, { label: 'Puntos', get: (x) => x.pointsFor, strong: true }]} />
+      <RankTable title="Sets y puntos en contra" note={PTS_NOTE} tt={tt} empty="Todavía no hay partidos terminados con estos filtros."
+        pick={(x) => x.played > 0} sort={(a, b) => b.pointsAgainst - a.pointsAgainst || b.setsLost - a.setsLost}
+        cols={[{ label: 'PJ', get: (x) => x.played }, { label: 'Sets', get: (x) => x.setsLost }, { label: 'Puntos', get: (x) => x.pointsAgainst, strong: true }]} />
+      <RankTable title="Equipos más sancionados" note="Sanciones registradas por la mesa en los partidos (sin contar las que se deshicieron). Adv.: advertencias; Amar.: amarillas; Roja: expulsiones." tt={tt} empty="Todavía no hay sanciones registradas con estos filtros."
+        pick={(x) => x.sanctions.total > 0} sort={(a, b) => b.sanctions.RED - a.sanctions.RED || b.sanctions.total - a.sanctions.total}
+        cols={[{ label: 'Adv.', get: (x) => x.sanctions.WARNING }, { label: 'Amar.', get: (x) => x.sanctions.YELLOW }, { label: 'Azul', get: (x) => x.sanctions.BLUE }, { label: 'Roja', get: (x) => x.sanctions.RED }, { label: 'Total', get: (x) => x.sanctions.total, strong: true }]} />
       <Card title="Por jugador">
         <p className="text-sm text-muted">Quemadas, catches y presencias por jugador: próximamente. Se arman con lo que la mesa registre en cada partido.</p>
       </Card>
@@ -362,6 +410,7 @@ export default function EstadisticasPage() {
   const [tab, setTab] = useState('resumen')
   const [champ, setChamp] = useState(null)
   const [rec, setRec] = useState(null)
+  const [tt, setTt] = useState(null)
   const [teams, setTeams] = useState([])
   const [team, setTeam] = useState('')
   const [q, setQ] = useState('')
@@ -383,6 +432,7 @@ export default function EstadisticasPage() {
   useEffect(() => { api('GET', '/teams').then((d) => setTeams([...d].sort((x, y) => x.name.localeCompare(y.name)))).catch(() => {}) }, [])
   useEffect(() => { setChamp(null); api('GET', '/stats/champions' + filter).then(setChamp).catch(() => setChamp(false)) }, [filter])
   useEffect(() => { setRec(null); api('GET', '/stats/records' + filter).then(setRec).catch(() => setRec(false)) }, [filter])
+  useEffect(() => { if (tab !== 'estadisticas') return; setTt(null); api('GET', '/stats/team-tables' + filter).then(setTt).catch(() => setTt(false)) }, [filter, tab])
 
   const shown = teams.filter((t) => t.name.toLowerCase().includes(q.trim().toLowerCase()))
   const clear = () => { setYear(''); setMod(''); setBranch('') }
@@ -436,7 +486,7 @@ export default function EstadisticasPage() {
 
       {tab === 'resumen' && <Resumen champ={champ || undefined} rec={rec} teamsCount={teams.length} />}
 
-      {tab === 'estadisticas' && <TablaEquipos rec={rec} />}
+      {tab === 'estadisticas' && <TablaEquipos rec={rec} tt={tt} />}
       {tab === 'fama' && <SalonFama champ={champ} />}
 
       {tab === 'torneos' && (
