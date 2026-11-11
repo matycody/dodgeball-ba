@@ -288,7 +288,7 @@ export default function MatchSpectator({ m, tick, over, notice, onCloseNotice, s
         </div>
       )}
       {tab === 'alineacion' && <MatchRoster teamA={m.teamA} teamB={m.teamB} branch={m.branch} matchId={m.id} sanctions={{ items: sanctions, tick }} />}
-      {tab === 'predicciones' && <PredictBox matchId={m.id} teamA={m.teamA} teamB={m.teamB} />}
+      {tab === 'predicciones' && <PredictBox matchId={m.id} teamA={m.teamA} teamB={m.teamB} standalone />}
       {tab === 'clasificacion' && <StandingsView branch={m.branch} tournamentId={m.tournament.id} finished={m.tournament.status === 'FINISHED'} />}
       {tab === 'cara' && <HeadToHead m={m} />}
     </div>

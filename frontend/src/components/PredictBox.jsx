@@ -4,24 +4,31 @@ import { Trophy } from 'lucide-react'
 import { api } from '../lib/api'
 import { useAuthStore } from '../stores/authStore'
 import { fmtCuota, fmtMult } from './PredictCard'
+import { Skeleton } from './ui'
 
 // Predicciones del partido: elegís quién gana (o empate) hasta que empiece. Sin dinero: cada acierto suma puntos al ranking.
 // No aparece sin sesión ni para quien juega o está asignado a este partido (el backend lo informa en "blocked").
-export default function PredictBox({ matchId, teamA, teamB }) {
+export default function PredictBox({ matchId, teamA, teamB, standalone = false }) {
   const user = useAuthStore((s) => s.user)
   const [d, setD] = useState(null)
+  const [loaded, setLoaded] = useState(false)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
   useEffect(() => {
     if (!user || !matchId) return
     let live = true
-    api('GET', '/predictions/match/' + matchId).then((r) => live && setD(r)).catch(() => live && setD(null))
+    setLoaded(false)
+    api('GET', '/predictions/match/' + matchId).then((r) => live && setD(r)).catch(() => live && setD(null)).finally(() => live && setLoaded(true))
     return () => { live = false }
   }, [user, matchId])
 
-  if (!user || !d) return null
-  if (!d.open && !d.pick && !d.votes.total && !d.blocked) return null // ya empezó y nadie había predicho
+  // En su propia pestaña muestra "cargando" o el motivo por el que no hay nada; dentro del resumen no ocupa lugar
+  const empty = (msg) => (standalone ? <p className="text-sm text-muted">{msg}</p> : null)
+  if (!user) return empty('Iniciá sesión para hacer tu predicción.')
+  if (!loaded) return standalone ? <Skeleton rows={3} /> : null
+  if (!d) return empty('No se pudieron cargar las predicciones.')
+  if (!d.open && !d.pick && !d.votes.total && !d.blocked) return empty('El partido empezó sin predicciones.') // ya empezó y nadie había predicho
 
   const choose = async (pick) => {
     if (!d.open || busy) return
