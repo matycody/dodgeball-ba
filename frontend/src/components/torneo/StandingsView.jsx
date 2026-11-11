@@ -67,8 +67,11 @@ export default function StandingsView({ tournamentId, finished, branch = null })
 
   return (
     <div ref={flipRef} className="space-y-5">
-      {stages.map((s) => (
-        <div key={s.id} className="overflow-hidden rounded-3xl border border-line bg-surface">
+      {stages.map((s, si) => {
+        // cada zona espera a que termine de entrar la anterior: equipo por equipo, y recién después la zona de abajo
+        const base = stages.slice(0, si).reduce((a, z) => a + 160 + Math.min(z.rows.length, 14) * 80, 0)
+        return (
+        <div key={s.id} className="m-zone overflow-hidden rounded-3xl border border-line bg-surface" style={{ '--d': base + 'ms' }}>
           <p className="px-4 pt-4 text-xs font-bold uppercase tracking-widest text-muted">
             {s.name}
             {s.promotions > 0 && <span className="ml-2 text-live">↑ {s.promotions}</span>}
@@ -96,7 +99,7 @@ export default function StandingsView({ tournamentId, finished, branch = null })
                 {s.rows.map((r, i) => {
                   const zone = r.zone !== undefined ? r.zone : zoneOf(s, i + 1, s.rows.length)
                   return (
-                  <tr key={r.team.id} data-flip={s.id + ':' + r.team.id} className={'border-t border-line text-center ' + (ZONE_CLS[zone] ?? '')}>
+                  <tr key={r.team.id} data-flip={s.id + ':' + r.team.id} className={'m-row border-t border-line text-center ' + (ZONE_CLS[zone] ?? '')} style={{ '--d': base + 160 + Math.min(i, 14) * 80 + 'ms' }}>
                     <td className="px-3 py-2 text-left"><span className={'grid h-6 w-6 place-items-center rounded-full text-xs font-extrabold tabular-nums ' + (ZONE_POS[zone] ?? '')}>{i + 1}</span></td>
                     <td className="px-2 py-2 text-left">
                       <Link to={'/equipo/' + r.team.id} className="flex items-center gap-2">
@@ -139,7 +142,8 @@ export default function StandingsView({ tournamentId, finished, branch = null })
             J jugados · G ganados · E empatados · P perdidos · PJ puntos de juego · PC puntos en contra · DP diferencia de puntos · Últimas: V ganó, E empató, D perdió
           </p>
         </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

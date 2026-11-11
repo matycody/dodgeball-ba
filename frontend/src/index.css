@@ -235,6 +235,10 @@ html.plain-bg p.text-muted { background: none; border: 0; padding: 0; border-rad
 .motion-ok .m-cascade > :nth-child(12) { animation-delay: 495ms; }
 .motion-ok .m-cascade > :nth-child(13) { animation-delay: 540ms; }
 .motion-ok .m-cascade > :nth-child(14) { animation-delay: 585ms; }
+/* Clasificación: la zona aparece y sus equipos entran uno por uno (--d = retraso, calculado en StandingsView) */
+@keyframes m-row-in { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+.motion-ok .m-zone { animation: m-cascade-in 420ms var(--ease-out) backwards; animation-delay: var(--d, 0ms); }
+.motion-ok .m-row { animation: m-row-in 420ms var(--ease-out) backwards; animation-delay: var(--d, 0ms); }
 .motion-ok .m-pop { animation: m-pop 420ms var(--ease-pop); }
 .motion-ok .m-score { display: inline-block; animation: m-score 600ms var(--ease-out); }
 .motion-ok .m-rise { transform-origin: bottom; animation: m-rise 700ms var(--ease-out) both; }
