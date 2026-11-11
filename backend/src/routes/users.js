@@ -1,5 +1,6 @@
 const express = require('express');
 const { loadRows, idsOf } = require('../lib/fold');
+const storage = require('../services/storage');
 const prisma = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
 
@@ -85,7 +86,9 @@ router.get('/demo', async (req, res) => {
 
 router.delete('/demo', async (req, res) => {
   try {
-    const ids = (await prisma.profile.findMany({ where: demoWhere, select: { id: true } })).map((p) => p.id);
+    const found = await prisma.profile.findMany({ where: demoWhere, select: { id: true, photo: true } });
+    const ids = found.map((p) => p.id);
+    for (const p of found) if (p.photo) await storage.removeFile(storage.PHOTOS_BUCKET, p.photo).catch(() => {});
     const [attendance, rel, profiles] = await prisma.$transaction([
       prisma.matchAttendance.deleteMany({ where: { profileId: { in: ids } } }),
       prisma.playerTeam.deleteMany({ where: { profileId: { in: ids } } }),

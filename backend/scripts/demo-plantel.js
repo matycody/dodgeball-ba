@@ -1,6 +1,7 @@
 // Plantel de DEMOSTRACIÓN: jugadores sin login (sin usuario) para completar los equipos.
 //   Crear:   node scripts/demo-plantel.js
 //   Borrar:  node scripts/demo-plantel.js --borrar
+//   Caras:   node scripts/demo-plantel.js --fotos   (dibujos generados; a cada jugador demo sin foto le pone una y la hace pública)
 //   En producción agregar --produccion (con backup previo). Completa solo lo que falta: equipos nuevos o con menos de 7 por rama.
 // Todos los jugadores demo tienen mail "...@demo.pps" y DNI "DEMO...", así se borran sin tocar nada real.
 // Reglas por equipo: 7 masculinos (si tiene rama masculina), 7 femeninas (si tiene rama femenina) y,
@@ -16,7 +17,28 @@ const SURNAMES = ['González', 'Rodríguez', 'Gómez', 'Fernández', 'López', '
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const shuffle = (arr) => arr.map((v) => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
 
+// Caritas de dibujo (scripts/caras-demo.js) para los jugadores demo que no tienen foto
+async function fotos() {
+  const sharp = require('sharp');
+  const storage = require('../src/services/storage');
+  const { carita } = require('./caras-demo');
+  const profiles = await prisma.profile.findMany({ where: { email: { endsWith: DOMAIN }, photo: null }, select: { id: true, sex: true } });
+  let n = 0;
+  for (const p of profiles) {
+    const png = await sharp(Buffer.from(carita(p.id, p.sex))).png().toBuffer();
+    const webp = await storage.processImage(png, 'photo');
+    const path = 'profiles/' + p.id + '.webp';
+    await storage.uploadPhoto(path, webp);
+    await prisma.profile.update({ where: { id: p.id }, data: { photo: path, showPhoto: true } });
+    n++;
+  }
+  console.log(`Listo: ${n} caras demo cargadas.`);
+}
+
 async function borrar() {
+  const storage = require('../src/services/storage');
+  const withPhoto = await prisma.profile.findMany({ where: { email: { endsWith: DOMAIN }, photo: { not: null } }, select: { photo: true } });
+  for (const p of withPhoto) await storage.removeFile(storage.PHOTOS_BUCKET, p.photo).catch(() => {});
   const profiles = await prisma.profile.findMany({ where: { email: { endsWith: DOMAIN } }, select: { id: true } });
   const ids = profiles.map((p) => p.id);
   const rel = await prisma.playerTeam.deleteMany({ where: { profileId: { in: ids } } });
@@ -88,5 +110,5 @@ async function crear() {
 (async () => {
   const url = process.env.DATABASE_URL || '';
   if (url.includes('ep-withered-grass') && !process.argv.includes('--produccion')) throw new Error('Esto apunta a PRODUCCIÓN. Hacé backup en Neon y volvé a correrlo con --produccion.');
-  if (process.argv.includes('--borrar')) await borrar(); else await crear();
+  if (process.argv.includes('--borrar')) await borrar(); else if (process.argv.includes('--fotos')) await fotos(); else await crear();
 })().catch((e) => { console.error(e.message); process.exitCode = 1; }).finally(() => prisma.$disconnect());
