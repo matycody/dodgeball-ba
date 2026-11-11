@@ -37,6 +37,7 @@ export default function HomeInicio({ byId, loading, error, children }) {
   const [cal, setCal] = useState(readCal) // lo último guardado se muestra al instante y se actualiza apenas llega lo nuevo
   const [calTry, setCalTry] = useState(0)
   const [hist, setHist] = useState([]) // jornadas que se piden a pedido (más antiguas o más lejanas que la ventana inicial)
+  const [dayRows, setDayRows] = useState({}) // jornada elegida: todos sus partidos (finalizados incluidos), pedidos aparte y por día
   const [ext, setExt] = useState({ back: 0, ahead: 0, loading: null, doneBack: false, doneAhead: false })
   const uid = useAuthStore((s) => s.user?.id)
   const { teams: favTeams, tournaments: favTours, loaded: favLoaded, load: loadFavs, clear: clearFavs } = useFavorites()
@@ -109,9 +110,10 @@ export default function HomeInicio({ byId, loading, error, children }) {
     const mp = new Map()
     hist.forEach((m) => mp.set(m.id, m))
     ;(cal ?? []).forEach((m) => mp.set(m.id, m))
+    Object.values(dayRows).forEach((rows) => rows.forEach((m) => mp.set(m.id, m))) // lo pedido por día es más fresco que el calendario
     Object.values(byId).forEach((m) => mp.set(m.id, { ...mp.get(m.id), ...m }))
     return [...mp.values()].filter((m) => m.status !== 'CANCELLED')
-  }, [cal, byId, hist])
+  }, [cal, byId, hist, dayRows])
 
   const v = useMemo(() => {
     const live = all.filter((m) => m.status === 'LIVE').sort(byTime)
@@ -182,6 +184,37 @@ export default function HomeInicio({ byId, loading, error, children }) {
   }, [all, cal, calTry, lock, dPick, tPick, phasePick, favTeams, favTours, favReady, mineOpen])
 
   useEffect(() => { if (lock === null && v.autoRaw) setLock(v.autoRaw) }, [lock, v.autoRaw])
+
+  // Jornada elegida: se piden todos sus partidos (finalizados incluidos) aparte del calendario de 90 días, que se corta a los 1000 finalizados.
+  // Son pocas decenas de filas y la dirección es igual para todos, así que el servidor la reutiliza. Se repite al reconectar, al volver a la pestaña
+  // y poco después de que un partido termina, para que ninguno desaparezca de la lista del día.
+  const selDay = v.sel && DATE_RE.test(v.sel) ? v.sel : null
+  useEffect(() => {
+    if (!selDay) return undefined
+    let alive = true
+    let timer = null
+    const from = new Date(selDay + 'T00:00:00')
+    const to = new Date(from)
+    to.setDate(to.getDate() + 1)
+    const url = '/matches?status=LIVE,READY,SCHEDULED,SUSPENDED,FINISHED&limit=200&from=' + from.toISOString() + '&to=' + new Date(to.getTime() - 1).toISOString()
+    const load = () => api('GET', url).then((rows) => { if (alive) setDayRows((p) => ({ ...p, [selDay]: rows.map(normMatch) })) }).catch(() => {})
+    const later = () => { clearTimeout(timer); timer = setTimeout(load, 1500) }
+    const onUpdated = (p) => { if (p?.status === 'FINISHED') later() }
+    const onVisible = () => { if (document.visibilityState === 'visible') load() }
+    load()
+    socket.on('connect', load)
+    socket.on('match:updated', onUpdated)
+    socket.on('tournament:updated', later)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      alive = false
+      clearTimeout(timer)
+      socket.off('connect', load)
+      socket.off('match:updated', onUpdated)
+      socket.off('tournament:updated', later)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [selDay])
 
   useEffect(() => {
     document.getElementById('daytab-' + v.sel)?.scrollIntoView({ inline: 'center', block: 'nearest' })
