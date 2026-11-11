@@ -566,6 +566,7 @@ model Venue {
   mapUrl    String?   @db.VarChar(300) // enlace pegado desde Google/Apple Maps (opcional)
   courts    Int? // canchas disponibles habitualmente (sugerencia al armar la jornada)
   notes     String?   @db.VarChar(300)
+  image     String?   @db.VarChar(300) // foto de las canchas o de la entrada (bucket público de logos)
   deletedAt DateTime? // baja lógica: los partidos que la usaron la conservan
   createdAt DateTime  @default(now())
 

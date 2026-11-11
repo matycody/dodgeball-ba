@@ -9,7 +9,7 @@ export default function SedesPublicPage() {
   return (
     <div className="m-cascade space-y-4">
       <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Sedes</h1>
-      <p className="text-xs text-muted">Los lugares donde se juegan las fechas durante el año.</p>
+      <p className="rounded-2xl border border-line bg-surface px-3 py-2 text-xs text-muted">Los lugares donde se juegan las fechas durante el año.</p>
       {list === null && <p className="text-muted">Cargando…</p>}
       {list === false && <p className="text-danger">No se pudieron cargar las sedes.</p>}
       {list?.length === 0 && <p className="text-muted">Todavía no hay sedes cargadas.</p>}

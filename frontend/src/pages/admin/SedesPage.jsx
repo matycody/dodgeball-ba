@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, MapPin, X, Navigation } from 'lucide-react'
-import { api } from '../../lib/api'
+import { useRef } from 'react'
+import { Plus, Pencil, Trash2, MapPin, X, Navigation, ImagePlus } from 'lucide-react'
+import { api, apiUpload } from '../../lib/api'
+import { VenueImage } from '../../components/VenueInfo'
 import { Btn, Alert, inputCls } from '../../components/ui'
 import { useConfirm } from '../../components/ConfirmProvider'
 import { mapLinks } from '../../lib/maps'
@@ -23,14 +25,17 @@ export default function SedesPage() {
   const [busy, setBusy] = useState(false)
   const [reading, setReading] = useState(false)
   const [readMsg, setReadMsg] = useState('')
+  const [pic, setPic] = useState(null) // { file, url } foto nueva elegida
+  const [dropPic, setDropPic] = useState(false) // quitar la foto actual
+  const picRef = useRef(null)
 
   const load = () => api('GET', '/venues').then(setList).catch((e) => setErr(e.message))
   useEffect(() => { load() }, [])
 
   const open = (v) => {
-    setErr(''); setOk('')
+    setErr(''); setOk(''); setPic(null); setDropPic(false)
     if (v) {
-      setForm({ id: v.id, name: v.name, address: v.address, latitude: v.latitude ?? '', longitude: v.longitude ?? '', mapUrl: v.mapUrl ?? '', courts: v.courts ?? '', notes: v.notes ?? '' })
+      setForm({ id: v.id, image: v.image ?? null, name: v.name, address: v.address, latitude: v.latitude ?? '', longitude: v.longitude ?? '', mapUrl: v.mapUrl ?? '', courts: v.courts ?? '', notes: v.notes ?? '' })
       setCoords(v.latitude != null ? v.latitude + ', ' + v.longitude : '')
     } else { setForm({ ...EMPTY }); setCoords('') }
   }
@@ -71,8 +76,11 @@ export default function SedesPage() {
       mapUrl: form.mapUrl.trim() || null, courts: form.courts === '' ? null : Number(form.courts), notes: form.notes.trim() || null,
     }
     try {
-      if (form.id) await api('PATCH', '/venues/' + form.id, body)
-      else await api('POST', '/venues', body)
+      let id = form.id
+      if (id) await api('PATCH', '/venues/' + id, body)
+      else id = (await api('POST', '/venues', body)).id
+      if (pic) await apiUpload('/photos/venues/' + id, pic.file)
+      else if (dropPic && form.image) await api('DELETE', '/photos/venues/' + id)
       setOk(form.id ? 'Sede actualizada' : 'Sede creada')
       setForm(null)
       await load()
@@ -92,7 +100,7 @@ export default function SedesPage() {
         <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Sedes</h1>
         {!form && <Btn tone="accent" onClick={() => open(null)}><Plus size={16} /> Nueva sede</Btn>}
       </div>
-      <div className="text-xs text-muted">Los polideportivos donde se juegan las fechas. Se eligen al armar la jornada y la gente ve cómo llegar desde el partido.</div>
+      <p className="rounded-2xl border border-line bg-surface px-3 py-2 text-xs text-muted">Los polideportivos donde se juegan las fechas. Se eligen al armar la jornada y la gente ve cómo llegar desde el partido.</p>
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
       {ok && <Alert tone="ok" onClose={() => setOk('')}>{ok}</Alert>}
 
@@ -126,6 +134,25 @@ export default function SedesPage() {
               <input className={inputCls} type="number" min="1" max="50" placeholder="Opcional" value={form.courts} onChange={(e) => set('courts', e.target.value)} />
             </label>
           </div>
+          <div className="space-y-2">
+            <p className="text-xs text-muted">Foto de fondo (opcional): las canchas o la entrada del lugar</p>
+            {(pic?.url || (form.image && !dropPic)) && (
+              <div className="relative h-32 overflow-hidden rounded-2xl border border-line bg-surface-2">
+                <img src={pic?.url ?? form.image} alt="" className="h-full w-full object-cover" />
+              </div>
+            )}
+            <input ref={picRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+              const f = e.target.files?.[0]; e.target.value = ''
+              if (!f) return
+              if (!f.type.startsWith('image/')) return setErr('El archivo no es una imagen')
+              if (f.size > 15 * 1024 * 1024) return setErr('La imagen supera los 15 MB')
+              setPic({ file: f, url: URL.createObjectURL(f) }); setDropPic(false)
+            }} />
+            <div className="flex flex-wrap gap-2">
+              <Btn type="button" disabled={busy} onClick={() => picRef.current?.click()}><ImagePlus size={16} /> {pic || (form.image && !dropPic) ? 'Cambiar foto' : 'Elegir foto'}</Btn>
+              {(pic || (form.image && !dropPic)) && <Btn type="button" disabled={busy} onClick={() => { setPic(null); setDropPic(true) }}>Quitar foto</Btn>}
+            </div>
+          </div>
           <label className="block text-xs text-muted">Nota para la gente (opcional)
             <textarea className={inputCls} rows={2} maxLength={300} placeholder="Ej.: entrada por calle X, hay estacionamiento" value={form.notes} onChange={(e) => set('notes', e.target.value)} />
           </label>
@@ -142,8 +169,9 @@ export default function SedesPage() {
         {(list ?? []).map((v) => {
           const links = mapLinks(v)
           return (
-            <div key={v.id} className="space-y-2 rounded-2xl border border-line bg-surface p-4">
-              <div className="flex items-start gap-3">
+            <div key={v.id} className="relative space-y-2 overflow-hidden rounded-2xl border border-line bg-surface p-4">
+              {v.image && <VenueImage src={v.image} />}
+              <div className="relative flex items-start gap-3">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent/15 text-accent"><MapPin size={18} /></div>
                 <div className="min-w-0 flex-1">
                   <div className="font-extrabold leading-tight">{v.name}</div>
@@ -155,7 +183,7 @@ export default function SedesPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
+              <div className="relative flex flex-wrap items-center gap-2 text-xs font-bold">
                 <a href={links.google} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 py-1.5"><Navigation size={14} /> Probar mapa</a>
                 <span className="flex-1" />
                 <button aria-label="Editar" onClick={() => open(v)} className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 text-muted"><Pencil size={16} /></button>

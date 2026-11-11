@@ -1,6 +1,16 @@
 import { MapPin, Navigation } from 'lucide-react'
 import { mapLinks } from '../lib/maps'
 
+// Foto de fondo de la sede: se ve arriba y se funde con la tarjeta hacia abajo para que el texto siga legible
+export function VenueImage({ src }) {
+  return (
+    <>
+      <img src={src} alt="" loading="lazy" className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-surface/30" />
+    </>
+  )
+}
+
 // Bloque "Dónde se juega": nombre, dirección y botones para abrir el mapa
 export default function VenueInfo({ venue, className = '', compact = false }) {
   if (!venue) return null
@@ -19,8 +29,9 @@ export default function VenueInfo({ venue, className = '', compact = false }) {
   }
   const btn = 'inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-xs font-bold'
   return (
-    <div className={'space-y-2 rounded-2xl border border-line bg-surface p-4 text-left ' + className}>
-      <div className="flex items-start gap-2">
+    <div className={'relative space-y-2 overflow-hidden rounded-2xl border border-line bg-surface p-4 text-left ' + className}>
+      {venue.image && <VenueImage src={venue.image} />}
+      <div className="relative flex items-start gap-2">
         <MapPin size={18} className="mt-0.5 shrink-0 text-accent" />
         <div className="min-w-0">
           <div className="font-extrabold leading-tight">{venue.name}</div>
@@ -28,7 +39,7 @@ export default function VenueInfo({ venue, className = '', compact = false }) {
           {venue.notes && <div className="mt-1 text-xs text-muted">{venue.notes}</div>}
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="relative flex flex-wrap gap-2">
         <a href={links.google} target="_blank" rel="noopener noreferrer" className={btn}><Navigation size={14} /> Google Maps</a>
         <a href={links.apple} target="_blank" rel="noopener noreferrer" className={btn}><Navigation size={14} /> Apple Maps</a>
       </div>

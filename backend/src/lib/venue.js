@@ -1,3 +1,3 @@
 // Datos públicos de una sede, para incluirlos en los partidos
-const VENUE_SELECT = { id: true, name: true, address: true, latitude: true, longitude: true, mapUrl: true, notes: true };
+const VENUE_SELECT = { id: true, name: true, address: true, latitude: true, longitude: true, mapUrl: true, notes: true, image: true };
 module.exports = { VENUE_SELECT };

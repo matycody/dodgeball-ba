@@ -10,7 +10,7 @@ router.get('/public', async (req, res) => {
     const venues = await prisma.venue.findMany({
       where: { deletedAt: null },
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, address: true, latitude: true, longitude: true, mapUrl: true, courts: true, notes: true },
+      select: { id: true, name: true, address: true, latitude: true, longitude: true, mapUrl: true, courts: true, notes: true, image: true },
     });
     res.json(venues);
   } catch (err) {

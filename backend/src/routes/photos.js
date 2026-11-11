@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const crypto = require('crypto');
 const prisma = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
@@ -117,6 +117,32 @@ router.put('/tournaments/:id', ...admin, storage.imageBody, async (req, res) => 
     const url = await storage.uploadLogo('tournaments/' + t.id + '.webp', webp);
     await prisma.tournament.update({ where: { id: t.id }, data: { logo: url } });
     res.json({ logo: url });
+  } catch (err) {
+    handleError(err, res);
+  }
+});
+
+// Admin: foto de la sede (cancha o entrada del lugar), se muestra de fondo en la sede
+router.put('/venues/:id', ...admin, storage.imageBody, async (req, res) => {
+  try {
+    const v = await prisma.venue.findUnique({ where: { id: req.params.id } });
+    if (!v || v.deletedAt) return res.status(404).json({ error: 'Sede no encontrada' });
+    const webp = await storage.processImage(req.body, 'cover');
+    const url = await storage.uploadLogo('venues/' + v.id + '.webp', webp);
+    await prisma.venue.update({ where: { id: v.id }, data: { image: url } });
+    res.json({ image: url });
+  } catch (err) {
+    handleError(err, res);
+  }
+});
+
+router.delete('/venues/:id', ...admin, async (req, res) => {
+  try {
+    const v = await prisma.venue.findUnique({ where: { id: req.params.id } });
+    if (!v) return res.status(404).json({ error: 'Sede no encontrada' });
+    await prisma.venue.update({ where: { id: v.id }, data: { image: null } });
+    await storage.removeFile(storage.LOGOS_BUCKET, 'venues/' + v.id + '.webp').catch(() => {});
+    res.json({ ok: true });
   } catch (err) {
     handleError(err, res);
   }
