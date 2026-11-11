@@ -280,8 +280,7 @@ router.get('/records', async (req, res) => {
 
     const rows = [...teams.values()].map((e) => ({ ...e, pct: e.played ? Math.round((e.won / e.played) * 100) : 0 }));
     const ranking = rows
-      .sort((a, b) => b.titles - a.titles || b.pct - a.pct || b.played - a.played || a.team.name.localeCompare(b.team.name))
-      .slice(0, 10);
+      .sort((a, b) => b.titles - a.titles || b.pct - a.pct || b.played - a.played || a.team.name.localeCompare(b.team.name)); // todos los equipos: cada pantalla recorta lo que muestra
     const unbeaten = rows.filter((e) => e.played >= 3 && e.lost === 0).sort((a, b) => b.played - a.played)[0] ?? null;
 
     res.json({

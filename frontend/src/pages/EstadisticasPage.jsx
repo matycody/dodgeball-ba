@@ -188,6 +188,8 @@ function HeadToHead({ teams, filter }) {
 }
 
 function Resumen({ champ, rec, teamsCount }) {
+  const [allHist, setAllHist] = useState(false)
+  const hist = (rec?.ranking ?? []).filter((x) => x.titles > 0) // solo equipos con títulos
   const last = champ?.tournaments?.[0]
   const t = rec?.totals
   const r = rec?.records
@@ -215,9 +217,9 @@ function Resumen({ champ, rec, teamsCount }) {
       <Card title="Ranking histórico">
         {rec === null && <p className="text-muted">Cargando…</p>}
         {rec === false && <p className="text-sm text-danger">No se pudo cargar.</p>}
-        {rec && rec.ranking.length === 0 && <p className="text-sm text-muted">Todavía no hay partidos terminados con estos filtros.</p>}
+        {rec && hist.length === 0 && <p className="text-sm text-muted">Todavía no hay campeones con estos filtros.</p>}
         <div className="m-cascade space-y-1">
-          {(rec?.ranking ?? []).slice(0, 5).map((x, i) => (
+          {(allHist ? hist : hist.slice(0, 5)).map((x, i) => (
             <Link key={x.team.id} to={'/equipo/' + x.team.id} className="flex items-center gap-3 rounded-2xl px-1 py-2">
               <span className="w-4 text-center text-sm font-extrabold text-muted">{i + 1}</span>
               <TeamBadge team={x.team} size="sm" />
@@ -232,6 +234,7 @@ function Resumen({ champ, rec, teamsCount }) {
             </Link>
           ))}
         </div>
+        {hist.length > 5 && <button type="button" onClick={() => setAllHist((v) => !v)} className="mt-3 w-full rounded-xl border border-line bg-surface-2 py-2 text-sm font-bold">{allHist ? 'Ver menos' : 'Ver todos (' + hist.length + ')'}</button>}
       </Card>
 
       {r && (r.streak || r.blowout || r.unbeaten || r.longest) && (
@@ -264,7 +267,9 @@ function Resumen({ champ, rec, teamsCount }) {
 
 // Tabla corta de equipos (top 10) con columnas configurables; `tt` son los datos de /stats/team-tables
 function RankTable({ title, note, tt, pick, sort, cols, empty }) {
-  const rows = tt ? tt.teams.filter(pick).sort(sort).slice(0, 10) : []
+  const [all, setAll] = useState(false)
+  const full = tt ? tt.teams.filter(pick).sort(sort) : []
+  const rows = all ? full : full.slice(0, 10)
   return (
     <Card title={title}>
       {tt === null && <p className="text-muted">Cargando…</p>}
@@ -294,6 +299,7 @@ function RankTable({ title, note, tt, pick, sort, cols, empty }) {
           </table>
         </div>
       )}
+      {full.length > 10 && <button type="button" onClick={() => setAll((v) => !v)} className="mt-3 w-full rounded-xl border border-line bg-surface-2 py-2 text-sm font-bold">{all ? 'Ver menos' : 'Ver todos (' + full.length + ')'}</button>}
       {note && <p className="mt-3 text-[11px] text-muted">{note}</p>}
     </Card>
   )
@@ -303,7 +309,9 @@ const PTS_NOTE = 'Puntos: Foam 1 por set ganado; Cloth 2 por set ganado (y 1 par
 
 // Tabla general de equipos con los filtros activos (los datos por jugador llegan cuando se carguen quemadas y catches)
 function TablaEquipos({ rec, tt }) {
-  const rows = rec?.ranking ?? []
+  const [all, setAll] = useState(false)
+  const full = rec?.ranking ?? []
+  const rows = all ? full : full.slice(0, 10)
   return (
     <div className="m-stagger space-y-3">
       <Card title="Tabla de equipos">
@@ -342,6 +350,7 @@ function TablaEquipos({ rec, tt }) {
             </table>
           </div>
         )}
+        {full.length > 10 && <button type="button" onClick={() => setAll((v) => !v)} className="mt-3 w-full rounded-xl border border-line bg-surface-2 py-2 text-sm font-bold">{all ? 'Ver menos' : 'Ver todos (' + full.length + ')'}</button>}
       </Card>
       <RankTable title="Sets y puntos a favor" note={PTS_NOTE} tt={tt} empty="Todavía no hay partidos terminados con estos filtros."
         pick={(x) => x.played > 0} sort={(a, b) => b.pointsFor - a.pointsFor || b.setsWon - a.setsWon}
