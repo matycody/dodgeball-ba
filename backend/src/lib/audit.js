@@ -12,6 +12,7 @@ const LABELS = {
   'POST /venues': 'Creó una sede',
   'PATCH /venues/:id': 'Editó una sede',
   'DELETE /venues/:id': 'Eliminó una sede',
+  'DELETE /users/demo': 'Borró los jugadores de demostración',
   'POST /users/:id/promote': 'Hizo admin a un usuario',
   'POST /users/:id/demote': 'Quitó admin a un usuario',
   'DELETE /users/:id': 'Desactivó un usuario',

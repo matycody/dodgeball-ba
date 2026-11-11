@@ -1,6 +1,7 @@
 // Plantel de DEMOSTRACIÓN: jugadores sin login (sin usuario) para completar los equipos.
 //   Crear:   node scripts/demo-plantel.js
 //   Borrar:  node scripts/demo-plantel.js --borrar
+//   En producción agregar --produccion (con backup previo). Completa solo lo que falta: equipos nuevos o con menos de 7 por rama.
 // Todos los jugadores demo tienen mail "...@demo.pps" y DNI "DEMO...", así se borran sin tocar nada real.
 // Reglas por equipo: 7 masculinos (si tiene rama masculina), 7 femeninas (si tiene rama femenina) y,
 // si tiene mixto, 4 masculinos + 3 femeninas al azar de su plantel (si no tiene la rama, se le arma lo mínimo para el mixto).
@@ -86,6 +87,6 @@ async function crear() {
 
 (async () => {
   const url = process.env.DATABASE_URL || '';
-  if (url.includes('ep-withered-grass')) throw new Error('Esto apunta a PRODUCCIÓN. Abortado.');
+  if (url.includes('ep-withered-grass') && !process.argv.includes('--produccion')) throw new Error('Esto apunta a PRODUCCIÓN. Hacé backup en Neon y volvé a correrlo con --produccion.');
   if (process.argv.includes('--borrar')) await borrar(); else await crear();
 })().catch((e) => { console.error(e.message); process.exitCode = 1; }).finally(() => prisma.$disconnect());

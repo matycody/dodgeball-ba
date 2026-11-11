@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const prisma = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
 
@@ -59,6 +59,37 @@ router.get('/', async (req, res) => {
       nickname: profile?.showNickname ? profile.nickname : null,
       teams: [...new Set((profile?.teams ?? []).map((x) => x.team.name))],
     })));
+  } catch (err) {
+    handleError(err, res);
+  }
+});
+
+// Jugadores de demostración (scripts/demo-plantel.js): mail "...@demo.pps", sin usuario con login.
+// GET cuenta cuántos hay; DELETE los borra junto con sus vínculos a equipos. Pensado para dejar limpio tras la entrega final.
+const DEMO_DOMAIN = '@demo.pps';
+const demoWhere = { email: { endsWith: DEMO_DOMAIN }, user: { is: null } };
+
+router.get('/demo', async (req, res) => {
+  try {
+    const [players, linked] = await Promise.all([
+      prisma.profile.count({ where: demoWhere }),
+      prisma.profile.count({ where: { email: { endsWith: DEMO_DOMAIN }, user: { isNot: null } } }),
+    ]);
+    res.json({ players, linked });
+  } catch (err) {
+    handleError(err, res);
+  }
+});
+
+router.delete('/demo', async (req, res) => {
+  try {
+    const ids = (await prisma.profile.findMany({ where: demoWhere, select: { id: true } })).map((p) => p.id);
+    const [attendance, rel, profiles] = await prisma.$transaction([
+      prisma.matchAttendance.deleteMany({ where: { profileId: { in: ids } } }),
+      prisma.playerTeam.deleteMany({ where: { profileId: { in: ids } } }),
+      prisma.profile.deleteMany({ where: { id: { in: ids } } }),
+    ]);
+    res.json({ deleted: profiles.count, teamLinks: rel.count, attendance: attendance.count });
   } catch (err) {
     handleError(err, res);
   }

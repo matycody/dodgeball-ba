@@ -19,6 +19,8 @@ export default function UsuariosPage() {
   const [busy, setBusy] = useState(false)
   const [tab, setTab] = useState('users')
   const [pending, setPending] = useState(0)
+  const [demo, setDemo] = useState(null)
+  useEffect(() => { if (tab === 'demo') api('GET', '/users/demo').then(setDemo).catch((e) => setErr(e.message)) }, [tab])
   const countPending = () => api('GET', '/player-requests?status=PENDING').then((l) => setPending(l.length)).catch(() => {})
   useEffect(() => { countPending() }, [])
 
@@ -41,7 +43,27 @@ export default function UsuariosPage() {
       <div className="flex gap-2 text-sm font-bold">
         <button onClick={() => setTab('users')} className={'rounded-full border px-4 py-1.5 ' + (tab === 'users' ? 'border-accent text-accent' : 'border-line text-muted')}>Usuarios</button>
         <button onClick={() => setTab('req')} className={'rounded-full border px-4 py-1.5 ' + (tab === 'req' ? 'border-accent text-accent' : 'border-line text-muted')}>Solicitudes{pending > 0 && <span className="ml-1.5 inline-block min-w-5 rounded-full bg-danger px-1.5 text-center text-xs font-extrabold leading-5 text-white">{pending}</span>}</button>
+        <button onClick={() => setTab('demo')} className={'rounded-full border px-4 py-1.5 ' + (tab === 'demo' ? 'border-accent text-accent' : 'border-line text-muted')}>Datos demo</button>
       </div>
+      {tab === 'demo' && (
+        <div className="m-cascade space-y-3">
+          {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
+          <div className="rounded-2xl border border-line bg-surface p-4">
+            <p className="font-bold">Jugadores de demostración</p>
+            <p className="mt-1 text-sm text-muted">Son los jugadores sin login creados para completar los planteles (mail @demo.pps). Se borran junto con su pertenencia a los equipos. No toca personas reales.</p>
+            {demo === null ? <Skeleton /> : <p className="mt-3 text-3xl font-extrabold tabular-nums">{demo.players}</p>}
+            <Btn
+              disabled={busy || !demo?.players}
+              tone="danger" className="mt-3"
+              onClick={async () => {
+                if (!(await ask({ title: 'Borrar jugadores demo', message: 'Se borran ' + demo.players + ' jugadores de demostración y sus vínculos a equipos. No se puede deshacer.', confirmText: 'Borrar todos', danger: true }))) return
+                setBusy(true); setErr('')
+                try { await api('DELETE', '/users/demo'); setDemo(await api('GET', '/users/demo')) } catch (e) { setErr(e.message) } finally { setBusy(false) }
+              }}
+            >Borrar todos los jugadores demo</Btn>
+          </div>
+        </div>
+      )}
       {tab === 'req' && <SolicitudesPanel onChange={() => { countPending(); load() }} />}
       {tab === 'users' && <>
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
