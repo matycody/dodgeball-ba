@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { passwordError, PASSWORD_HINT } from '../lib/password'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
@@ -21,7 +22,7 @@ export default function RecuperarPage() {
   async function submit(e) {
     e.preventDefault()
     setError('')
-    if (pass.length < 6) return setError('La contraseña necesita al menos 6 caracteres')
+    if (passwordError(pass)) return setError(passwordError(pass))
     if (pass !== pass2) return setError('Las contraseñas no coinciden')
     setBusy(true)
     try {
@@ -50,8 +51,9 @@ export default function RecuperarPage() {
       )}
       {ready && (
         <form onSubmit={submit} className="flex flex-col gap-3">
-          <input className={field} type="password" placeholder="Contraseña nueva (mínimo 6)" autoComplete="new-password" required value={pass} onChange={(e) => setPass(e.target.value)} />
+          <input className={field} type="password" placeholder="Contraseña nueva" title={PASSWORD_HINT} autoComplete="new-password" required value={pass} onChange={(e) => setPass(e.target.value)} />
           <input className={field} type="password" placeholder="Repetir contraseña" autoComplete="new-password" required value={pass2} onChange={(e) => setPass2(e.target.value)} />
+          <span className="block text-xs text-muted">{PASSWORD_HINT}</span>
           {error && <p className="text-sm text-danger">{error}</p>}
           <button disabled={busy} className="mt-2 rounded-xl bg-accent px-4 py-3.5 font-extrabold text-black disabled:opacity-50">{busy ? '...' : 'Guardar contraseña'}</button>
         </form>

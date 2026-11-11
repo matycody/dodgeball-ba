@@ -1,4 +1,5 @@
 const express = require('express');
+const { loadRows, idsOf } = require('../lib/fold');
 const prisma = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
 
@@ -29,12 +30,13 @@ router.get('/', async (req, res) => {
       // mail, usuario, nombre, apodo (solo si el jugador lo hizo público) y equipo actual
       const t = String(q).trim().slice(0, 60);
       const ci = { contains: t, mode: 'insensitive' };
+      const [profs, teams] = await Promise.all([loadRows(prisma, 'profile', ['name', 'nickname']), loadRows(prisma, 'team', ['name'])]);
       where.OR = [
         { email: ci },
         { username: ci },
-        { profile: { name: ci } },
-        { profile: { showNickname: true, nickname: ci } },
-        { profile: { teams: { some: { to: null, team: { name: ci } } } } },
+        { profile: { id: { in: idsOf(profs, ['name'], t) } } },
+        { profile: { showNickname: true, id: { in: idsOf(profs, ['nickname'], t) } } },
+        { profile: { teams: { some: { to: null, teamId: { in: idsOf(teams, ['name'], t) } } } } },
       ];
     }
     if (ROLES.includes(role)) where.roles = { has: role };

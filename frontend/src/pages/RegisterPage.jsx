@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { passwordError, PASSWORD_HINT } from '../lib/password'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { api } from '../lib/api'
@@ -64,7 +65,7 @@ export default function RegisterPage() {
 
   const setPassword = (e) => {
     e.preventDefault()
-    if (pass.length < 6) return setErr('La contraseña tiene que tener al menos 6 caracteres')
+    if (passwordError(pass)) return setErr(passwordError(pass))
     if (pass !== pass2) return setErr('Las contraseñas no coinciden')
     if (!/^[a-zA-Z0-9._]{3,20}$/.test(uname.trim())) return setErr('Usuario: 3 a 20 caracteres, solo letras, números, punto y guion bajo')
     run(async () => {
@@ -125,8 +126,9 @@ export default function RegisterPage() {
       {step === 'pass' && (
         <form onSubmit={setPassword} className="flex flex-col gap-3">
           <input className={inputCls} type="text" required minLength={3} maxLength={20} placeholder="Nombre de usuario (para ingresar)" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="username" value={uname} onChange={(e) => setUname(e.target.value.replace(/\s/g, ""))} />
-          <input className={inputCls} type="password" required minLength={6} placeholder="Contraseña" autoComplete="new-password" value={pass} onChange={(e) => setPass(e.target.value)} />
-          <input className={inputCls} type="password" required minLength={6} placeholder="Repetir contraseña" autoComplete="new-password" value={pass2} onChange={(e) => setPass2(e.target.value)} />
+          <input className={inputCls} type="password" required minLength={6} placeholder="Contraseña" title={PASSWORD_HINT} autoComplete="new-password" value={pass} onChange={(e) => setPass(e.target.value)} />
+          <input className={inputCls} type="password" required minLength={6} placeholder="Repetir contraseña" title={PASSWORD_HINT} autoComplete="new-password" value={pass2} onChange={(e) => setPass2(e.target.value)} />
+          <span className="block text-xs text-muted">{PASSWORD_HINT}</span>
           <Btn type="submit" tone="accent" disabled={busy}>{busy ? '…' : 'Continuar'}</Btn>
         </form>
       )}

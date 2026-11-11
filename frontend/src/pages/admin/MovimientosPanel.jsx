@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { plain } from '../../lib/format'
 import { ChevronDown, Search } from 'lucide-react'
 import { api } from '../../lib/api'
 import { inputCls } from '../../components/ui'
@@ -74,7 +75,7 @@ export default function MovimientosPanel() {
 
   const term = q.trim().toLowerCase()
   const shown = (teams ?? [])
-    .map((t) => ({ ...t, list: term ? t.players.filter((p) => (p.name + ' ' + (p.nickname ?? '')).toLowerCase().includes(term)) : t.players }))
+    .map((t) => ({ ...t, list: term ? t.players.filter((p) => plain(p.name + ' ' + (p.nickname ?? '')).includes(plain(term))) : t.players }))
     .filter((t) => !term || t.list.length)
 
   const pick = (key, user, profile) => setSel((s) => (s?.key === key ? null : { key, user, profile }))

@@ -14,8 +14,8 @@ const BRANCH_LABEL = { MIXED: 'mixto', MALE: 'masculino', FEMALE: 'femenino' };
 const MODALITY_LABEL = { FOAM: 'foam', CLOTH: 'cloth' };
 const ROLE_LABEL = { ADMIN: 'organizador', PLAYER: 'jugador', REFEREE: 'arbitro' };
 
-const has = (field, w) => ({ [field]: { contains: w, mode: 'insensitive' } });
-const plain = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const { plain, loadRows, idsOf } = require('../lib/fold');
+const has = (field, w) => ({ [field]: { contains: w, mode: 'insensitive' } }); // solo para campos sin acentos (mail)
 
 const teamSel = { select: { id: true, name: true, logo: true } };
 const matchSelect = {
@@ -44,11 +44,21 @@ router.get('/', async (req, res) => {
     const out = { q, tournaments: [], teams: [], players: [], referees: [], users: [], next: [], past: [] };
     if (q.length < 2) return res.json(out);
 
+    // Textos cargados una vez: los nombres se comparan sin acentos ("moran" = "Morán")
+    const [teamRows, tourRows, profRows] = await Promise.all([
+      loadRows(prisma, 'team', ['name']),
+      loadRows(prisma, 'tournament', ['name', 'edition']),
+      loadRows(prisma, 'profile', ['name', 'nickname', 'dni', 'email']),
+    ]);
+    const teamIds = (w) => ({ id: { in: idsOf(teamRows, ['name'], w) } });
+    const tourIds = (w) => ({ id: { in: idsOf(tourRows, ['name'], w) } });
+    const personIds = (w) => ({ id: { in: idsOf(profRows, isAdmin ? ['name', 'nickname', 'dni', 'email'] : ['name', 'nickname'], w) } });
+
     const person = (extra) => ({
       where: {
         ...extra,
         ...(isAdmin ? {} : { active: true }),
-        ...allWords(words, (w) => (isAdmin ? [has('name', w), has('nickname', w), has('dni', w), has('email', w)] : [has('name', w), has('nickname', w)])),
+        ...allWords(words, (w) => [personIds(w)]),
       },
     });
     // Solo la organización ve torneos en borrador
@@ -59,9 +69,9 @@ router.get('/', async (req, res) => {
       ...(isAdmin ? {} : { OR: [{ tournamentId: null }, { tournament: { status: { not: 'DRAFT' } } }] }),
       ...allWords(words, (w) => {
         const or = [
-          { teamA: has('name', w) },
-          { teamB: has('name', w) },
-          { tournament: has('name', w) },
+          { teamA: teamIds(w) },
+          { teamB: teamIds(w) },
+          { tournament: tourIds(w) },
         ];
         const mods = Object.keys(MODALITY_LABEL).filter((k) => MODALITY_LABEL[k].includes(w));
         if (mods.length) or.push({ modality: { in: mods } });
@@ -73,7 +83,7 @@ router.get('/', async (req, res) => {
     };
 
     const userWhere = allWords(words, (w) => {
-      const or = [has('email', w), { profile: has('name', w) }];
+      const or = [has('email', w), { profile: personIds(w) }];
       const roles = Object.keys(ROLE_LABEL).filter((k) => ROLE_LABEL[k].includes(plain(w)));
       if (roles.length) roles.forEach((r) => or.push({ roles: { has: r } }));
       return or;
@@ -81,12 +91,12 @@ router.get('/', async (req, res) => {
 
     const [tournaments, teams, players, referees, users, next, past] = await Promise.all([
       prisma.tournament.findMany({
-        where: { ...pubTournament, ...allWords(words, (w) => [has('name', w), has('edition', w)]) },
+        where: { ...pubTournament, ...allWords(words, (w) => [{ id: { in: idsOf(tourRows, ['name', 'edition'], w) } }]) },
         select: { id: true, name: true, edition: true, year: true, status: true, branch: true, modality: true },
         orderBy: [{ year: 'desc' }, { name: 'asc' }],
         take: LIMIT,
       }),
-      prisma.team.findMany({ where: allWords(words, (w) => [has('name', w)]), select: { id: true, name: true, logo: true }, orderBy: { name: 'asc' }, take: LIMIT }),
+      prisma.team.findMany({ where: allWords(words, (w) => [teamIds(w)]), select: { id: true, name: true, logo: true }, orderBy: { name: 'asc' }, take: LIMIT }),
       canPlayers ? prisma.profile.findMany({ ...person({ isPlayer: true }), select: personSelect, orderBy: { name: 'asc' }, take: LIMIT }) : [],
       canReferees ? prisma.profile.findMany({ ...person({ isReferee: true }), select: personSelect, orderBy: { name: 'asc' }, take: LIMIT }) : [],
       isAdmin ? prisma.user.findMany({

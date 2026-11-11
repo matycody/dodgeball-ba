@@ -5,6 +5,8 @@ import { Btn, Alert, inputCls, Skeleton } from '../../components/ui'
 import PersonName from '../../components/PersonName'
 import { useConfirm } from '../../components/ConfirmProvider'
 
+const NO_MAIL = '@sinmail.pps'
+const realMail = (e) => (e && !e.endsWith(NO_MAIL) ? e : '')
 const EMPTY = { dni: '', name: '', email: '', sex: '', isPlayer: true, isReferee: false }
 const Chip = ({ children, cls = 'bg-surface-2 text-muted' }) => (
   <span className={'rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ' + cls}>{children}</span>
@@ -37,7 +39,7 @@ export default function PersonasPage() {
 
   function startEdit(p) {
     setEditing(p)
-    setForm({ dni: p.dni, name: p.name, email: p.email, sex: p.sex ?? '', isPlayer: p.isPlayer, isReferee: p.isReferee })
+    setForm({ dni: p.dni, name: p.name, email: realMail(p.email), sex: p.sex ?? '', isPlayer: p.isPlayer, isReferee: p.isReferee })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   const reset = () => { setEditing(null); setForm(EMPTY) }
@@ -68,14 +70,14 @@ export default function PersonasPage() {
         <p className="text-sm font-bold">{editing ? 'Editar persona' : 'Inscribir jugador o árbitro'}</p>
         <input className={inputCls} placeholder="Nombre completo" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
-          <input className={inputCls} placeholder="DNI" required value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value })} />
+          <input className={inputCls} placeholder="DNI (8 números)" required inputMode="numeric" maxLength={8} pattern="\d{8}" title="El DNI debe tener 8 números" value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value.replace(/\D/g, '').slice(0, 8) })} />
           <select className={inputCls} value={form.sex} onChange={(e) => setForm({ ...form, sex: e.target.value })}>
             <option value="">Sexo…</option>
             <option value="M">Masculino</option>
             <option value="F">Femenino</option>
           </select>
         </div>
-        <input className={inputCls} type="email" placeholder="Mail" required disabled={emailLocked} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <input className={inputCls} type="email" placeholder="Mail (opcional, gmail u hotmail)" pattern="[^\s@]+@(gmail\.com|hotmail\.com|hotmail\.com\.ar|hotmail\.es)" title="Tiene que ser un mail gmail o hotmail" disabled={emailLocked} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value.toLowerCase() })} />
         {emailLocked && <p className="text-xs text-muted">El mail solo se cambia mientras esté pendiente de vinculación. Usá "Desvincular".</p>}
         <div className="flex gap-4 text-sm font-semibold">
           <label className="flex items-center gap-2"><input type="checkbox" checked={form.isPlayer} onChange={(e) => setForm({ ...form, isPlayer: e.target.checked })} /> Jugador</label>
@@ -107,7 +109,7 @@ export default function PersonasPage() {
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <PersonName p={p} showReal className="block truncate font-bold" />
-                <p className="truncate text-xs text-muted">{p.dni} · {p.email}</p>
+                <p className="truncate text-xs text-muted">{p.dni}{realMail(p.email) ? ' · ' + p.email : ' · sin mail'}</p>
               </div>
               <Chip cls={p.status === 'VINCULADO' ? 'bg-live/15 text-live' : 'bg-warn/15 text-warn'}>
                 {p.status === 'VINCULADO' ? 'Vinculado' : 'Pendiente'}

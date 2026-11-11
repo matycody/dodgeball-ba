@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Minus, Plus, Wand2, X } from 'lucide-react'
 import { api } from '../../lib/api'
 import { Btn, Alert, inputCls } from '../../components/ui'
-import { BRANCH, MODALITY, phaseCmp, normMatch } from '../../lib/format'
+import { BRANCH, MODALITY, phaseCmp, normMatch, plain } from '../../lib/format'
 import { dayOf, dayTab } from '../../lib/days'
 import { useLeaveGuard } from '../../hooks/useLeaveGuard'
 import { useConfirm } from '../../components/ConfirmProvider'
@@ -218,7 +218,7 @@ export default function JornadaPage() {
       .filter((m) => !fTour || m.tournament?.id === fTour)
       .filter((m) => !fBranch || m.branch === fBranch)
       .filter((m) => fWhen === 'all' || (t && fWhen === 'jornada') || (fWhen === 'none' ? !m.scheduledAt : inJornada(m)))
-      .filter((m) => !t || (m.teamA?.name ?? '').toLowerCase().includes(t) || (m.teamB?.name ?? '').toLowerCase().includes(t))
+      .filter((m) => !t || plain(m.teamA?.name).includes(plain(t)) || plain(m.teamB?.name).includes(plain(t)))
       .sort(byFixture)
   }, [all, placedIds, q, fTour, fBranch, fWhen, inJornada])
 
@@ -243,7 +243,7 @@ export default function JornadaPage() {
     const t = pq.trim().toLowerCase()
     return (all ?? [])
       .filter((m) => !placedIds.has(m.id))
-      .filter((m) => !t || (m.teamA?.name ?? '').toLowerCase().includes(t) || (m.teamB?.name ?? '').toLowerCase().includes(t))
+      .filter((m) => !t || plain(m.teamA?.name).includes(plain(t)) || plain(m.teamB?.name).includes(plain(t)))
       .filter((m) => pAll || t || inJornada(m))
       .sort(byFixture)
       .slice(0, POOL_STEP)

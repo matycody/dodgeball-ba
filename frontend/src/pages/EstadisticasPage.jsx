@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Trophy, Search, ChevronRight, Swords, Flame, Zap, ShieldCheck, Clock, SlidersHorizontal, Medal, Flag } from 'lucide-react'
 import { api } from '../lib/api'
-import { BRANCH, MODALITY } from '../lib/format'
+import { BRANCH, MODALITY, plain } from '../lib/format'
 import { inputCls } from '../components/ui'
 import TeamSelect from '../components/TeamSelect'
 import Podium from '../components/Podium'
@@ -443,7 +443,7 @@ export default function EstadisticasPage() {
   useEffect(() => { setRec(null); api('GET', '/stats/records' + filter).then(setRec).catch(() => setRec(false)) }, [filter])
   useEffect(() => { if (tab !== 'estadisticas') return; setTt(null); api('GET', '/stats/team-tables' + filter).then(setTt).catch(() => setTt(false)) }, [filter, tab])
 
-  const shown = teams.filter((t) => t.name.toLowerCase().includes(q.trim().toLowerCase()))
+  const shown = teams.filter((t) => plain(t.name).includes(plain(q.trim())))
   const clear = () => { setYear(''); setMod(''); setBranch('') }
 
   return (

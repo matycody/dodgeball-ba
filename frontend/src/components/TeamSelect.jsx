@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { plain } from '../lib/format'
 import { Check, ChevronDown, Search, X } from 'lucide-react'
 import TeamBadge from './TeamBadge'
 
@@ -10,7 +11,7 @@ export default function TeamSelect({ teams, value, onChange, placeholder = 'Eleg
   const sel = teams.find((t) => t.id === value)
   const list = useMemo(() => {
     const n = q.trim().toLowerCase()
-    return n ? teams.filter((t) => t.name.toLowerCase().includes(n)) : teams
+    return n ? teams.filter((t) => plain(t.name).includes(plain(n))) : teams
   }, [teams, q])
 
   useEffect(() => {

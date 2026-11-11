@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { ArrowLeft, Trophy, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
 import BackLink from '../../components/BackLink'
 import { api } from '../../lib/api'
-import { BRANCH, MODALITY, formatName, TSTATUS, CRITERIA } from '../../lib/format'
+import { BRANCH, MODALITY, formatName, TSTATUS, CRITERIA, plain } from '../../lib/format'
 import { Btn, Alert, inputCls } from '../../components/ui'
 import { useConfirm } from '../../components/ConfirmProvider'
 import { SancionesPanel, StandaloneForm } from './SancionesPage'
@@ -38,7 +38,7 @@ function TeamsTab({ t, reload, setErr }) {
     setBusy(true); setErr('')
     try { await api('PUT', '/tournaments/' + t.id + '/teams', { teamIds: [...sel] }); await reload() } catch (e) { setErr(e.message) } finally { setBusy(false) }
   }
-  const shown = (eligible ?? []).filter((x) => x.name.toLowerCase().includes(q.toLowerCase()))
+  const shown = (eligible ?? []).filter((x) => plain(x.name).includes(plain(q)))
   const allShown = shown.length > 0 && shown.every((x) => sel.has(x.id))
   const toggleAll = () => setSel((s) => { const n = new Set(s); shown.forEach((x) => (allShown ? n.delete(x.id) : n.add(x.id))); return n })
 

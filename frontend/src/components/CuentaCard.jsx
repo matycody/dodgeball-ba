@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { passwordError, PASSWORD_HINT } from '../lib/password'
 import { AtSign, Mail, Lock, ChevronDown, Eye, EyeOff } from 'lucide-react'
 import { api } from '../lib/api'
 import { supabase } from '../lib/supabase'
@@ -69,7 +70,7 @@ export default function CuentaCard({ run, busy, setErr }) {
   }, 'Te enviamos un mail de confirmación al mail nuevo. Hasta confirmarlo sigue vigente el actual.')
 
   const savePassword = () => {
-    if (pass.length < 6) return setErr('La contraseña nueva necesita al menos 6 caracteres')
+    if (passwordError(pass)) return setErr(passwordError(pass))
     if (pass !== pass2) return setErr('Las contraseñas nuevas no coinciden')
     run(async () => {
       const check = await supabase.auth.signInWithPassword({ email: user.email, password: cur })
@@ -105,8 +106,9 @@ export default function CuentaCard({ run, busy, setErr }) {
 
       <Row id="pass" open={open} setOpen={toggle} Icon={Lock} label="Contraseña" value="••••••••">
         <input className={field} type={type} placeholder="Contraseña actual" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} />
-        <input className={field} type={type} placeholder="Contraseña nueva (mínimo 6)" autoComplete="new-password" value={pass} onChange={(e) => setPass(e.target.value)} />
+        <input className={field} type={type} placeholder="Contraseña nueva" title={PASSWORD_HINT} autoComplete="new-password" value={pass} onChange={(e) => setPass(e.target.value)} />
         <input className={field} type={type} placeholder="Repetir contraseña nueva" autoComplete="new-password" value={pass2} onChange={(e) => setPass2(e.target.value)} />
+        <span className="block text-xs text-muted">{PASSWORD_HINT}</span>
         {eye}
         <Actions onCancel={close} onSave={savePassword} disabled={busy || !cur || !pass || !pass2} label="Cambiar" />
       </Row>

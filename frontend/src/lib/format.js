@@ -65,3 +65,6 @@ export const penaltyWhy = (x) => (x.kind === 'STAFF' || x.missing?.length
 
 // Alcance de una sanción sin partido: "FOAM:MIXED" -> "Foam Mixto"
 export const catLabel = (c) => { const [m, b] = String(c).split(':'); return [MODALITY[m], BRANCH[b]].filter(Boolean).join(' ') }
+
+// Texto sin acentos y en minúsculas, para buscar "moran" y encontrar "Morán"
+export const plain = (s) => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()

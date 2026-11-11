@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ClipboardCheck, X } from 'lucide-react'
 import { api } from '../../lib/api'
 import { Alert, inputCls } from '../../components/ui'
-import { fmtWhen } from '../../lib/format'
+import { fmtWhen, plain } from '../../lib/format'
 
 const STATUS = {
   CONFIRMED: ['Confirmada', 'text-live'],
@@ -53,7 +53,7 @@ export default function PlanillasPage() {
         && (!tn || (tn === '_none' ? !i.match.tournament : i.match.tournament?.id === tn))
         && (!from || (day && day >= from))
         && (!to || (day && day <= to))
-        && (!t || [i.match.teamA?.name, i.match.teamB?.name, i.match.tournament?.name, i.uploadedBy].filter(Boolean).join(' ').toLowerCase().includes(t))
+        && (!t || [i.match.teamA?.name, i.match.teamB?.name, i.match.tournament?.name, i.uploadedBy].filter(Boolean).map(plain).join(' ').includes(plain(t)))
     }).sort((a, b) => (dayKey(b.match.scheduledAt) || '').localeCompare(dayKey(a.match.scheduledAt) || '') || new Date(b.match.scheduledAt ?? 0) - new Date(a.match.scheduledAt ?? 0))
   }, [items, q, st, tn, from, to])
 

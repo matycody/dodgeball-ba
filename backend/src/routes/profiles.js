@@ -1,4 +1,5 @@
 const express = require('express');
+const { loadRows, idsOf } = require('../lib/fold');
 const prisma = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
 
@@ -8,6 +9,12 @@ router.use(authenticate, requireRole('ADMIN'));
 const normEmail = (e) => String(e || '').trim().toLowerCase();
 const normDni = (d) => String(d || '').replace(/\D/g, '');
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Inscripción manual: DNI argentino (8 dígitos) y mail gmail/hotmail. El mail es opcional: sin mail se guarda
+// un marcador interno (el campo es obligatorio y único en la base) y el usuario se vincula cuando se registra solo.
+const DNI_RE = /^\d{8}$/;
+const MAIL_OK = /^[^\s@]+@(gmail\.com|hotmail\.com|hotmail\.com\.ar|hotmail\.es)$/i;
+const NO_MAIL = '@sinmail.pps';
+const placeholderMail = (dni) => 'sin-mail-' + dni + NO_MAIL;
 const isSex = (s) => s === 'M' || s === 'F';
 
 // Recalcula PLAYER/REFEREE de la cuenta vinculada segÃºn el perfil (conserva ADMIN)
@@ -45,16 +52,16 @@ router.post('/', async (req, res) => {
     const emailN = normEmail(email);
     const errors = [];
 
-    if (dniN.length < 6) errors.push('DNI invÃ¡lido');
+    if (!DNI_RE.test(String(dni ?? '').trim())) errors.push('El DNI debe tener 8 números');
     if (!name || !String(name).trim()) errors.push('Nombre obligatorio');
-    if (!EMAIL_RE.test(emailN)) errors.push('Mail invÃ¡lido');
+    if (emailN && !MAIL_OK.test(emailN)) errors.push('El mail debe ser gmail o hotmail');
     if (!isPlayer && !isReferee) errors.push('IndicÃ¡ si es jugador y/o Ã¡rbitro');
     if (sex && !isSex(sex)) errors.push('Sexo invÃ¡lido (M o F)');
     if (isPlayer && !isSex(sex)) errors.push('El sexo es obligatorio para jugadores');
     if (errors.length) return res.status(400).json({ errors });
 
     const existing = await prisma.profile.findUnique({ where: { dni: dniN } });
-    const emailOwner = await prisma.profile.findUnique({ where: { email: emailN } });
+    const emailOwner = emailN ? await prisma.profile.findUnique({ where: { email: emailN } }) : null;
     if (emailOwner && emailOwner.id !== existing?.id) {
       return res.status(409).json({ error: 'Ese mail ya estÃ¡ inscripto en otro perfil' });
     }
@@ -70,7 +77,7 @@ router.post('/', async (req, res) => {
           isReferee: existing.isReferee || isReferee,
           active: true,
           // el mail de un perfil vinculado lo cambia el propio usuario
-          ...(existing.status === 'PENDIENTE_VINCULACION' ? { email: emailN } : {}),
+          ...(existing.status === 'PENDIENTE_VINCULACION' && emailN ? { email: emailN } : {}),
         },
       });
     } else {
@@ -78,7 +85,7 @@ router.post('/', async (req, res) => {
         data: {
           dni: dniN,
           name: String(name).trim(),
-          email: emailN,
+          email: emailN || placeholderMail(dniN),
           sex: sex || null,
           isPlayer,
           isReferee,
@@ -101,8 +108,9 @@ router.get('/', async (req, res) => {
     if (status) where.status = status;
     if (active !== undefined) where.active = active === 'true';
     if (q) {
+      const rows = await loadRows(prisma, 'profile', ['name']);
       where.OR = [
-        { name: { contains: String(q), mode: 'insensitive' } },
+        { id: { in: idsOf(rows, ['name'], q) } },
         { dni: { contains: String(q) } },
         { email: { contains: String(q).toLowerCase() } },
       ];
@@ -125,8 +133,10 @@ router.patch('/:id', async (req, res) => {
 
     if (dni !== undefined) {
       const dniN = normDni(dni);
-      if (dniN.length < 6) return res.status(400).json({ error: 'DNI invÃ¡lido' });
-      data.dni = dniN;
+      if (dniN !== profile.dni) {
+        if (!DNI_RE.test(String(dni).trim())) return res.status(400).json({ error: 'El DNI debe tener 8 números' });
+        data.dni = dniN;
+      }
     }
     if (name !== undefined) {
       if (!String(name).trim()) return res.status(400).json({ error: 'Nombre obligatorio' });
@@ -139,8 +149,10 @@ router.patch('/:id', async (req, res) => {
         });
       }
       const emailN = normEmail(email);
-      if (!EMAIL_RE.test(emailN)) return res.status(400).json({ error: 'Mail invÃ¡lido' });
-      data.email = emailN;
+      if (emailN !== profile.email) {
+        if (emailN && !MAIL_OK.test(emailN)) return res.status(400).json({ error: 'El mail debe ser gmail o hotmail' });
+        data.email = emailN || placeholderMail(data.dni ?? profile.dni);
+      }
     }
     if (sex !== undefined) {
       if (sex !== null && !isSex(sex)) return res.status(400).json({ error: 'Sexo invÃ¡lido' });
