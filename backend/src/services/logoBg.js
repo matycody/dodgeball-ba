@@ -27,10 +27,13 @@ async function removeLightBackground(buffer) {
     if (y > 0) push(x, y - 1);
     if (y < h - 1) push(x, y + 1);
   }
-  let removed = 0;
-  for (let p = 0; p < seen.length; p++) if (seen[p]) removed++;
-  // Si casi todo es "fondo" (logo blanco sobre transparente) o casi nada, no se toca
-  if (removed < w * h * 0.02 || removed > w * h * 0.92) return { data, width: w, height: h, changed: false };
+  // Solo cuentan los píxeles claros OPACOS que se borrarían (lo que ya es transparente no es "fondo pintado")
+  let opaque = 0, removedOpaque = 0;
+  for (let p = 0; p < seen.length; p++) {
+    if (data[p * 4 + 3] >= 8) { opaque++; if (seen[p]) removedOpaque++; }
+  }
+  // Casi nada de fondo pintado, o un logo mayormente blanco (se borraría el dibujo): no se toca
+  if (removedOpaque < w * h * 0.015 || removedOpaque > opaque * 0.85) return { data, width: w, height: h, changed: false };
 
   const out = Buffer.from(data);
   for (let p = 0; p < seen.length; p++) if (seen[p]) out[p * 4 + 3] = 0;
