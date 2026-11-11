@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
+import { supabase } from '../lib/supabase'
 import { api } from '../lib/api'
 import { dayOf, dayTab } from '../lib/days'
 import { Skeleton } from '../components/ui'
@@ -102,16 +103,34 @@ export default function PrediccionesPage() {
   const [err, setErr] = useState('')
   const [tId, setTId] = useState(null) // torneo elegido en la pestaña Torneos
   const [mineView, setMineView] = useState('abiertas')
-  // Avisos de predicción anulada que la persona ya cerró (por usuario, en este dispositivo). La predicción sigue figurando como "Anulada" en Mis predicciones
+  // Avisos de predicción anulada: salen una sola vez por cuenta, la primera vez que la persona entra a Predicciones después de la anulación.
+  // Lo ya avisado se guarda en la cuenta (user_metadata, vale en todos los dispositivos) y en este dispositivo; la predicción sigue como "Anulada" en Mis predicciones
   const uid = useAuthStore((s) => s.user?.id)
-  const dismissKey = 'pred-void-dismissed:' + uid
-  const [dismissed, setDismissed] = useState(() => new Set())
-  useEffect(() => { try { setDismissed(new Set(JSON.parse(localStorage.getItem(dismissKey) || '[]'))) } catch { setDismissed(new Set()) } }, [dismissKey])
-  const dismissVoid = (id) => setDismissed((prev) => {
-    const next = new Set(prev).add(id)
-    try { localStorage.setItem(dismissKey, JSON.stringify([...next])) } catch { /* sin storage */ }
-    return next
-  })
+  const [voidShow, setVoidShow] = useState(null) // ids a avisar en esta visita (null = todavía no se sabe)
+  const [dismissed, setDismissed] = useState(() => new Set()) // cerrados con la X en esta visita
+  const voidInit = useRef(false)
+  const dismissVoid = (id) => setDismissed((prev) => new Set(prev).add(id))
+  useEffect(() => {
+    if (!me || !uid || voidInit.current) return
+    voidInit.current = true
+    const ids = me.predictions.filter((p) => p.voidReason).map((p) => p.matchId)
+    const lsKey = 'pred-void-seen:' + uid
+    ;(async () => {
+      let seen = []
+      try { seen = JSON.parse(localStorage.getItem(lsKey) || '[]') } catch { /* sin storage */ }
+      try {
+        const { data } = await supabase.auth.getUser()
+        const acc = data?.user?.user_metadata?.pref_void_seen
+        if (Array.isArray(acc)) seen = [...new Set([...seen, ...acc])]
+      } catch { /* sin conexión con la cuenta: vale lo de este dispositivo */ }
+      const seenSet = new Set(seen)
+      setVoidShow(new Set(ids.filter((id) => !seenSet.has(id))))
+      if (ids.every((id) => seenSet.has(id))) return
+      const merged = [...new Set([...seen, ...ids])].slice(-300)
+      try { localStorage.setItem(lsKey, JSON.stringify(merged)) } catch { /* sin storage */ }
+      supabase.auth.updateUser({ data: { pref_void_seen: merged } }).catch(() => {})
+    })()
+  }, [me, uid])
   const [rankScope, setRankScope] = useState('general') // 'general' o id de torneo
   const [rank, setRank] = useState({})
   const [tRank, setTRank] = useState(null)
@@ -192,7 +211,7 @@ export default function PrediccionesPage() {
       </div>
       {err && <p className="text-sm text-danger">{err}</p>}
 
-      {(me?.predictions ?? []).filter((p) => p.voidReason && !dismissed.has(p.matchId)).map((p) => (
+      {(me?.predictions ?? []).filter((p) => p.voidReason && voidShow?.has(p.matchId) && !dismissed.has(p.matchId)).map((p) => (
         <div key={p.matchId} className="relative rounded-2xl border box-warn py-3 pl-4 pr-11 text-sm">
           <button type="button" aria-label="Quitar aviso" onClick={() => dismissVoid(p.matchId)} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full text-warn active:bg-warn/15">
             <X size={18} />
