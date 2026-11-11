@@ -9,10 +9,10 @@ const prisma = require('../src/db')
 const aplicar = process.argv.includes('--aplicar')
 
 // [equipo a borrar, equipo que se conserva]
+// (Pares ya fusionados antes, por si hace falta repetirlos: Club General Lamadrid → Lamadrid; Linces Pueyrredon → Linces by Pueyrredón; Deportivo Riestra → Riestra by PCH)
+// Solo se toca este par: Moran Cadetes, Panthers y el resto no se modifican (el nombre debe coincidir exacto, sin tildes ni mayúsculas).
 const PARES = [
-  ['Club General Lamadrid', 'Lamadrid'],
-  ['Linces Pueyrredon', 'Linces by Pueyrredón'],
-  ['Deportivo Riestra', 'Riestra by PCH'],
+  ['Club Moran', 'Morán'],
 ]
 
 const NOMBRE = (n) => n.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ')
