@@ -264,8 +264,8 @@ router.get('/records', async (req, res) => {
         if (n && (!streak || n > streak.n)) streak = { team: t, n };
       }
       const diff = Math.abs(r.setsA - r.setsB);
-      if (diff && (!blowout || diff > blowout.diff)) blowout = { diff, winner: r.setsA > r.setsB ? m.teamA : m.teamB, loser: r.setsA > r.setsB ? m.teamB : m.teamA, score: [Math.max(r.setsA, r.setsB), Math.min(r.setsA, r.setsB)], tournament: m.tournament?.name ?? null };
-      if (!longest || r.setsA + r.setsB > longest.sets) longest = { sets: r.setsA + r.setsB, teamA: m.teamA, teamB: m.teamB, tournament: m.tournament?.name ?? null };
+      if (diff && (!blowout || diff > blowout.diff)) blowout = { matchId: m.id, diff, winner: r.setsA > r.setsB ? m.teamA : m.teamB, loser: r.setsA > r.setsB ? m.teamB : m.teamA, score: [Math.max(r.setsA, r.setsB), Math.min(r.setsA, r.setsB)], tournament: m.tournament?.name ?? null };
+      if (!longest || r.setsA + r.setsB > longest.sets) longest = { matchId: m.id, sets: r.setsA + r.setsB, teamA: m.teamA, teamB: m.teamB, tournament: m.tournament?.name ?? null };
     }
 
     // Títulos (si el torneo se cerró sin campeón guardado, se deduce de la final)

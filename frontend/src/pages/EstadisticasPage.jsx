@@ -37,7 +37,7 @@ function Metric({ value, label }) {
   )
 }
 
-function Record({ Icon, value, label }) {
+function Record({ Icon, value, label, to }) {
   const body = (
     <>
       <Icon size={18} className="text-accent" />
@@ -45,6 +45,8 @@ function Record({ Icon, value, label }) {
       <p className="text-xs text-muted">{label}</p>
     </>
   )
+  // Con `to` el récord se puede abrir (el partido o el equipo) para comprobarlo
+  if (to) return <Link to={to} className="block rounded-2xl bg-surface-2 px-3 py-2.5 active:opacity-80">{body}<p className="mt-1 flex items-center gap-0.5 text-[11px] font-bold text-accent">Ver y comprobar <ChevronRight size={12} /></p></Link>
   return <div className="rounded-2xl bg-surface-2 px-3 py-2.5">{body}</div>
 }
 
@@ -235,10 +237,10 @@ function Resumen({ champ, rec, teamsCount }) {
       {r && (r.streak || r.blowout || r.unbeaten || r.longest) && (
         <Card title="Récords">
           <div className="m-cascade grid grid-cols-2 gap-2">
-            {r.streak && <Record Icon={Flame} value={r.streak.n + (r.streak.n === 1 ? ' victoria' : ' seguidas')} label={'Mayor racha · ' + r.streak.team.name} />}
-            {r.blowout && <Record Icon={Zap} value={r.blowout.score[0] + ' a ' + r.blowout.score[1]} label={'Mayor paliza en sets · ' + r.blowout.winner.name} />}
-            {r.unbeaten && <Record Icon={ShieldCheck} value="Invicto" label={r.unbeaten.team.name + ' · ' + r.unbeaten.played + ' partidos'} />}
-            {r.longest && <Record Icon={Clock} value={r.longest.sets + ' sets'} label={'Partido más largo · ' + r.longest.teamA.name + ' vs ' + r.longest.teamB.name} />}
+            {r.streak && <Record Icon={Flame} value={r.streak.n + (r.streak.n === 1 ? ' victoria' : ' seguidas')} label={'Mayor racha · ' + r.streak.team.name} to={'/equipo/' + r.streak.team.id} />}
+            {r.blowout && <Record Icon={Zap} value={r.blowout.score[0] + ' a ' + r.blowout.score[1]} label={'Mayor diferencia de sets en un partido · ' + r.blowout.winner.name + ' vs ' + r.blowout.loser.name} to={r.blowout.matchId ? '/partido/' + r.blowout.matchId : undefined} />}
+            {r.unbeaten && <Record Icon={ShieldCheck} value="Invicto" label={r.unbeaten.team.name + ' · ' + r.unbeaten.played + ' partidos'} to={'/equipo/' + r.unbeaten.team.id} />}
+            {r.longest && <Record Icon={Clock} value={r.longest.sets + ' sets'} label={'Más sets en un mismo partido · ' + r.longest.teamA.name + ' vs ' + r.longest.teamB.name} to={r.longest.matchId ? '/partido/' + r.longest.matchId : undefined} />}
           </div>
         </Card>
       )}
