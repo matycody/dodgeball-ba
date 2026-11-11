@@ -92,7 +92,7 @@ export default function FavoritosPage() {
           ) : (
             <Link to={'/liga/' + g.id} className="block border-b border-line px-3 py-2 text-xs font-bold uppercase tracking-wide">{g.name}</Link>
           )}
-          <div className="divide-y divide-line">
+          <div className="m-cascade divide-y divide-line">
             {g.list.map((m) => <MatchRow key={m.id} m={m} flat />)}
           </div>
         </div>

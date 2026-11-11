@@ -141,12 +141,12 @@ export default function LigaPage() {
         </div>
       )}
 
-      {tab === 'ACTIVE' && <div className="space-y-3">{active.map((t) => <ActiveCard key={t.id} t={t} />)}</div>}
+      {tab === 'ACTIVE' && <div className="m-cascade space-y-3">{active.map((t) => <ActiveCard key={t.id} t={t} />)}</div>}
 
       {tab === 'FINISHED' && groups.map((y) => (
         <section key={y} className="space-y-2">
           <h2 className="text-sm font-extrabold">{y}</h2>
-          <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+          <div className="m-cascade divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
             {finished.filter((t) => t.year === y).map((t) => <FinishedRow key={t.id} t={t} />)}
           </div>
         </section>

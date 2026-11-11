@@ -160,12 +160,12 @@ export default function TorneoPage() {
           {matches === null && <p className="text-muted">Cargando…</p>}
           {matches && upcoming.length > 0 && (
             <Block title={upcoming.some((m) => m.status === 'LIVE') ? 'En vivo y próximos' : 'Próximos partidos'} action={upcoming.length > SHOWN && <button onClick={() => setTab('partidos')} className="flex items-center text-xs font-bold text-accent">Ver todos <ChevronRight size={14} /></button>}>
-              <div className="divide-y divide-line">{upcoming.slice(0, SHOWN).map((m) => <MatchRow key={m.id} m={m} flat />)}</div>
+              <div className="m-cascade divide-y divide-line">{upcoming.slice(0, SHOWN).map((m) => <MatchRow key={m.id} m={m} flat />)}</div>
             </Block>
           )}
           {matches && recent.length > 0 && (
             <Block title="Últimos resultados" action={recent.length > SHOWN && <button onClick={() => setTab('partidos')} className="flex items-center text-xs font-bold text-accent">Ver todos <ChevronRight size={14} /></button>}>
-              <div className="divide-y divide-line">{recent.slice(0, SHOWN).map((m) => <MatchRow key={m.id} m={m} flat />)}</div>
+              <div className="m-cascade divide-y divide-line">{recent.slice(0, SHOWN).map((m) => <MatchRow key={m.id} m={m} flat />)}</div>
             </Block>
           )}
           {matches && upcoming.length === 0 && recent.length === 0 && (

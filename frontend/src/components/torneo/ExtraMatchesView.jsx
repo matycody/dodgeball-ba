@@ -228,7 +228,7 @@ export default function ExtraMatchesView({ tournamentId, t, days, admin = false,
       {list.length > 0 && (
         <div className="space-y-3 rounded-3xl border border-line bg-surface p-4">
           <p className="text-sm font-bold">Fuera del fixture<span className="ml-2 font-normal text-muted">no suman a la tabla</span></p>
-          <div className="space-y-2">
+          <div className="m-cascade space-y-2">
             {list.map((m) => admin
               ? <AdminRow key={m.id} m={m} t={t} days={days} base={base} onChanged={changed} setErr={setErr} />
               : <MatchRow key={m.id} m={m} base={base} />)}

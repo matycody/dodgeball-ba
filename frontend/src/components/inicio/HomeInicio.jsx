@@ -329,7 +329,7 @@ export default function HomeInicio({ byId, loading, error, children }) {
               </div>
               {v.mine.length ? (
                 <div className="overflow-hidden rounded-2xl border border-accent/40 bg-surface">
-                  <div className="divide-y divide-line">
+                  <div className="m-cascade divide-y divide-line">
                     {v.mine.map((m) => (m.status === 'LIVE' ? <div key={m.id} className="p-2"><MatchCard m={m} /></div> : <MatchRow key={m.id} m={m} flat />))}
                   </div>
                   {v.sel === 'none' && !mineOpen && v.mineTotal > v.mine.length && (
@@ -356,7 +356,7 @@ export default function HomeInicio({ byId, loading, error, children }) {
                   {[MODALITY[g.modality], BRANCH[g.branch]].filter(Boolean).join(' · ')} · {g.list.length} {g.list.length === 1 ? 'partido' : 'partidos'}
                 </span>
               </div>
-              <div className="divide-y divide-line">
+              <div className="m-cascade divide-y divide-line">
                 {rows.map((m) => (m.status === 'LIVE' ? <div key={m.id} className="p-2"><MatchCard m={m} /></div> : <MatchRow key={m.id} m={m} flat />))}
               </div>
               {capped && (

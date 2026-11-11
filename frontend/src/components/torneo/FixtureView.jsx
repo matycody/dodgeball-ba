@@ -103,7 +103,7 @@ export function MatchdayCard({ md, zone, tournamentId, admin, base, onChanged, s
           <Btn onClick={assign} disabled={busy}>Asignar canchas</Btn>
         </div>
       )}
-      <div className="space-y-2">
+      <div className="m-cascade space-y-2">
         {md.matches.map((m, i) => {
           const canMove = admin && !urls && others.length > 0 && (m.status === 'SCHEDULED' || m.status === 'READY')
           const canDelete = ['SCHEDULED', 'FINISHED', 'CANCELLED'].includes(m.status)

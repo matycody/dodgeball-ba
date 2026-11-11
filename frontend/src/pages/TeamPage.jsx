@@ -127,7 +127,7 @@ export default function TeamPage() {
                   : <span className="min-w-0 truncate text-sm font-extrabold">{g.name}</span>}
                 <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-muted">{g.list.length} {g.list.length === 1 ? 'partido' : 'partidos'}</span>
               </div>
-              <div className="divide-y divide-line">{g.list.map((m) => <MatchRow key={m.id} m={m} flat />)}</div>
+              <div className="m-cascade divide-y divide-line">{g.list.map((m) => <MatchRow key={m.id} m={m} flat />)}</div>
             </div>
           ))}
           {upcoming.length > NEXT_MAX && (
