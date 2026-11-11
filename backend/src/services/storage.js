@@ -1,5 +1,6 @@
-﻿const express = require('express');
+const express = require('express');
 const sharp = require('sharp');
+const { removeLightBackground } = require('./logoBg');
 const supabaseAdmin = require('../lib/supabaseAdmin');
 
 const PHOTOS_BUCKET = 'photos'; // privado: URL firmadas solo para cuentas con sesión
@@ -55,6 +56,13 @@ async function processImage(buffer, kind) {
   if (kind === 'photo') img.resize(512, 512, { fit: 'cover' });
   else if (kind === 'cover') img.resize(1280, 1280, { fit: 'inside', withoutEnlargement: true });
   else img.resize(512, 512, { fit: 'inside', withoutEnlargement: true });
+  if (kind === 'logo') {
+    // Escudos: se les saca el fondo claro pintado para que se vean uniformes sobre el color del tema
+    const resized = await img.png().toBuffer();
+    const r = await removeLightBackground(resized);
+    if (r.changed) return sharp(r.data, { raw: { width: r.width, height: r.height, channels: 4 } }).webp({ quality: 85, alphaQuality: 100 }).toBuffer();
+    return sharp(resized).webp({ quality: 80 }).toBuffer();
+  }
   return img.webp({ quality: kind === 'cover' ? 82 : 80 }).toBuffer();
 }
 
