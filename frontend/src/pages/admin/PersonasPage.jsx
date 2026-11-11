@@ -39,6 +39,7 @@ export default function PersonasPage() {
 
   function startEdit(p) {
     setEditing(p)
+    window.scrollTo({ top: 0, behavior: 'smooth' }) // el formulario está arriba
     setForm({ dni: p.dni, name: p.name, email: realMail(p.email), sex: p.sex ?? '', isPlayer: p.isPlayer, isReferee: p.isReferee })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }

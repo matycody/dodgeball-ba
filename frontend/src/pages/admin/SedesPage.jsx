@@ -34,6 +34,7 @@ export default function SedesPage() {
 
   const open = (v) => {
     setErr(''); setOk(''); setPic(null); setDropPic(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' }) // el formulario está arriba: si tocás Editar desde abajo, se ve que se abrió
     if (v) {
       setForm({ id: v.id, image: v.image ?? null, name: v.name, address: v.address, latitude: v.latitude ?? '', longitude: v.longitude ?? '', mapUrl: v.mapUrl ?? '', courts: v.courts ?? '', notes: v.notes ?? '' })
       setCoords(v.latitude != null ? v.latitude + ', ' + v.longitude : '')
