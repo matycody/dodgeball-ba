@@ -199,7 +199,7 @@ export default function TorneoPage() {
       {tab === 'equipos' && (
         <Block title={t.teams.length + (t.teams.length === 1 ? ' equipo' : ' equipos')}>
           {t.teams.length === 0 && <div className="px-4 py-3 text-sm">Todavía no hay equipos inscriptos.</div>}
-          <div className="divide-y divide-line">
+          <div className="m-cascade divide-y divide-line">
             {t.teams.map(({ team }) => (
               <div key={team.id} className="flex items-center gap-3 px-3 py-2.5">
                 <Link to={'/equipo/' + team.id} className="flex min-w-0 flex-1 items-center gap-3">

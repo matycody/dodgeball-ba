@@ -239,6 +239,11 @@ html.plain-bg p.text-muted { background: none; border: 0; padding: 0; border-rad
 @keyframes m-row-in { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
 .motion-ok .m-zone { animation: m-cascade-in 420ms var(--ease-out) backwards; animation-delay: var(--d, 0ms); }
 .motion-ok .m-row { animation: m-row-in 420ms var(--ease-out) backwards; animation-delay: var(--d, 0ms); }
+/* Llave (promoción / playoffs): ronda por ronda de izquierda a derecha, partidos de arriba hacia abajo, y al final se trazan las líneas */
+@keyframes m-bk-in { from { opacity: 0; transform: translateX(-18px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
+.motion-ok .m-bk { animation: m-bk-in 460ms var(--ease-out) backwards; animation-delay: var(--d, 0ms); }
+.motion-ok .m-bk-links { animation: m-fade 500ms ease-out backwards; animation-delay: var(--d, 0ms); }
 .motion-ok .m-pop { animation: m-pop 420ms var(--ease-pop); }
 .motion-ok .m-score { display: inline-block; animation: m-score 600ms var(--ease-out); }
 .motion-ok .m-rise { transform-origin: bottom; animation: m-rise 700ms var(--ease-out) both; }

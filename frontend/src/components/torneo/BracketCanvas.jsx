@@ -49,13 +49,13 @@ export default function BracketCanvas({ rounds, colW = 240, gap = 32, footer, af
       <div className="shrink-0" style={{ width }}>
         <div className="mb-2 flex">
           {rounds.map((r, ci) => (
-            <p key={r.key} className="shrink-0 text-center text-xs font-bold uppercase tracking-widest text-muted" style={{ width: colW, marginRight: ci < rounds.length - 1 ? gap : 0 }}>{r.title}</p>
+            <p key={r.key} className="m-bk shrink-0 text-center text-xs font-bold uppercase tracking-widest text-muted" style={{ '--d': ci * 240 + 'ms', width: colW, marginRight: ci < rounds.length - 1 ? gap : 0 }}>{r.title}</p>
           ))}
         </div>
         <div className="relative" style={{ height }}>
-          <svg className="absolute inset-0 stroke-accent" width={width} height={height} fill="none" strokeWidth="2" aria-hidden="true">{links}</svg>
-          {rounds.map((r, ci) => r.items.map((it) => (
-            <div key={it.key} className="absolute" style={{ top: top.get(it.key), left: ci * pitch, width: colW, height: it.h }}>{it.node}</div>
+          <svg className="m-bk-links absolute inset-0 stroke-accent" style={{ '--d': rounds.length * 240 + 120 + 'ms' }} width={width} height={height} fill="none" strokeWidth="2" aria-hidden="true">{links}</svg>
+          {rounds.map((r, ci) => r.items.map((it, ii) => (
+            <div key={it.key} className="m-bk absolute" style={{ '--d': ci * 240 + 80 + Math.min(ii, 10) * 90 + 'ms', top: top.get(it.key), left: ci * pitch, width: colW, height: it.h }}>{it.node}</div>
           )))}
         </div>
         {footer && (
