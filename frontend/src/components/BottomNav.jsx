@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { NavLink, matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { LogIn } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
@@ -15,9 +15,9 @@ export function bottomItems(user, menu = []) {
 }
 
 // swipe: en el celular se puede deslizar el dedo por la barra para pasar de una sección a otra (la pastilla sigue al dedo y al soltar
-// se va a la sección más cercana). Solo con el dedo: con mouse no cambia nada. Se apaga en Control de mesa, árbitro y la organización,
-// para que un roce no saque a nadie de un partido que está operando.
-export default function BottomNav({ swipe = false }) {
+// se va a la sección más cercana). Solo con el dedo: con mouse no cambia nada. Rige en todas las pantallas, incluida la mesa: si hay un
+// partido en curso, la app ya avisa antes de salir.
+export default function BottomNav({ swipe = true }) {
   const { user, menu } = useAuthStore()
   const items = bottomItems(user, menu)
   const { pathname } = useLocation()

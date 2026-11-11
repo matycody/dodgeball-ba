@@ -97,7 +97,7 @@ export default function AppLayout() {
         </div>
       </main>
 
-      <BottomNav swipe={motion} />
+      <BottomNav />
       <Drawer open={open} onClose={() => setOpen(false)} />
       <TourOverlay />
       <OfflineBanner />
