@@ -441,7 +441,7 @@ export default function EstadisticasPage() {
         <Card title="Torneos finalizados">
           {champ === null && <p className="text-muted">Cargando…</p>}
           {champ?.tournaments?.length === 0 && <p className="text-sm text-muted">No hay torneos finalizados con estos filtros.</p>}
-          <div className="space-y-2">
+          <div className="m-cascade space-y-2">
             {(champ?.tournaments ?? []).map((t) => (
               <Link key={t.id} to={'/liga/' + t.id} className="flex items-center gap-3 rounded-2xl bg-surface-2 p-3">
                 <div className="min-w-0 flex-1">
@@ -460,12 +460,12 @@ export default function EstadisticasPage() {
 
       {tab === 'equipos' && (
         <>
-          <div className="relative">
+          <div className="m-cascade relative">
             <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
             <input className={inputCls + ' pl-10'} placeholder="Buscar equipo" value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           {team && <TeamStats teamId={team} filter={filter} />}
-          <div className="space-y-1.5">
+          <div className="m-cascade space-y-1.5">
             {shown.map((t) => (
               <button key={t.id} type="button" onClick={() => { setTeam(t.id); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 className={'flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left ' + (team === t.id ? 'border-accent bg-accent-soft' : 'border-line bg-surface')}>
