@@ -239,7 +239,7 @@ export default function TeamPage() {
                       </div>
                       <div className="relative flex h-12 items-center bg-accent-soft px-3">
                         <TeamBadge team={team} size="sm" />
-                        <span className="ml-auto font-mono text-xs font-bold text-muted">{r.number != null ? '#' + r.number : ''}</span>
+                        {r.number != null && <span className="ml-2 font-mono text-sm font-extrabold tabular-nums text-fg">#{r.number}</span>}
                         <span className="absolute -top-5 right-3 grid h-12 w-12 place-items-center rounded-full border-2 border-bg bg-surface-2 text-base font-extrabold text-muted">{(r.nickname || r.name).charAt(0).toUpperCase()}</span>
                       </div>
                     </Link>
