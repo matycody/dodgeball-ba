@@ -71,7 +71,7 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col px-6 pb-10 pt-[calc(1rem+env(safe-area-inset-top))]">
-      <Link to="/" aria-label="Cerrar" className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface"><X size={20} /></Link>
+      <Link to="/" aria-label="Cerrar" className="mb-6 grid h-11 w-11 place-items-center rounded-full border border-line bg-surface"><X size={20} /></Link>
 
       <div className="flex flex-1 flex-col justify-center">
         <div className="mb-7">
