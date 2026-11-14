@@ -75,11 +75,8 @@ export default function LoginPage() {
 
       <div className="flex flex-1 flex-col justify-center">
         <div className="mb-7">
-          <div className="mb-4 grid h-16 w-16 place-items-center rounded-2xl border border-line bg-accent-soft">
-            <img src="/favicon.svg" alt="" className="h-10 w-10" />
-          </div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted">Dodgeball Buenos Aires</p>
-          <h1 className="mt-1 text-3xl font-extrabold">{forgot ? 'Recuperá tu contraseña' : 'Iniciá sesión'}</h1>
+          <div className="mb-4 inline-block rounded-full border-2 border-accent bg-accent-soft px-5 py-2 text-sm font-extrabold uppercase tracking-[0.22em] text-accent">Dodgeball Buenos Aires</div>
+          <h1 className="text-4xl font-extrabold leading-tight">{forgot ? 'Recuperá tu contraseña' : 'Iniciá sesión'}</h1>
           <p className="mt-1.5 text-sm text-muted">{forgot ? 'Te mandamos un enlace al mail para elegir una nueva.' : 'Seguí los partidos y gestioná tu cuenta.'}</p>
         </div>
 

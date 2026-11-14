@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import OfflinePage from './pages/OfflinePage'
 import LoginPage from './pages/LoginPage'
+import LandingPage, { landingSeen } from './pages/LandingPage'
 import RegisterPage from './pages/RegisterPage'
 import RecuperarPage from './pages/RecuperarPage'
 import OnboardingPage from './pages/OnboardingPage'
@@ -75,6 +76,15 @@ function PerfilTemp() {
 
 const PROTECTED = Object.entries(ITEMS).filter(([k]) => !['home', 'perfil', 'favoritos', 'mi_equipo', 'asignaciones', 'historial_asignaciones', 'mis_partidos', 'mis_estadisticas', 'dashboard_canchas', 'torneos', 'equipos', 'sedes', 'sanciones', 'partidos', 'personas', 'usuarios', 'registro_ediciones', 'reportes'].includes(k))
 
+// Sin sesión, en la raíz y la primera vez de la visita: pantalla de bienvenida (sin cabecera ni barra). "Ver partidos" la deja vista hasta cerrar la pestaña
+function Shell() {
+  const { user, loading } = useAuthStore()
+  const { pathname } = useLocation()
+  if (pathname === '/' && loading) return <div className="min-h-screen" />
+  if (pathname === '/' && !user && !landingSeen()) return <LandingPage />
+  return <AppLayout />
+}
+
 function App() {
   const init = useAuthStore((s) => s.init)
   const user = useAuthStore((s) => s.user)
@@ -94,7 +104,7 @@ function App() {
           <Route path="/recuperar" element={<RecuperarPage />} />
           <Route path="/bienvenida" element={<OnboardingPage />} />
 
-          <Route element={<AppLayout />}>
+          <Route element={<Shell />}>
             <Route path="/" element={<InicioPage />} />
             <Route path="/partido/:id" element={<MatchPage />} />
             <Route path="/equipo/:id" element={<TeamPage />} />
