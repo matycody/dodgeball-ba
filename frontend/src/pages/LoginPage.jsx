@@ -123,11 +123,9 @@ export default function LoginPage() {
         )}
 
         <div className="mt-8 border-t border-line pt-6">
-          <p className="mb-3 text-center text-sm text-muted">¿Todavía no tenés cuenta?</p>
           <Link to="/registro" className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-accent bg-accent-soft py-3.5 text-sm font-extrabold text-accent">
             <UserPlus size={18} /> Crear cuenta
           </Link>
-          <p className="mt-2 text-center text-xs text-muted">Jugador, familiar o hincha: elegís en el siguiente paso.</p>
         </div>
       </div>
     </main>
