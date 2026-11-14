@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { X, Eye, EyeOff } from 'lucide-react'
+import { X, Eye, EyeOff, User, Lock, Mail, UserPlus } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
 
@@ -74,15 +74,25 @@ export default function LoginPage() {
       <Link to="/" aria-label="Cerrar" className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface"><X size={20} /></Link>
 
       <div className="flex flex-1 flex-col justify-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted">Dodgeball</p>
-        <h1 className="mb-6 mt-1 text-3xl font-extrabold">{forgot ? 'Recuperá tu contraseña' : 'Iniciá sesión'}</h1>
+        <div className="mb-7">
+          <div className="mb-4 grid h-16 w-16 place-items-center rounded-2xl border border-line bg-accent-soft">
+            <img src="/favicon.svg" alt="" className="h-10 w-10" />
+          </div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">Dodgeball Buenos Aires</p>
+          <h1 className="mt-1 text-3xl font-extrabold">{forgot ? 'Recuperá tu contraseña' : 'Iniciá sesión'}</h1>
+          <p className="mt-1.5 text-sm text-muted">{forgot ? 'Te mandamos un enlace al mail para elegir una nueva.' : 'Seguí los partidos y gestioná tu cuenta.'}</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input className={field} type={forgot ? 'email' : 'text'} placeholder={forgot ? 'Tu mail' : 'Usuario o mail'} required autoCapitalize="none" autoCorrect="off" spellCheck={false}
-            value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
+          <div className="relative">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">{forgot ? <Mail size={19} /> : <User size={19} />}</span>
+            <input className={field + ' pl-11'} type={forgot ? 'email' : 'text'} placeholder={forgot ? 'Tu mail' : 'Usuario o mail'} required autoCapitalize="none" autoCorrect="off" spellCheck={false}
+              value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
+          </div>
           {!forgot && (
             <div className="relative">
-              <input className={field + ' pr-12'} type={show ? 'text' : 'password'} placeholder="Contraseña" required minLength={6}
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted"><Lock size={19} /></span>
+              <input className={field + ' pl-11 pr-12'} type={show ? 'text' : 'password'} placeholder="Contraseña" required minLength={6}
                 value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
               <button type="button" onClick={() => setShow((v) => !v)} aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-muted">
@@ -115,12 +125,13 @@ export default function LoginPage() {
           </>
         )}
 
-        <p className="mt-8 text-center text-sm">
-          ¿No tenés cuenta? <Link to="/registro?tipo=invitado" className="font-bold text-accent">Registrate</Link>
-        </p>
-        <p className="mt-2 text-center text-sm">
-          ¿Sos jugador? <Link to="/registro" className="font-bold text-accent">Registrate acá</Link>
-        </p>
+        <div className="mt-8 border-t border-line pt-6">
+          <p className="mb-3 text-center text-sm text-muted">¿Todavía no tenés cuenta?</p>
+          <Link to="/registro" className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-accent bg-accent-soft py-3.5 text-sm font-extrabold text-accent">
+            <UserPlus size={18} /> Crear cuenta
+          </Link>
+          <p className="mt-2 text-center text-xs text-muted">Jugador, familiar o hincha: elegís en el siguiente paso.</p>
+        </div>
       </div>
     </main>
   )

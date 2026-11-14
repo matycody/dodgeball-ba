@@ -268,3 +268,14 @@ html.plain-bg p.text-muted { background: none; border: 0; padding: 0; border-rad
 @media (prefers-reduced-motion: reduce) {
   .motion-ok *, .motion-ok *::before, .motion-ok *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
 }
+
+/* Pastilla del menú lateral: se desliza entre ítems */
+.drawer-pill { transition: transform 380ms var(--ease-pop, cubic-bezier(.2,.8,.2,1)), height 380ms var(--ease-pop, cubic-bezier(.2,.8,.2,1)), opacity 200ms; }
+@media (prefers-reduced-motion: reduce) { .drawer-pill { transition: none; } }
+
+/* Registro: el paso nuevo entra deslizando; las líneas del stepper se llenan. Solo transform/opacity/width y respetan "reducir movimiento" */
+@keyframes step-in { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+.step-in { animation: step-in 280ms var(--ease-out, cubic-bezier(.2,.8,.2,1)) both; }
+.step-line { transition: width 420ms var(--ease-out, cubic-bezier(.2,.8,.2,1)); }
+.step-dot { transition: background-color 250ms, color 250ms, border-color 250ms; }
+@media (prefers-reduced-motion: reduce) { .step-in { animation: none; } .step-line, .step-dot { transition: none; } }

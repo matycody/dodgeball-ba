@@ -98,7 +98,7 @@ export default function AppLayout() {
       </main>
 
       <BottomNav />
-      <Drawer open={open} onClose={() => setOpen(false)} />
+      <Drawer open={open} onOpen={() => setOpen(true)} onClose={() => setOpen(false)} />
       <TourOverlay />
       <OfflineBanner />
     </div>
