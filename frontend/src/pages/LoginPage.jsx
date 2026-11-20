@@ -21,6 +21,23 @@ const AppleLogo = () => (
   </svg>
 )
 
+// Fondo propio del ingreso: color del tema, resplandor del acento y líneas de cancha muy tenues (sin texto ni logos que choquen con el frente)
+function LoginBackground() {
+  return (
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      style={{ background: 'radial-gradient(60% 55% at 78% 45%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%), radial-gradient(45% 45% at 12% 85%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%), var(--bg)' }}>
+      <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" className="h-full w-full text-accent" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.14">
+        <rect x="140" y="110" width="920" height="580" rx="14" />
+        <line x1="600" y1="110" x2="600" y2="690" />
+        <line x1="373" y1="110" x2="373" y2="690" strokeDasharray="10 12" />
+        <line x1="827" y1="110" x2="827" y2="690" strokeDasharray="10 12" />
+        <circle cx="600" cy="400" r="70" />
+        <circle cx="600" cy="400" r="4" fill="currentColor" />
+      </svg>
+    </div>
+  )
+}
+
 export default function LoginPage() {
   const { user, loading, signIn } = useAuthStore()
   const [email, setEmail] = useState('')
@@ -33,6 +50,11 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from?.pathname || '/'
+
+  useEffect(() => {
+    document.documentElement.classList.add('plain-bg') // saca la imagen de fondo general: el ingreso lleva la suya
+    return () => document.documentElement.classList.remove('plain-bg')
+  }, [])
 
   useEffect(() => {
     if (user) navigate(from, { replace: true })
@@ -70,7 +92,9 @@ export default function LoginPage() {
   const round = 'grid h-12 w-12 place-items-center rounded-full bg-white shadow-md'
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 pb-10 pt-[calc(1rem+env(safe-area-inset-top))] md:px-10">
+    <>
+    <LoginBackground />
+    <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 pb-10 pt-[calc(1rem+env(safe-area-inset-top))] md:px-10">
       <Link to="/" aria-label="Cerrar" className="mb-4 grid h-11 w-11 place-items-center rounded-full border border-line bg-surface md:mb-0"><X size={20} /></Link>
 
       <div className="grid flex-1 items-center gap-8 md:grid-cols-[1fr_minmax(0,24rem)] md:gap-16">
@@ -137,5 +161,6 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+    </>
   )
 }
