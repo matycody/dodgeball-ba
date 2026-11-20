@@ -68,7 +68,7 @@ export default function LandingPage() {
   return (
     <>
       <AuthBackground />
-      <div className="relative z-10 min-h-screen">
+      <div className="relative z-10 min-h-screen overflow-x-clip">
         {/* Barra superior */}
         <header className="mx-auto flex max-w-6xl items-center justify-between px-5 pb-2 pt-[calc(0.75rem+env(safe-area-inset-top))] md:px-8">
           <div className="flex items-center gap-2.5">
@@ -80,8 +80,8 @@ export default function LandingPage() {
 
         <main className="mx-auto max-w-6xl px-5 pb-16 md:px-8">
           {/* Portada */}
-          <section className="grid items-center gap-10 pt-8 md:pt-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
-            <div>
+          <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-10 pt-8 md:pt-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
+            <div className="min-w-0">
               <span className="inline-block rounded-full border border-accent/60 bg-accent-soft px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent">Liga oficial · Buenos Aires</span>
               <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 El dodgeball de Buenos Aires,{' '}
@@ -97,7 +97,7 @@ export default function LandingPage() {
               <p className="mt-4 text-xs font-semibold text-muted">Gratis · Sin descargar nada · Instalable en tu celular</p>
             </div>
 
-            <div className="login-glass rounded-3xl p-4 sm:p-5">
+            <div className="login-glass min-w-0 rounded-3xl p-4 sm:p-5">
               {featured ? (
                 <>
                   <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted">

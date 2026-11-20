@@ -188,7 +188,9 @@ html.dark[data-skin="acero"] :is(h1, h2, h3, .text-muted) {
 
 /* Lectura (noticias): fondo liso del tema, sin escudo ni imagen detrás del texto */
 html.plain-bg body::before { background-image: none !important; background-color: var(--bg); }
-html.plain-bg p.text-muted { background: none; border: 0; padding: 0; border-radius: 0; width: auto; text-shadow: none; }
+/* Sin recuadros alrededor de los textos grises ni de los títulos en mayúsculas (la regla general los dibuja y tiene más especificidad) */
+html.plain-bg p.text-muted:not(.bg-surface):not(.bg-surface *),
+html.plain-bg .uppercase.tracking-widest.text-muted:not(.bg-surface *) { background: none; border: 0; padding: 0; border-radius: 0; width: auto; text-shadow: none; }
 
 /* ---------- Animaciones (solo pantallas del espectador) ----------
    Se activan con la clase .motion-ok en AppLayout, que solo la lleva en las rutas de lectura (inicio, partidos, torneos, banners, predicciones…).
