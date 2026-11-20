@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import ThemeSwitch from './ThemeSwitch'
 
@@ -59,25 +59,47 @@ const ROAM = PLAYERS.map(([x, y], i) => {
   }
 })
 
-// Las 6 pelotas: una jugada de cada una es agarrarla en una mitad, tirarla rápido al otro lado (se ve más grande en el aire), dejarla rodar y volver a tirarla.
-const BALLS = Array.from({ length: 6 }, () => {
-  const ax = COURT.x + 25 + rand() * 230
-  const ay = COURT.y + 20 + rand() * (COURT.h - 40)
-  const bx = 420 + rand() * (COURT.x + COURT.w - 25 - 420)
-  const by = COURT.y + 20 + rand() * (COURT.h - 40)
-  const rx = bx + (rand() - 0.5) * 40
-  const ry = clamp(by + (rand() - 0.5) * 40, COURT.y + 8, COURT.y + COURT.h - 8)
-  return {
-    x: ax, y: ay,
-    v: {
-      '--bx': Math.round(bx - ax) + 'px', '--by': Math.round(by - ay) + 'px',
-      '--mx': Math.round((bx + ax) / 2 - ax) + 'px', '--my': Math.round((by + ay) / 2 - ay - 6) + 'px',
-      '--rx': Math.round(rx - ax) + 'px', '--ry': Math.round(ry - ay) + 'px',
-      '--nx': Math.round((rx + ax) / 2 - ax) + 'px', '--ny': Math.round((ry + ay) / 2 - ay + 6) + 'px',
-      '--dur': 8 + rand() * 5 + 's', '--dl': -rand() * 12 + 's',
-    },
-  }
+// Simulación del juego (en función del tiempo, así es continua y no depende de ningún estado): cada jugador recorre su mitad y las 6 pelotas
+// pasan de mano en mano. La pelota la lleva un jugador delante suyo (hacia el rival), la tira y llega delante de un jugador del otro equipo; nunca vuela sola.
+const PBASE = PLAYERS.map(([x, y]) => [px(x), py(y)])
+const ease = (u) => u * u * (3 - 2 * u)
+function playerPos(i, t) {
+  const r = ROAM[i]
+  const ph = ((((t - r.delay) / r.dur) % 1) + 1) % 1 * 4
+  const k = Math.min(3, Math.floor(ph))
+  const u = ease(ph - k)
+  const W = [[0, 0], ...r.p, [0, 0]]
+  return [PBASE[i][0] + W[k][0] + (W[k + 1][0] - W[k][0]) * u, PBASE[i][1] + W[k][1] + (W[k + 1][1] - W[k][1]) * u]
+}
+const front = (i, t) => {
+  const [x, y] = playerPos(i, t)
+  return [x + (i < 6 ? 8 : -8), y]
+}
+const BALLS = Array.from({ length: 6 }, (_, b) => {
+  let acc = 0
+  const steps = Array.from({ length: 6 }, (_, k) => {
+    const team = (b + k) % 2 // el pase alterna entre equipos y, al ser par, cierra el ciclo
+    const st = { h: team * 6 + Math.floor(rand() * 6), H: 1 + rand() * 1.4, F: 0.6 + rand() * 0.3, s: acc }
+    acc += st.H + st.F
+    return st
+  })
+  return { steps, L: acc, off: rand() * acc }
 })
+function ballPos(b, t) {
+  const B = BALLS[b]
+  const tau = (((t + B.off) % B.L) + B.L) % B.L
+  let k = B.steps.length - 1
+  while (B.steps[k].s > tau) k--
+  const st = B.steps[k]
+  const into = tau - st.s
+  if (into < st.H) return [...front(st.h, t), 1] // la lleva el jugador
+  const u = (into - st.H) / st.F
+  const tr = t - (into - st.H) // instante del tiro
+  const a = front(st.h, tr)
+  const z = front(B.steps[(k + 1) % B.steps.length].h, tr + st.F) // llega delante del que la recibe
+  const e = 1 - (1 - u) * (1 - u)
+  return [a[0] + (z[0] - a[0]) * e, a[1] + (z[1] - a[1]) * e, 1 + 0.8 * Math.sin(Math.PI * u)] // más grande en el aire
+}
 
 // Tribuna en 2D: escalones paralelos a la línea de banda, más claros cerca de la cancha
 function Stand({ x0, dir }) {
@@ -100,17 +122,40 @@ function Stand({ x0, dir }) {
 }
 
 function Scene() {
-  const dot = (cx, cy, i, key, roam) => (
+  const root = useRef(null)
+  useEffect(() => {
+    const g = root.current
+    if (!g) return undefined
+    const players = [...g.querySelectorAll('[data-p]')]
+    const balls = [...g.querySelectorAll('[data-b]')]
+    const svg = g.ownerSVGElement
+    const update = (t) => {
+      players.forEach((el, i) => {
+        const [x, y] = playerPos(i, t)
+        el.setAttribute('transform', 'translate(' + (x - PBASE[i][0]).toFixed(1) + ' ' + (y - PBASE[i][1]).toFixed(1) + ')')
+      })
+      balls.forEach((el, i) => {
+        const [x, y, sc] = ballPos(i, t)
+        el.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') scale(' + sc.toFixed(2) + ')')
+      })
+    }
+    update(0)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    let raf
+    const frame = (now) => {
+      if (svg.getClientRects().length > 0) update(now / 1000) // la versión oculta (horizontal o vertical) no se calcula
+      raf = requestAnimationFrame(frame)
+    }
+    raf = requestAnimationFrame(frame)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+  const dot = (cx, cy, i, key, extra) => (
     <g key={key + i} className="e-fadein" style={{ '--d': 1500 + i * 28 + 'ms' }}>
-      <circle
-        className={roam ? 'e-roam' : undefined}
-        style={roam ? { '--x1': roam.p[0][0] + 'px', '--y1': roam.p[0][1] + 'px', '--x2': roam.p[1][0] + 'px', '--y2': roam.p[1][1] + 'px', '--x3': roam.p[2][0] + 'px', '--y3': roam.p[2][1] + 'px', '--dur': roam.dur + 's', '--dl': roam.delay + 's' } : undefined}
-        cx={cx} cy={cy} r="4" fill="currentColor"
-      />
+      <circle {...extra} cx={cx} cy={cy} r="4" fill="currentColor" />
     </g>
   )
   return (
-    <>
+    <g ref={root}>
       <g className="text-fg" opacity="0.3">
         <Stand x0={14} dir={1} />
         <Stand x0={686} dir={-1} />
@@ -123,7 +168,7 @@ function Scene() {
       </g>
       {/* Los puntitos llevan el color de acento (el del rol o el que eligió la persona) para distinguirse de la cancha */}
       <g className="text-accent" opacity="0.85">
-        {PLAYERS.map(([x, y], i) => dot(px(x), py(y), i, 'p', ROAM[i]))}
+        {PLAYERS.map(([x, y], i) => dot(px(x), py(y), i, 'p', { 'data-p': i }))}
         {REFEREES.map(([x, y], i) => dot(px(x), py(y), i + 12, 'r'))}
         {CROWD.map(([x, y], i) => dot(x, y, i + 18, 'f'))}
         {/* Mesa centrada con sus dos designados debajo */}
@@ -134,13 +179,13 @@ function Scene() {
         </g>
       </g>
       <g className="text-fg" opacity="0.95">
-        {BALLS.map((b, i) => (
+        {BALLS.map((_, i) => (
           <g key={'b' + i} className="e-fadein" style={{ '--d': 2300 + i * 90 + 'ms' }}>
-            <circle className="e-ball" style={b.v} cx={b.x} cy={b.y} r="3.2" fill="#ffffff" stroke="currentColor" strokeOpacity="0.55" strokeWidth="0.8" />
+            <circle data-b={i} cx="0" cy="0" r="3.2" fill="#ffffff" stroke="currentColor" strokeOpacity="0.55" strokeWidth="0.8" />
           </g>
         ))}
       </g>
-    </>
+    </g>
   )
 }
 
