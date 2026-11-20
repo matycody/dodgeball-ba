@@ -7,6 +7,7 @@ import MatchCard from '../components/MatchCard'
 import TeamBadge from '../components/TeamBadge'
 import AuthBackground from '../components/AuthBackground'
 import Reveal from '../components/Reveal'
+import ThemeSwitch from '../components/ThemeSwitch'
 import { useReveal, useCountUp } from '../hooks/useReveal'
 import { api } from '../lib/api'
 import { phaseCmp } from '../lib/format'
@@ -83,7 +84,10 @@ export default function LandingPage() {
             <img src="/logo-dba.png" alt="" className="e-float h-10 w-10 object-contain" />
             <span className="text-base font-extrabold tracking-tight">Dodgeball BA</span>
           </div>
-          <Link to="/login" className="login-glass e-lift e-press flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-accent"><LogIn size={16} /> Ingresar</Link>
+          <div className="flex items-center gap-2">
+            <ThemeSwitch />
+            <Link to="/login" className="login-glass e-lift e-press flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-accent"><LogIn size={16} /> Ingresar</Link>
+          </div>
         </header>
 
         <main className="mx-auto max-w-6xl px-5 pb-16 md:px-8">

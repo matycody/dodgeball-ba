@@ -25,6 +25,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 window.__sentryTest = () => Sentry.captureException(new Error('Prueba de Sentry (frontend)'))
 
 useThemeStore.getState().initTheme()
+// iOS Safari solo aplica :active (el color al tocar) si hay algún listener de touchstart
+document.addEventListener('touchstart', () => {}, { passive: true })
 installReportContext()
 
 createRoot(document.getElementById('root')).render(

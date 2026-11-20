@@ -37,6 +37,15 @@ html:not(.dark) .bg-surface {
   --muted: #a9bee6;
 }
 
+/* Azul noche sobre la Cancha: el azul saturado de las tarjetas chocaba con las líneas blancas del fondo; se baja a un azul más profundo (Acero ya queda bien) */
+.dark[data-fondo="cancha"]:not([data-skin="acero"]) {
+  --bg: #05080f;
+  --surface: #0f1f40;
+  --surface-2: #172c58;
+  --line: #27427a;
+  --muted: #9fb2d6;
+}
+
 /* Color de acento por rol (sirve en ambos temas) */
 :root,
 [data-role="visitor"],

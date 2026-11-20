@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import ThemeSwitch from './ThemeSwitch'
 
 // Fondo propio de las pantallas de entrada (bienvenida e ingreso): color del tema, resplandor del acento y líneas de cancha muy tenues.
 // Saca la imagen de fondo general (con el DBA gigante) mientras está montado, para que no choque con los textos.
@@ -34,6 +35,10 @@ export function AuthLayout() {
       <div key={pathname} className="motion-ok e-page">
         <Outlet />
       </div>
+      {/* Modo claro u oscuro desde el principio (la bienvenida de primer ingreso ya tiene "Omitir" arriba a la derecha) */}
+      {pathname !== '/bienvenida' && (
+        <div className="fixed right-4 top-[calc(0.75rem+env(safe-area-inset-top))] z-20"><ThemeSwitch /></div>
+      )}
     </>
   )
 }
