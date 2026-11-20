@@ -93,7 +93,7 @@ export default function LandingPage() {
         <main className="mx-auto max-w-6xl px-5 pb-16 md:px-8">
           {/* Portada */}
           <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-10 pt-8 md:pt-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
-            <div className="min-w-0">
+            <div className="landing-scrim min-w-0">
               <span style={{ '--d': '138ms' }} className="e-in inline-block rounded-full border border-accent/60 bg-accent-soft px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent">Liga oficial · Buenos Aires</span>
               <h1 style={{ '--d': '276ms' }} className="e-in mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 El dodgeball de Buenos Aires,{' '}

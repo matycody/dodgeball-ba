@@ -524,3 +524,13 @@ html:not(.dark) .auth-vignette {
 .e-jump { animation: e-jump var(--dur, 4s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
 @keyframes e-sway { from { transform: translateX(calc(var(--sw, 1.5px) * -1)); } to { transform: translateX(var(--sw, 1.5px)); } }
 .e-sway { animation: e-sway var(--dur, 4s) ease-in-out infinite alternate; animation-delay: var(--dl, 0s); }
+
+/* Texto de la portada sobre el fondo: panel esmerilado con bordes difusos para que la escena no choque con las letras */
+.landing-scrim { position: relative; isolation: isolate; }
+.landing-scrim::before {
+  content: ''; position: absolute; inset: -28px -24px; z-index: -1; pointer-events: none;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 58%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, #000 58%, transparent 100%);
+}

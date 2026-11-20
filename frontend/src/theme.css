@@ -52,7 +52,8 @@ html:not(.dark) .bg-surface {
 [data-role="player"] { --accent: #2f8cff; }
 [data-role="referee"] { --accent: #ff9a3c; }
 [data-role="table"]   { --accent: #14b8a6; }
-[data-role="admin"]   { --accent: #a855f7; }
+[data-role="admin"],
+[data-role="guest"]   { --accent: #a855f7; } /* sin sesión: siempre violeta, sin importar el color elegido antes */
 
 /* Color fijo del rol (chips); no cambia con el color personal */
 :root,
@@ -60,7 +61,8 @@ html:not(.dark) .bg-surface {
 [data-role="player"] { --role-accent: #2f8cff; }
 [data-role="referee"] { --role-accent: #ff9a3c; }
 [data-role="table"]   { --role-accent: #14b8a6; }
-[data-role="admin"]   { --role-accent: #a855f7; }
+[data-role="admin"],
+[data-role="guest"]   { --role-accent: #a855f7; }
 
 :root,
 [data-role] {

@@ -98,7 +98,7 @@ function App() {
   }, [init])
 
   return (
-    <div data-role={accentRole(user, menu)} style={accent ? { '--accent': accent } : undefined} className="min-h-screen">
+    <div data-role={user ? accentRole(user, menu) : 'guest'} style={user && accent ? { '--accent': accent } : undefined} className="min-h-screen">
       <SavingOverlay />
       <BrowserRouter>
         <Routes>
