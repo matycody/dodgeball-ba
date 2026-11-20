@@ -52,6 +52,10 @@ function tally(teamId, matches) {
 
 const whenOf = (m) => (m.finishedAt ?? m.scheduledAt)?.getTime() ?? 0;
 
+// Los récords de diferencia de sets y de sets veloces solo cuentan partidos desde esta fecha: lo anterior se cargó a mano, sin correr el cronómetro, y los distorsiona.
+// Se puede cambiar con la variable RECORDS_FROM (ISO, ej. 2027-03-01T00:00:00-03:00).
+const RECORDS_FROM = new Date(process.env.RECORDS_FROM || '2027-01-01T00:00:00-03:00').getTime();
+
 // Últimos N resultados de un equipo, del más viejo al más nuevo: 'W' | 'D' | 'L'
 function formOf(teamId, matches, n) {
   return matches
@@ -264,13 +268,13 @@ router.get('/records', async (req, res) => {
         if (n && (!streak || n > streak.n)) streak = { team: t, n };
       }
       const diff = Math.abs(r.setsA - r.setsB);
-      if (diff && (!blowout || diff > blowout.diff)) blowout = { matchId: m.id, diff, winner: r.setsA > r.setsB ? m.teamA : m.teamB, loser: r.setsA > r.setsB ? m.teamB : m.teamA, score: [Math.max(r.setsA, r.setsB), Math.min(r.setsA, r.setsB)], tournament: m.tournament?.name ?? null };
+      if (diff && whenOf(m) >= RECORDS_FROM && (!blowout || diff > blowout.diff)) blowout = { matchId: m.id, diff, winner: r.setsA > r.setsB ? m.teamA : m.teamB, loser: r.setsA > r.setsB ? m.teamB : m.teamA, score: [Math.max(r.setsA, r.setsB), Math.min(r.setsA, r.setsB)], tournament: m.tournament?.name ?? null };
     }
 
     // Partido con los sets más veloces: duración promedio de set de cada partido, según el momento en que se decidió cada uno (half + matchSecond).
     // Solo cuentan partidos con 3 sets o más y todos con su registro de tiempo (los cargados antes de existir el registro quedan afuera).
     const stamps = await prisma.matchSet.findMany({
-      where: { matchId: { in: ordered.map((m) => m.id) } },
+      where: { matchId: { in: ordered.filter((m) => whenOf(m) >= RECORDS_FROM).map((m) => m.id) } },
       select: { matchId: true, number: true, half: true, matchSecond: true },
       orderBy: [{ matchId: 'asc' }, { number: 'asc' }],
     });
@@ -286,6 +290,21 @@ router.get('/records', async (req, res) => {
       if (avg > 0 && (!fastest || avg < fastest.avgSeconds)) {
         const m = byId.get(matchId);
         fastest = { matchId, sets: list.length, avgSeconds: Math.round(avg), teamA: m.teamA, teamB: m.teamB, tournament: m.tournament?.name ?? null };
+      }
+    }
+
+    // Partido con más sanciones (advertencias y tarjetas; las deshechas por la mesa no cuentan)
+    const sanctionRows = await prisma.matchSanction.groupBy({
+      by: ['matchId'],
+      where: { matchId: { in: ordered.map((m) => m.id) }, revokedAt: null },
+      _count: { _all: true },
+    });
+    let sanctioned = null;
+    for (const row of sanctionRows) {
+      const n = row._count._all;
+      if (n > 0 && (!sanctioned || n > sanctioned.count)) {
+        const m = byId.get(row.matchId);
+        sanctioned = { matchId: row.matchId, count: n, teamA: m.teamA, teamB: m.teamB, tournament: m.tournament?.name ?? null };
       }
     }
 
@@ -315,6 +334,7 @@ router.get('/records', async (req, res) => {
         streak,
         blowout,
         fastest,
+        sanctioned,
         unbeaten: unbeaten ? { team: unbeaten.team, played: unbeaten.played } : null,
       },
     });
