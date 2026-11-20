@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { NavLink, Link, useLocation } from 'react-router-dom'
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
-import { X, LogOut, LogIn, Info } from 'lucide-react'
+import { X, LogOut, LogIn, Info, Presentation } from 'lucide-react'
+import { LANDING_KEY } from '../pages/LandingPage'
 import { tourKeyFor, startTour } from '../lib/tours'
 import { useAuthStore } from '../stores/authStore'
 import UserAvatar from './UserAvatar'
@@ -118,6 +119,7 @@ export default function Drawer({ open, onClose, onOpen }) {
   const { user, menu, signOut, profile } = useAuthStore()
   const order = useMenuPrefs((s) => s.byUser[user?.id]?.order)
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const tourKey = tourKeyFor(pathname)
   const [newReports, setNewReports] = useState(0)
   const isAdmin = menu.includes('reportes')
@@ -221,9 +223,17 @@ export default function Drawer({ open, onClose, onOpen }) {
               <LogOut size={20} /> Cerrar sesión
             </button>
           ) : (
-            <Link to="/login" onClick={onClose} className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-accent">
-              <LogIn size={20} /> Ingresar / Registrarse
-            </Link>
+            <>
+              <button
+                onClick={() => { onClose(); try { sessionStorage.removeItem(LANDING_KEY) } catch { /* sin storage */ } navigate('/', { state: { t: Date.now() } }) }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-fg"
+              >
+                <Presentation size={20} /> Volver a la presentación
+              </button>
+              <Link to="/login" onClick={onClose} className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-accent">
+                <LogIn size={20} /> Ingresar / Registrarse
+              </Link>
+            </>
           )}
         </div>
       </aside>
