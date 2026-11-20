@@ -507,3 +507,10 @@ html:not(.dark) .auth-vignette {
     radial-gradient(ellipse 65% 140px at 50% 0, color-mix(in srgb, var(--accent) 20%, transparent), transparent 75%),
     var(--bg);
 }
+
+/* Escena del fondo de entrada: horizontal por defecto, vertical en pantallas altas */
+.auth-port { display: none; }
+@media (orientation: portrait) {
+  .auth-land { display: none; }
+  .auth-port { display: block; }
+}
