@@ -1,7 +1,8 @@
 ﻿import {
   Home, Heart, User, CalendarDays, Users, BarChart3, ClipboardList,
-  LayoutDashboard, Target, Trophy, Shield, UserCog, History as HistoryIcon, Timer, BookOpen, Info, Newspaper, MapPin, Gavel, ClipboardCheck, Bug, SquareHelp,
+  LayoutDashboard, Target, Trophy, Shield, UserCog, History as HistoryIcon, Timer, BookOpen, Info, Newspaper, MapPin, Gavel, ClipboardCheck, Bug,
 } from 'lucide-react'
+import SquareQuestion from '../components/SquareQuestion'
 
 // Claves que manda el backend en GET /me → menu (importar_excel no se usa)
 export const ITEMS = {
@@ -54,7 +55,7 @@ export const GENERAL = [
 ]
 
 // Entrada fija al pie del menú (junto al tutorial y Cerrar sesión), no va en General
-export const REPORTAR = { to: '/reportar', label: 'Reportar un problema', Icon: SquareHelp }
+export const REPORTAR = { to: '/reportar', label: 'Reportar un problema', Icon: SquareQuestion }
 
 // Los 3 primeros que existan en el menú van al bottom nav (+ Perfil)
 export const NOTICIAS = GENERAL.find((g) => g.to === '/noticias')
