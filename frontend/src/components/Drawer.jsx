@@ -160,7 +160,7 @@ export default function Drawer({ open, onClose, onOpen }) {
           <div className="flex items-center gap-3">
             <UserAvatar />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold">{user ? <PersonName p={profile} fallback={user.email} /> : 'Visitante'}</p>
+              <p className="truncate text-sm font-bold">{user ? <PersonName p={profile} fallback={user.username ?? user.email} /> : 'Visitante'}</p>
               <p className="text-xs text-muted">{user ? 'Sesión iniciada' : 'Solo lectura'}</p>
             </div>
           </div>

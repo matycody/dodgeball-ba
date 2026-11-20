@@ -119,7 +119,7 @@ export default function PerfilPage() {
         </div>
         <div className="min-w-0">
           <p className="truncate text-lg font-extrabold">
-            <PersonName p={p} fallback={user?.email} />
+            <PersonName p={p} fallback={user?.username ?? user?.email} />
           </p>
           <p className="text-sm text-muted">{roleLabel(user, menu)}</p>
           <button disabled={busy} onClick={() => setPicker(true)} className="mt-1 mr-3 text-xs font-semibold text-accent">
