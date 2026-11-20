@@ -8,7 +8,7 @@ const COURT = { x: 130, y: 80, w: 540, h: 360 }
 const px = (p) => COURT.x + (p * COURT.w) / 100
 const py = (p) => COURT.y + (p * COURT.h) / 100
 const PLAYERS = [[13, 11], [7, 25], [4, 40], [4, 58], [7, 74], [12, 87], [59, 12], [70, 23], [84, 40], [95, 62], [70, 78], [60, 91]]
-const REFEREES = [[22, -4], [50, -4], [99, -4], [0, 104], [50, 104], [91, 104]] // pegados a la línea de la cancha
+const REFEREES = [[1, -4], [50, -4], [99, -4], [0, 104], [50, 104], [91, 104]] // pegados a la línea de la cancha
 const TABLE = { x: 400, y: 468 } // la mesa va centrada abajo, cerca de la cancha, con sus dos designados debajo
 const FANS = [[-15, 9], [-6, 27], [-19, 45], [-15, 76], [-6, 94], [116, 5], [107, 30], [107, 42], [112, 68], [118, 91]]
 

@@ -11,6 +11,7 @@ import { useTeamLogos } from '../stores/teamLogosStore'
 import { installDragScroll } from '../lib/dragScroll'
 import TourOverlay from './TourOverlay'
 import OfflineBanner from './OfflineBanner'
+import AuthBackground from './AuthBackground'
 import { tourSeen, useTourStore } from '../stores/tourStore'
 import { tourKeyFor, startTour } from '../lib/tours'
 
@@ -65,6 +66,7 @@ export default function AppLayout() {
 
   return (
     <div className={'mx-auto flex min-h-screen max-w-2xl flex-col' + (motion ? ' motion-ok' : '')}>
+      {!user && motion && <AuthBackground />} {/* modo visitante: el mismo fondo de la presentación (no en pantallas de operación) */}
       <header className="sticky top-0 z-30 flex items-center gap-2 menu-glass px-3 pb-3 sm:gap-3 sm:px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
         <button
           aria-label="Abrir menú"

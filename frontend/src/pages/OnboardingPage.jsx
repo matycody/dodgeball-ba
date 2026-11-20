@@ -1,19 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Check, Heart, Search, Trophy } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Heart, Palette, Search, Trophy } from 'lucide-react'
 import { api } from '../lib/api'
 import { BRANCH, MODALITY } from '../lib/format'
 import { markOnboarding } from '../lib/onboarding'
 import { useAuthStore } from '../stores/authStore'
 import TeamBadge from '../components/TeamBadge'
+import { ThemeToggle } from '../components/ThemeToggle'
+import ColorPicker from '../components/ColorPicker'
 
 const plain = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 const STEPS = [
   { type: 'TEAM', title: 'Elegí tus equipos favoritos', hint: 'Los vas a ver primero y te avisamos de sus partidos.' },
   { type: 'TOURNAMENT', title: 'Elegí tus torneos favoritos', hint: 'Seguí las ligas y copas que más te interesan.' },
+  { type: 'STYLE', title: 'Personalizá tu web', hint: 'Elegí el tema, el fondo y el color de tus etiquetas. Lo cambiás cuando quieras desde tu perfil.' },
 ]
 
-// Pantalla de bienvenida: equipos y torneos favoritos (con buscador, grilla de 3 columnas, Omitir y puntos de progreso)
+// Pantalla de bienvenida: equipos y torneos favoritos (con buscador, grilla de 3 columnas, Omitir y puntos de progreso) y, al final, tema, fondo y color
 export default function OnboardingPage() {
   const { user, loading } = useAuthStore()
   const navigate = useNavigate()
@@ -31,7 +34,9 @@ export default function OnboardingPage() {
   }, [])
 
   const cur = STEPS[step]
+  const isStyle = cur.type === 'STYLE'
   const list = useMemo(() => {
+    if (cur.type === 'STYLE') return []
     const src = cur.type === 'TEAM' ? teams : tournaments
     const words = plain(q).split(/\s+/).filter(Boolean)
     return (src ?? [])
@@ -62,7 +67,7 @@ export default function OnboardingPage() {
     }
   }
 
-  const n = picks[cur.type].size
+  const n = isStyle ? 0 : picks[cur.type].size
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-4 pb-28 pt-[calc(0.75rem+env(safe-area-inset-top))]">
@@ -75,7 +80,7 @@ export default function OnboardingPage() {
 
       <div key={step} className="step-in mt-4 flex items-center gap-4 rounded-3xl border border-line bg-surface p-4">
         <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent">
-          {cur.type === 'TEAM' ? <Heart size={28} className="fill-current" /> : <Trophy size={28} />}
+          {cur.type === 'TEAM' ? <Heart size={28} className="fill-current" /> : cur.type === 'TOURNAMENT' ? <Trophy size={28} /> : <Palette size={28} />}
         </span>
         <div className="min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-widest text-accent">Paso {step + 1} de {STEPS.length}</p>
@@ -84,6 +89,13 @@ export default function OnboardingPage() {
         </div>
       </div>
 
+      {isStyle ? (
+        <div className="step-in mt-4 space-y-4 rounded-3xl border border-line bg-surface p-4">
+          <ThemeToggle />
+          <ColorPicker />
+        </div>
+      ) : (
+        <>
       <div className="relative mt-4">
         <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={cur.type === 'TEAM' ? 'Buscar equipo' : 'Buscar torneo'} enterKeyHint="search"
@@ -108,6 +120,9 @@ export default function OnboardingPage() {
           )
         })}
       </div>
+
+        </>
+      )}
 
       <div className="fixed inset-x-0 bottom-0 z-10 border-t border-line menu-glass">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
