@@ -494,16 +494,16 @@ html:not(.dark) :is(a, button:not(:disabled), [role="button"], summary, label:ha
 }
 .tap-row:has(a[href]:active) { background-color: color-mix(in srgb, var(--accent) 22%, transparent); }
 
-/* Fondo de las pantallas de entrada: viñeta sin color (centro tenue, bordes oscuros) */
+/* Fondo de las pantallas de entrada: línea de luz fina del acento en el borde superior y un reflejo que baja un poco */
 .auth-vignette {
   background:
-    radial-gradient(ellipse at 50% 45%, rgba(255, 255, 255, .10), transparent 62%),
-    radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, .9) 100%),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 95%, transparent) 50%, transparent) top / 100% 1px no-repeat,
+    radial-gradient(ellipse 65% 140px at 50% 0, color-mix(in srgb, var(--accent) 30%, transparent), transparent 75%),
     var(--bg);
 }
 html:not(.dark) .auth-vignette {
   background:
-    radial-gradient(ellipse at 50% 45%, rgba(255, 255, 255, .7), transparent 62%),
-    radial-gradient(ellipse at center, transparent 40%, rgba(15, 40, 80, .16) 100%),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 85%, transparent) 50%, transparent) top / 100% 1px no-repeat,
+    radial-gradient(ellipse 65% 140px at 50% 0, color-mix(in srgb, var(--accent) 20%, transparent), transparent 75%),
     var(--bg);
 }
