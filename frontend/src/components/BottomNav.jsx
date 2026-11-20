@@ -81,7 +81,7 @@ export default function BottomNav({ swipe = true }) {
             {({ isActive }) => (
               <>
                 <Icon size={22} className={isActive && dragX == null ? 'm-pop' : ''} />
-                <span className="line-clamp-2 w-full break-words">{short ?? label}</span>
+                <span className={'line-clamp-2 w-full break-words ' + ((short ?? label).length > 10 ? 'text-[10px] tracking-tight' : '')}>{short ?? label}</span>
               </>
             )}
           </NavLink>

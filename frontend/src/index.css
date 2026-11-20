@@ -443,3 +443,53 @@ html { -webkit-tap-highlight-color: transparent; }
 html:not(.dark) :is(a, button:not(:disabled), [role="button"], summary, label:has(> input)):is(.bg-surface, .bg-surface-2, .border-line):active {
   background-color: color-mix(in srgb, var(--surface) 78%, var(--tap));
 }
+
+/* ---------- Respuesta táctil en las pantallas de lectura (.motion-ok: nada de mesa ni árbitro) ----------
+   Filas y enlaces sueltos, pestañas, textos-enlace y tarjetas con enlace adentro. Solo color, sombra y subrayado: no mueve nada ni cambia el tamaño. */
+.motion-ok a[href]:is(.flex, .block, .inline-flex):not([class*="bg-"]):not([class*="border"]):not(.menu-glass *):not(.menu-glass-drawer *):not(.tap-card *):not(.tap-row *):not(.login-glass *),
+.motion-ok summary,
+.motion-ok button:not(:disabled):is([role="tab"], .text-muted):not([class*="bg-"]):not(.menu-glass *):not(.menu-glass-drawer *) {
+  transition: background-color 160ms ease, box-shadow 160ms ease, border-color 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+.motion-ok :is(a[href], button, summary).text-accent:not([class*="bg-"]) { transition: opacity 160ms ease, filter 160ms ease; }
+.tap-card, .tap-row { transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+
+@media (hover: hover) and (pointer: fine) {
+  .motion-ok a[href]:is(.flex, .block, .inline-flex):not([class*="bg-"]):not([class*="border"]):not(.menu-glass *):not(.menu-glass-drawer *):not(.tap-card *):not(.tap-row *):not(.login-glass *):hover,
+  .motion-ok summary:hover {
+    background-color: color-mix(in srgb, var(--accent) 10%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  .motion-ok a[href]:is(.flex, .block, .inline-flex):not([class*="bg-"]):not([class*="border"]):not([class*="rounded"]):not(.menu-glass *):not(.menu-glass-drawer *):not(.tap-card *):not(.tap-row *):not(.login-glass *):hover { border-radius: 10px; }
+  .motion-ok button:not(:disabled):is([role="tab"], .text-muted):not([class*="bg-"]):not(.menu-glass *):not(.menu-glass-drawer *):hover {
+    color: var(--fg);
+    background-color: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  .motion-ok button.border-transparent:not(:disabled):hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+  .motion-ok :is(a[href], button:not(:disabled), summary).text-accent:not([class*="bg-"]):hover { text-decoration: underline; text-underline-offset: 3px; filter: brightness(1.18); cursor: pointer; }
+  .motion-ok summary:hover { cursor: pointer; }
+  /* Tarjeta o fila cuyo enlace principal está adentro: se ilumina entera cuando el cursor está sobre el enlace */
+  .tap-card:has(a[href]:hover) {
+    background-color: color-mix(in srgb, var(--surface) 86%, var(--accent));
+    border-color: color-mix(in srgb, var(--accent) 65%, var(--line));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), 0 0 22px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  .tap-row:has(a[href]:hover) { background-color: color-mix(in srgb, var(--accent) 10%, transparent); }
+}
+.motion-ok a[href]:is(.flex, .block, .inline-flex):not([class*="bg-"]):not([class*="border"]):not(.menu-glass *):not(.menu-glass-drawer *):not(.tap-card *):not(.tap-row *):not(.login-glass *):active,
+.motion-ok summary:active {
+  background-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 10px;
+}
+.motion-ok button:not(:disabled):is([role="tab"], .text-muted):not([class*="bg-"]):not(.menu-glass *):not(.menu-glass-drawer *):active {
+  color: var(--fg);
+  background-color: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.motion-ok :is(a[href], button:not(:disabled), summary).text-accent:not([class*="bg-"]):active { opacity: .6; }
+.tap-card:has(a[href]:active) {
+  background-color: color-mix(in srgb, var(--surface) 70%, var(--accent));
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent), 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.tap-row:has(a[href]:active) { background-color: color-mix(in srgb, var(--accent) 22%, transparent); }

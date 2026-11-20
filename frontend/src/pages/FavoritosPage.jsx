@@ -133,7 +133,7 @@ export default function FavoritosPage() {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Torneos</h2>
           <div className="m-cascade space-y-2">
             {tournaments.map((t) => (
-              <div key={t.id} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
+              <div key={t.id} className="tap-card flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
                 <TeamBadge team={t} />
                 <Link to={'/liga/' + t.id} className="min-w-0 flex-1">
                   <span className="block truncate font-bold">{t.name}</span>
@@ -146,7 +146,7 @@ export default function FavoritosPage() {
           <h2 className="pt-2 text-xs font-bold uppercase tracking-widest text-muted">Equipos</h2>
           <div className="m-cascade space-y-2">
             {teams.map((t) => (
-              <div key={t.id} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
+              <div key={t.id} className="tap-card flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
                 <TeamBadge team={t} />
                 <Link to={'/equipo/' + t.id} className="min-w-0 flex-1 truncate font-bold">{t.name}</Link>
                 <FavHeart type="TEAM" id={t.id} name={t.name} />

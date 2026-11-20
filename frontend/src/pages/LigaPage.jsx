@@ -19,7 +19,7 @@ function ActiveCard({ t }) {
   const p = t.progress ?? { played: 0, total: 0, live: 0 }
   const pct = p.total ? Math.round((p.played / p.total) * 100) : 0
   return (
-    <div className={'rounded-3xl border bg-surface p-4 ' + (p.live ? 'border-live' : 'border-line')}>
+    <div className={'tap-card rounded-3xl border bg-surface p-4 ' + (p.live ? 'border-live' : 'border-line')}>
       <div className="flex items-start gap-3">
         <Link to={'/liga/' + t.id} className="flex min-w-0 flex-1 items-center gap-3">
           <TeamBadge team={{ name: t.name, logo: t.logo }} size="lg" />
@@ -53,7 +53,7 @@ function ActiveCard({ t }) {
 // Torneo terminado: fila compacta con el campeón
 function FinishedRow({ t }) {
   return (
-    <div className="flex items-center gap-3 px-3 py-3">
+    <div className="tap-row flex items-center gap-3 px-3 py-3">
       <Link to={'/liga/' + t.id} className="flex min-w-0 flex-1 items-center gap-3">
         <TeamBadge team={t.champion ?? { name: t.name, logo: t.logo }} size="md" />
         <div className="min-w-0 flex-1">

@@ -14,8 +14,8 @@ import OfflineBanner from './OfflineBanner'
 import { tourSeen, useTourStore } from '../stores/tourStore'
 import { tourKeyFor, startTour } from '../lib/tours'
 
-// Pantallas del espectador donde se anima (lectura). Control de mesa, árbitro, Mis asignaciones y el panel de la organización quedan fuera
-const MOTION = /^\/($|partido\/|equipo\/|jugador\/|liga|buscar|equipos|noticias|partidos|predicciones|favoritos|estadisticas|mi-equipo|mis-partidos|mis-estadisticas|sanciones|sedes|perfil|reglas|acerca|reportar|admin\/(partidos|equipos|sedes|sanciones|personas|usuarios|planillas|ediciones|reportes)\/?$|admin\/torneos|admin\/equipos\/[^/]+$)/
+// Se anima toda la app menos el partido en sí: el control de mesa/árbitro, el cronómetro y el partido de la organización (necesitan respuesta inmediata)
+const NO_MOTION = /^\/(control\/|cronometro|admin\/partidos\/[^/]+)/
 
 // Pantallas que ya traen su propio "volver" con el nombre de la lista a la que vuelven
 const OWN_BACK = /^\/(liga|control|admin\/(torneos|equipos|partidos))\/[^/]+$/
@@ -40,7 +40,7 @@ export default function AppLayout() {
   const authLoading = useAuthStore((s) => s.loading)
   const { pathname } = useLocation()
   const navType = useNavigationType()
-  const motion = MOTION.test(pathname)
+  const motion = !NO_MOTION.test(pathname)
   const look = useMenuPrefs((s) => s.look)
   useEffect(() => { installDragScroll() }, [])
 
