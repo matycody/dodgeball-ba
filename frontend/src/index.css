@@ -400,7 +400,7 @@ html:not(.dark)[data-fondo="cancha"] body::before {
 .e-press:not(:disabled):active { scale: .97; }
 
 @media (prefers-reduced-motion: reduce) {
-  .e-page, .e-in, .e-in-right, .e-float, .e-shake, .e-spin, .e-pop, .e-ping, .e-draw, .e-fadein, .e-glow { animation: none !important; }
+  .e-page, .e-in, .e-in-right, .e-float, .e-shake, .e-spin, .e-pop, .e-ping, .e-draw, .e-fadein, .e-glow, .e-roam { animation: none !important; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .e-lift, .e-root { transition: none; }
   .e-leave { opacity: 1; transform: none; }
@@ -514,3 +514,12 @@ html:not(.dark) .auth-vignette {
   .auth-land { display: none; }
   .auth-port { display: block; }
 }
+
+/* Jugadores del fondo: recorren su mitad de la cancha (solo transform) */
+@keyframes e-roam {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(var(--x1), var(--y1)); }
+  50% { transform: translate(var(--x2), var(--y2)); }
+  75% { transform: translate(var(--x3), var(--y3)); }
+}
+.e-roam { animation: e-roam var(--dur, 8s) ease-in-out infinite; animation-delay: var(--dl, 0s); }

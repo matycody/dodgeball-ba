@@ -9,8 +9,55 @@ const px = (p) => COURT.x + (p * COURT.w) / 100
 const py = (p) => COURT.y + (p * COURT.h) / 100
 const PLAYERS = [[13, 11], [7, 25], [4, 40], [4, 58], [7, 74], [12, 87], [59, 12], [70, 23], [84, 40], [95, 62], [70, 78], [60, 91]]
 const REFEREES = [[22, -8], [50, -8], [99, -8], [0, 109], [50, 107], [91, 112]]
-const TABLE = [50, 117]
+const TABLE = { x: 400, y: 494 } // la mesa va centrada abajo, con sus dos designados debajo
 const FANS = [[-15, 9], [-6, 27], [-19, 45], [-15, 76], [-6, 94], [116, 5], [107, 30], [107, 42], [112, 68], [118, 91]]
+
+// Generador con semilla: el reparto "aleatorio" es siempre el mismo, así el fondo no cambia entre cargas
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+const rand = rng(2026)
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v))
+
+// Gente sentada en los escalones de cada tribuna (25 por lado además de las ya ubicadas), sin encimarse
+function seat(x0, fixed, count) {
+  const taken = fixed.map(([x, y]) => [px(x), py(y)])
+  const out = []
+  for (let tries = 0; out.length < count && tries < 6000; tries++) {
+    const x = x0 + (Math.floor(rand() * 7) + 0.5) * (100 / 7)
+    const y = 82 + rand() * 356
+    if ([...taken, ...out].every(([a, b]) => Math.hypot(a - x, b - y) >= 11)) out.push([x, y])
+  }
+  return out
+}
+const FANS_LEFT = FANS.filter(([x]) => x < 50)
+const FANS_RIGHT = FANS.filter(([x]) => x > 50)
+const CROWD = [...FANS.map(([x, y]) => [px(x), py(y)]), ...seat(14, FANS_LEFT, 25), ...seat(686, FANS_RIGHT, 25)]
+
+// Movimientos de cada jugador dentro de su mitad: se adelanta hacia la línea central, esquiva de costado y se retira hacia el fondo
+const ROAM = PLAYERS.map(([x, y], i) => {
+  const left = i < 6
+  const bx = px(x), by = py(y)
+  const minX = left ? COURT.x + 12 : 414
+  const maxX = left ? 386 : COURT.x + COURT.w - 12
+  const rel = (tx, ty) => [Math.round(clamp(tx, minX, maxX) - bx), Math.round(clamp(ty, COURT.y + 12, COURT.y + COURT.h - 12) - by)]
+  const toLine = left ? maxX - 6 - rand() * 30 : minX + 6 + rand() * 30
+  const back = left ? bx - 25 - rand() * 30 : bx + 25 + rand() * 30
+  return {
+    p: [
+      rel(toLine, by + (rand() - 0.5) * 50),
+      rel(bx + (rand() - 0.5) * 40, by + (rand() < 0.5 ? -1 : 1) * (35 + rand() * 40)),
+      rel(back, by + (rand() - 0.5) * 60),
+    ],
+    dur: 6 + rand() * 4,
+    delay: -rand() * 8,
+  }
+})
 
 // Tribuna en 2D: escalones paralelos a la línea de banda, más claros cerca de la cancha
 function Stand({ x0, dir }) {
@@ -33,25 +80,38 @@ function Stand({ x0, dir }) {
 }
 
 function Scene() {
-  const dot = (x, y, i, d) => <circle key={d + i} className="e-fadein" style={{ '--d': 1500 + i * 70 + 'ms' }} cx={px(x)} cy={py(y)} r="4" fill="currentColor" />
+  const dot = (cx, cy, i, key, roam) => (
+    <g key={key + i} className="e-fadein" style={{ '--d': 1500 + i * 28 + 'ms' }}>
+      <circle
+        className={roam ? 'e-roam' : undefined}
+        style={roam ? { '--x1': roam.p[0][0] + 'px', '--y1': roam.p[0][1] + 'px', '--x2': roam.p[1][0] + 'px', '--y2': roam.p[1][1] + 'px', '--x3': roam.p[2][0] + 'px', '--y3': roam.p[2][1] + 'px', '--dur': roam.dur + 's', '--dl': roam.delay + 's' } : undefined}
+        cx={cx} cy={cy} r="4" fill="currentColor"
+      />
+    </g>
+  )
   return (
     <>
       <g className="text-fg" opacity="0.3">
-      <Stand x0={14} dir={1} />
-      <Stand x0={686} dir={-1} />
-      <g fill="none" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.6">
-        <rect className="e-draw" pathLength="1" x={COURT.x} y={COURT.y} width={COURT.w} height={COURT.h} rx="4" />
-        <line className="e-draw" pathLength="1" style={{ '--d': '345ms' }} x1="400" y1={COURT.y} x2="400" y2={COURT.y + COURT.h} />
-        <line className="e-fadein" style={{ '--d': '1265ms' }} x1="265" y1={COURT.y} x2="265" y2={COURT.y + COURT.h} strokeDasharray="6 7" strokeOpacity="0.4" />
-        <line className="e-fadein" style={{ '--d': '1495ms' }} x1="535" y1={COURT.y} x2="535" y2={COURT.y + COURT.h} strokeDasharray="6 7" strokeOpacity="0.4" />
-      </g>
+        <Stand x0={14} dir={1} />
+        <Stand x0={686} dir={-1} />
+        <g fill="none" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.6">
+          <rect className="e-draw" pathLength="1" x={COURT.x} y={COURT.y} width={COURT.w} height={COURT.h} rx="4" />
+          <line className="e-draw" pathLength="1" style={{ '--d': '345ms' }} x1="400" y1={COURT.y} x2="400" y2={COURT.y + COURT.h} />
+          <line className="e-fadein" style={{ '--d': '1265ms' }} x1="265" y1={COURT.y} x2="265" y2={COURT.y + COURT.h} strokeDasharray="6 7" strokeOpacity="0.4" />
+          <line className="e-fadein" style={{ '--d': '1495ms' }} x1="535" y1={COURT.y} x2="535" y2={COURT.y + COURT.h} strokeDasharray="6 7" strokeOpacity="0.4" />
+        </g>
       </g>
       {/* Los puntitos llevan el color de acento (el del rol o el que eligió la persona) para distinguirse de la cancha */}
       <g className="text-accent" opacity="0.85">
-        {PLAYERS.map(([x, y], i) => dot(x, y, i, 'p'))}
-        {REFEREES.map(([x, y], i) => dot(x, y, i + 12, 'r'))}
-        {FANS.map(([x, y], i) => dot(x, y, i + 18, 'f'))}
-        <rect className="e-fadein" style={{ '--d': '2900ms' }} x={px(TABLE[0]) - 14} y={py(TABLE[1]) - 5} width="28" height="9" rx="3" fill="currentColor" />
+        {PLAYERS.map(([x, y], i) => dot(px(x), py(y), i, 'p', ROAM[i]))}
+        {REFEREES.map(([x, y], i) => dot(px(x), py(y), i + 12, 'r'))}
+        {CROWD.map(([x, y], i) => dot(x, y, i + 18, 'f'))}
+        {/* Mesa centrada con sus dos designados debajo */}
+        <g className="e-fadein" style={{ '--d': '2900ms' }}>
+          <rect x={TABLE.x - 15} y={TABLE.y - 5} width="30" height="10" rx="3" fill="currentColor" />
+          <circle cx={TABLE.x - 8} cy={TABLE.y + 13} r="4" fill="currentColor" />
+          <circle cx={TABLE.x + 8} cy={TABLE.y + 13} r="4" fill="currentColor" />
+        </g>
       </g>
     </>
   )
