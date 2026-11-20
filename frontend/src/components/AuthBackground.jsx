@@ -8,8 +8,8 @@ const COURT = { x: 130, y: 80, w: 540, h: 360 }
 const px = (p) => COURT.x + (p * COURT.w) / 100
 const py = (p) => COURT.y + (p * COURT.h) / 100
 const PLAYERS = [[13, 11], [7, 25], [4, 40], [4, 58], [7, 74], [12, 87], [59, 12], [70, 23], [84, 40], [95, 62], [70, 78], [60, 91]]
-const REFEREES = [[22, -8], [50, -8], [99, -8], [0, 109], [50, 107], [91, 112]]
-const TABLE = { x: 400, y: 494 } // la mesa va centrada abajo, con sus dos designados debajo
+const REFEREES = [[22, -4], [50, -4], [99, -4], [0, 104], [28, 104], [91, 104]] // pegados a la línea de la cancha
+const TABLE = { x: 400, y: 468 } // la mesa va centrada abajo, cerca de la cancha, con sus dos designados debajo
 const FANS = [[-15, 9], [-6, 27], [-19, 45], [-15, 76], [-6, 94], [116, 5], [107, 30], [107, 42], [112, 68], [118, 91]]
 
 // Generador con semilla: el reparto "aleatorio" es siempre el mismo, así el fondo no cambia entre cargas
@@ -101,6 +101,10 @@ function ballPos(b, t) {
   return [a[0] + (z[0] - a[0]) * e, a[1] + (z[1] - a[1]) * e, 1 + 0.8 * Math.sin(Math.PI * u)] // más grande en el aire
 }
 
+// Gente de la tribuna: salta en ráfagas, cada uno a su ritmo. Árbitros: se balancean apenas, de lado a lado, casi sin notarse.
+const JUMP = CROWD.map(() => ({ '--dur': 3 + rand() * 3.5 + 's', '--dl': -rand() * 6 + 's' }))
+const SWAY = REFEREES.map(() => ({ '--dur': 3.5 + rand() * 2 + 's', '--dl': -rand() * 5 + 's', '--sw': 1.2 + rand() * 0.6 + 'px' }))
+
 // Tribuna en 2D: escalones paralelos a la línea de banda, más claros cerca de la cancha
 function Stand({ x0, dir }) {
   const n = 7, w = 100, top = 70, h = 380, sw = w / n
@@ -169,8 +173,8 @@ function Scene() {
       {/* Los puntitos llevan el color de acento (el del rol o el que eligió la persona) para distinguirse de la cancha */}
       <g className="text-accent" opacity="0.85">
         {PLAYERS.map(([x, y], i) => dot(px(x), py(y), i, 'p', { 'data-p': i }))}
-        {REFEREES.map(([x, y], i) => dot(px(x), py(y), i + 12, 'r'))}
-        {CROWD.map(([x, y], i) => dot(x, y, i + 18, 'f'))}
+        {REFEREES.map(([x, y], i) => dot(px(x), py(y), i + 12, 'r', { className: 'e-sway', style: SWAY[i] }))}
+        {CROWD.map(([x, y], i) => dot(x, y, i + 18, 'f', { className: 'e-jump', style: JUMP[i] }))}
         {/* Mesa centrada con sus dos designados debajo */}
         <g className="e-fadein" style={{ '--d': '2900ms' }}>
           <rect x={TABLE.x - 15} y={TABLE.y - 5} width="30" height="10" rx="3" fill="currentColor" />
@@ -199,10 +203,10 @@ export default function AuthBackground() {
   return (
     <div aria-hidden className="auth-vignette pointer-events-none fixed inset-0 z-[-1] overflow-hidden">
       {/* Horizontal (pantallas anchas) y vertical (celular): la misma escena girada */}
-      <svg viewBox="0 36 800 480" preserveAspectRatio="xMidYMid meet" className="auth-land h-full w-full">
+      <svg viewBox="0 24 800 480" preserveAspectRatio="xMidYMid meet" className="auth-land h-full w-full">
         <Scene />
       </svg>
-      <svg viewBox="0 0 480 800" preserveAspectRatio="xMidYMid meet" className="auth-port h-full w-full">
+      <svg viewBox="0 -120 480 920" preserveAspectRatio="xMidYMid meet" className="auth-port h-full w-full">
         <g transform="translate(516 0) rotate(90)"><Scene /></g>
       </svg>
     </div>

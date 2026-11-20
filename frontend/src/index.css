@@ -400,7 +400,7 @@ html:not(.dark)[data-fondo="cancha"] body::before {
 .e-press:not(:disabled):active { scale: .97; }
 
 @media (prefers-reduced-motion: reduce) {
-  .e-page, .e-in, .e-in-right, .e-float, .e-shake, .e-spin, .e-pop, .e-ping, .e-draw, .e-fadein, .e-glow { animation: none !important; }
+  .e-page, .e-in, .e-in-right, .e-float, .e-shake, .e-spin, .e-pop, .e-ping, .e-draw, .e-fadein, .e-glow, .e-jump, .e-sway { animation: none !important; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .e-lift, .e-root { transition: none; }
   .e-leave { opacity: 1; transform: none; }
@@ -514,3 +514,13 @@ html:not(.dark) .auth-vignette {
   .auth-land { display: none; }
   .auth-port { display: block; }
 }
+
+/* Fondo de entrada: la tribuna salta en ráfagas y los árbitros se balancean casi sin notarse (solo transform) */
+@keyframes e-jump {
+  0%, 40%, 75%, 100% { transform: translateY(0); }
+  47%, 61% { transform: translateY(-4px); }
+  54%, 68% { transform: translateY(0); }
+}
+.e-jump { animation: e-jump var(--dur, 4s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
+@keyframes e-sway { from { transform: translateX(calc(var(--sw, 1.5px) * -1)); } to { transform: translateX(var(--sw, 1.5px)); } }
+.e-sway { animation: e-sway var(--dur, 4s) ease-in-out infinite alternate; animation-delay: var(--dl, 0s); }

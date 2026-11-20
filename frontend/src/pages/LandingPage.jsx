@@ -82,7 +82,7 @@ export default function LandingPage() {
         <header className="e-in mx-auto flex max-w-6xl items-center justify-between px-5 pb-2 pt-[calc(0.75rem+env(safe-area-inset-top))] md:px-8">
           <div className="flex items-center gap-2.5">
             <img src="/logo-dba-rect.png" alt="" className="h-9 w-auto" />
-            <span className="text-base font-extrabold tracking-tight">Dodgeball BA</span>
+            <span className="hidden whitespace-nowrap text-base font-extrabold tracking-tight sm:inline">Dodgeball BA</span>
           </div>
           <div className="flex items-center gap-2">
             <ThemeSwitch />
