@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import OfflinePage from './pages/OfflinePage'
 import LoginPage from './pages/LoginPage'
 import LandingPage, { landingSeen } from './pages/LandingPage'
+import { AuthLayout } from './components/AuthBackground'
 import RegisterPage from './pages/RegisterPage'
 import RecuperarPage from './pages/RecuperarPage'
 import OnboardingPage from './pages/OnboardingPage'
@@ -101,10 +102,12 @@ function App() {
       <SavingOverlay />
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/registro" element={<RegisterPage />} />
-          <Route path="/recuperar" element={<RecuperarPage />} />
-          <Route path="/bienvenida" element={<OnboardingPage />} />
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/registro" element={<RegisterPage />} />
+            <Route path="/recuperar" element={<RecuperarPage />} />
+            <Route path="/bienvenida" element={<OnboardingPage />} />
+          </Route>
 
           <Route element={<Shell />}>
             <Route path="/" element={<InicioPage />} />

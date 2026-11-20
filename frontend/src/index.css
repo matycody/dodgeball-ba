@@ -296,3 +296,24 @@ html.plain-bg p.text-muted { background: none; border: 0; padding: 0; border-rad
 @media (prefers-reduced-transparency: reduce) {
   .login-glass { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
+
+/* Cinta de escudos de la bienvenida: desplazamiento lento y continuo; con "reducir movimiento" queda quieta y en varias filas */
+.dba-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+.dba-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1.5rem;
+  animation: dba-marquee 45s linear infinite;
+}
+@keyframes dba-marquee {
+  to { transform: translateX(calc(-50% - 0.75rem)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dba-marquee { -webkit-mask-image: none; mask-image: none; }
+  .dba-marquee-track { animation: none; width: auto; flex-wrap: wrap; justify-content: center; }
+  .dba-marquee-track > [aria-hidden="true"] { display: none; }
+}
