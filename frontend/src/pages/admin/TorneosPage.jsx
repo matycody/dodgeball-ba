@@ -8,6 +8,7 @@ import { Btn, Alert, inputCls, Skeleton } from '../../components/ui'
 import { useConfirm } from '../../components/ConfirmProvider'
 import LogoPicker from '../../components/LogoPicker'
 import TeamBadge from '../../components/TeamBadge'
+import { withSaving } from '../../lib/saving'
 
 const NOW_YEAR = new Date().getFullYear()
 const EMPTY = {
@@ -73,8 +74,8 @@ export default function TorneosPage() {
           year: Number(form.year), branch: form.branch, modality: form.modality,
           ...(editDraft ? { format: form.format } : {}),
         }
-        await api('PATCH', '/tournaments/' + editId, body)
-        setForm(EMPTY); setTb(null); setEditId(null); setCurLogo(null); await load()
+        await withSaving({ title: 'Guardando el torneo', doneTitle: 'Torneo guardado' }, async () => { await api('PATCH', '/tournaments/' + editId, body); await load() })
+        setForm(EMPTY); setTb(null); setEditId(null); setCurLogo(null)
       } else {
         const body = {
           name: form.name.trim(), year: Number(form.year), edition: form.edition.trim() || undefined, formatLabel: form.formatLabel.trim() || undefined,
@@ -83,8 +84,11 @@ export default function TorneosPage() {
           pointsWin: Number(form.pointsWin), pointsDraw: Number(form.pointsDraw), pointsLoss: Number(form.pointsLoss),
           ...(tb ? { tiebreakers: tb } : {}),
         }
-        const t = await api('POST', '/tournaments', body)
-        if (logo) { try { await apiUpload('/photos/tournaments/' + t.id, logo.file) } catch { /* se puede subir después desde Editar */ } }
+        const t = await withSaving({ title: 'Creando el torneo', doneTitle: 'Torneo creado', steps: ['Guardando los datos', 'Preparando etapas y reglas', 'Subiendo el escudo'] }, async () => {
+          const nt = await api('POST', '/tournaments', body)
+          if (logo) { try { await apiUpload('/photos/tournaments/' + nt.id, logo.file) } catch { /* se puede subir después desde Editar */ } }
+          return nt
+        })
         clearPending()
         nav('/admin/torneos/' + t.id)
       }

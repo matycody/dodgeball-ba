@@ -14,6 +14,7 @@ import BracketView from '../../components/torneo/BracketView'
 import FixtureView, { PlayoffsSchedule } from '../../components/torneo/FixtureView'
 import ExtraMatchesView, { ManualMatchForm } from '../../components/torneo/ExtraMatchesView'
 import BracketEditor, { emptyBracket, fromView } from '../../components/torneo/BracketEditor'
+import { withSaving } from '../../lib/saving'
 
 const TABS = [
   ['resumen', 'Resumen'], ['equipos', 'Equipos'], ['estructura', 'Estructura'],
@@ -36,7 +37,7 @@ function TeamsTab({ t, reload, setErr }) {
   const toggle = (id) => setSel((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
   async function save() {
     setBusy(true); setErr('')
-    try { await api('PUT', '/tournaments/' + t.id + '/teams', { teamIds: [...sel] }); await reload() } catch (e) { setErr(e.message) } finally { setBusy(false) }
+    try { await withSaving({ title: 'Guardando los equipos del torneo', doneTitle: 'Equipos guardados' }, async () => { await api('PUT', '/tournaments/' + t.id + '/teams', { teamIds: [...sel] }); await reload() }) } catch (e) { setErr(e.message) } finally { setBusy(false) }
   }
   const shown = (eligible ?? []).filter((x) => plain(x.name).includes(plain(q)))
   const allShown = shown.length > 0 && shown.every((x) => sel.has(x.id))
@@ -121,16 +122,18 @@ function StructureTab({ t, reload, setErr }) {
       })),
     }
     try {
-      try {
-        const r = await api('PUT', '/tournaments/' + t.id + '/stages', body)
-        if (r?.promotionWarning) setErr(r.promotionWarning)
-      } catch (e) {
-        if (e.data?.code !== 'WIPE_REQUIRED') throw e
-        if (!window.confirm(e.message + '\n\n¿Borrar fixture y playoffs y rehacer la estructura?')) { setBusy(false); return }
-        const r2 = await api('PUT', '/tournaments/' + t.id + '/stages', { ...body, confirmWipe: true })
-        if (r2?.promotionWarning) setErr(r2.promotionWarning)
-      }
-      await reload()
+      await withSaving({ title: 'Guardando la estructura', doneTitle: 'Estructura guardada', steps: ['Guardando etapas y zonas', 'Asignando equipos', 'Actualizando el torneo'] }, async () => {
+        try {
+          const r = await api('PUT', '/tournaments/' + t.id + '/stages', body)
+          if (r?.promotionWarning) setErr(r.promotionWarning)
+        } catch (e) {
+          if (e.data?.code !== 'WIPE_REQUIRED') throw e
+          if (!window.confirm(e.message + '\n\n¿Borrar fixture y playoffs y rehacer la estructura?')) { setBusy(false); return }
+          const r2 = await api('PUT', '/tournaments/' + t.id + '/stages', { ...body, confirmWipe: true })
+          if (r2?.promotionWarning) setErr(r2.promotionWarning)
+        }
+        await reload()
+      })
     } catch (e) { setErr(e.message) } finally { setBusy(false) }
   }
 
@@ -272,11 +275,11 @@ function FixtureTab({ t, setErr }) {
   async function draw(stage) {
     setBusy(true); setErr('')
     try {
-      await api('POST', '/tournaments/' + t.id + '/stages/' + stage.id + '/fixture', {
+      await withSaving({ title: 'Generando el fixture', doneTitle: 'Fixture generado', steps: ['Armando los cruces', 'Asignando fechas y horarios', 'Guardando los partidos'] }, () => api('POST', '/tournaments/' + t.id + '/stages/' + stage.id + '/fixture', {
         shuffle: opt.shuffle, doubleRound: opt.doubleRound, intervalDays: Number(opt.intervalDays) || 7, schedule: opt.schedule,
         startDate: opt.startDate ? opt.startDate + 'T15:00:00.000Z' : undefined,
         time: opt.startDate && opt.time ? opt.time : undefined, court: opt.court ? Number(opt.court) : undefined,
-      })
+      }))
       setTick((x) => x + 1)
     } catch (e) { setErr(e.message) } finally { setBusy(false) }
   }
@@ -372,7 +375,7 @@ function BracketBuilder({ t, stage, onDone, setErr }) {
         for (const x of order) er[x.id] = Number(entry[x.id]) || 1
         body.entryRounds = er
       }
-      await api('POST', '/tournaments/' + t.id + '/stages/' + stage.id + '/bracket', body)
+      await withSaving({ title: 'Armando la llave', doneTitle: 'Llave armada', steps: ['Ordenando los cruces', 'Creando los partidos', 'Guardando la llave'] }, () => api('POST', '/tournaments/' + t.id + '/stages/' + stage.id + '/bracket', body))
       onDone()
     } catch (e) { setErr(e.message) } finally { setBusy(false) }
   }
@@ -592,8 +595,11 @@ function SummaryTab({ t, reload, setErr, setMsg }) {
     if (!(await ask({ title: 'Confirmar reinicio', message: detail + ' No se puede deshacer.', confirmText: 'Reiniciar', cancelText: 'Volver', danger: true }))) return
     setPausing(true); setErr(''); setResetDone('')
     try {
-      const r = await api('POST', '/tournaments/' + t.id + '/reset', { clearSchedule: !!clearSchedule })
-      if (!keep && !t.pausedAt) await api('POST', '/tournaments/' + t.id + '/pause')
+      const r = await withSaving({ title: 'Reiniciando el torneo', doneTitle: 'Torneo reiniciado' }, async () => {
+        const res = await api('POST', '/tournaments/' + t.id + '/reset', { clearSchedule: !!clearSchedule })
+        if (!keep && !t.pausedAt) await api('POST', '/tournaments/' + t.id + '/pause')
+        return res
+      })
       const done = 'Torneo reiniciado: ' + r.matches + ' partidos en cero' + (keep ? (r.clearedSchedule ? ' y sin horarios' : '') : ' y pausado para editar la estructura')
       setMsg(done)
       setResetDone(done)
@@ -647,7 +653,7 @@ function SummaryTab({ t, reload, setErr, setMsg }) {
     if (!(await ask({ title: 'Cerrar torneo', message: 'Se congela la tabla final y no se podrá modificar. ¿Cerrar "' + t.name + '"?', confirmText: 'Cerrar' }))) return
     setBusy(true); setErr('')
     try {
-      const r = await api('POST', '/tournaments/' + t.id + '/close', { ...(champ ? { championId: champ } : {}), ...(second ? { secondId: second } : {}), ...(third ? { thirdId: third } : {}), ...(force ? { force: true } : {}) })
+      const r = await withSaving({ title: 'Cerrando el torneo', doneTitle: 'Torneo cerrado' }, () => api('POST', '/tournaments/' + t.id + '/close', { ...(champ ? { championId: champ } : {}), ...(second ? { secondId: second } : {}), ...(third ? { thirdId: third } : {}), ...(force ? { force: true } : {}) }))
       setMsg('Torneo cerrado' + (r.unresolvedTies ? ' · empates sin resolver: ' + r.unresolvedTies : ''))
       await reload()
     } catch (e) {

@@ -54,6 +54,7 @@ import { supabase } from './lib/supabase'
 import { socket } from './sockets/socket'
 import { usePersonalStore } from './stores/personalStore'
 import './App.css'
+import SavingOverlay from './components/SavingOverlay'
 
 // TEMPORAL (pruebas): borrar antes del commit
 if (import.meta.env.DEV) {
@@ -97,6 +98,7 @@ function App() {
 
   return (
     <div data-role={accentRole(user, menu)} style={accent ? { '--accent': accent } : undefined} className="min-h-screen">
+      <SavingOverlay />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />

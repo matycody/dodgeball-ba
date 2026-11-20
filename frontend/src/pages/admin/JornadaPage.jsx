@@ -7,6 +7,7 @@ import { BRANCH, MODALITY, phaseCmp, normMatch, plain } from '../../lib/format'
 import { dayOf, dayTab } from '../../lib/days'
 import { useLeaveGuard } from '../../hooks/useLeaveGuard'
 import { useConfirm } from '../../components/ConfirmProvider'
+import { withSaving } from '../../lib/saving'
 
 const DEFAULT_TURN = 60 // por defecto un partido ocupa 1 hora; la organización lo puede cambiar
 const TURN_STEP = 5
@@ -311,8 +312,11 @@ export default function JornadaPage() {
     if (!items.length) return
     setBusy(true); setErr(''); setErrs([]); setOk('')
     try {
-      const r = await api('POST', '/matches/bulk-schedule', { turnMinutes: turn, items })
-      await load()
+      const r = await withSaving({ title: 'Guardando la jornada', doneTitle: 'Jornada guardada', steps: ['Actualizando partidos', 'Asignando canchas y horarios', 'Avisando a los equipos'] }, async () => {
+        const res = await api('POST', '/matches/bulk-schedule', { turnMinutes: turn, items })
+        await load()
+        return res
+      })
       setOk('Jornada guardada: ' + r.updated + ' partidos actualizados')
     } catch (e) {
       setErr(e.data?.error || e.message)
