@@ -247,7 +247,6 @@ router.get('/records', async (req, res) => {
     const get = (t) => { if (!teams.has(t.id)) teams.set(t.id, { team: t, played: 0, won: 0, drawn: 0, lost: 0, titles: 0 }); return teams.get(t.id); };
     let sets = 0;
     let blowout = null;
-    let longest = null;
     const ordered = matches.filter((m) => matchResult(m)).sort((a, b) => whenOf(a) - whenOf(b));
     const run = new Map(); // equipo -> racha de victorias en curso
     let streak = null;
@@ -266,7 +265,28 @@ router.get('/records', async (req, res) => {
       }
       const diff = Math.abs(r.setsA - r.setsB);
       if (diff && (!blowout || diff > blowout.diff)) blowout = { matchId: m.id, diff, winner: r.setsA > r.setsB ? m.teamA : m.teamB, loser: r.setsA > r.setsB ? m.teamB : m.teamA, score: [Math.max(r.setsA, r.setsB), Math.min(r.setsA, r.setsB)], tournament: m.tournament?.name ?? null };
-      if (!longest || r.setsA + r.setsB > longest.sets) longest = { matchId: m.id, sets: r.setsA + r.setsB, teamA: m.teamA, teamB: m.teamB, tournament: m.tournament?.name ?? null };
+    }
+
+    // Partido con los sets más veloces: duración promedio de set de cada partido, según el momento en que se decidió cada uno (half + matchSecond).
+    // Solo cuentan partidos con 3 sets o más y todos con su registro de tiempo (los cargados antes de existir el registro quedan afuera).
+    const stamps = await prisma.matchSet.findMany({
+      where: { matchId: { in: ordered.map((m) => m.id) } },
+      select: { matchId: true, number: true, half: true, matchSecond: true },
+      orderBy: [{ matchId: 'asc' }, { number: 'asc' }],
+    });
+    const bySet = new Map();
+    for (const s of stamps) { if (!bySet.has(s.matchId)) bySet.set(s.matchId, []); bySet.get(s.matchId).push(s); }
+    const byId = new Map(ordered.map((m) => [m.id, m]));
+    let fastest = null;
+    for (const [matchId, list] of bySet) {
+      if (list.length < 3 || list.some((s) => s.half == null || s.matchSecond == null)) continue;
+      const at = list.map((s) => (s.half - 1) * 20 * 60 + s.matchSecond); // segundos de juego transcurridos cuando se decidió cada set
+      if (at.some((x, i) => x < (i ? at[i - 1] : 0))) continue; // registro incoherente: se ignora
+      const avg = at[at.length - 1] / list.length; // promedio de duración de set de este partido
+      if (avg > 0 && (!fastest || avg < fastest.avgSeconds)) {
+        const m = byId.get(matchId);
+        fastest = { matchId, sets: list.length, avgSeconds: Math.round(avg), teamA: m.teamA, teamB: m.teamB, tournament: m.tournament?.name ?? null };
+      }
     }
 
     // Títulos (si el torneo se cerró sin campeón guardado, se deduce de la final)
@@ -294,7 +314,7 @@ router.get('/records', async (req, res) => {
       records: {
         streak,
         blowout,
-        longest,
+        fastest,
         unbeaten: unbeaten ? { team: unbeaten.team, played: unbeaten.played } : null,
       },
     });

@@ -237,13 +237,13 @@ function Resumen({ champ, rec, teamsCount }) {
         {hist.length > 5 && <button type="button" onClick={() => setAllHist((v) => !v)} className="mt-3 w-full rounded-xl border border-line bg-surface-2 py-2 text-sm font-bold">{allHist ? 'Ver menos' : 'Ver todos (' + hist.length + ')'}</button>}
       </Card>
 
-      {r && (r.streak || r.blowout || r.unbeaten || r.longest) && (
+      {r && (r.streak || r.blowout || r.unbeaten || r.fastest) && (
         <Card title="Récords">
           <div className="m-cascade grid grid-cols-2 gap-2">
-            {r.streak && <Record Icon={Flame} value={r.streak.n + (r.streak.n === 1 ? ' victoria' : ' seguidas')} label={'Mayor racha · ' + r.streak.team.name} to={'/equipo/' + r.streak.team.id} />}
+            {r.streak && <Record Icon={Flame} value={r.streak.n + (r.streak.n === 1 ? ' victoria' : ' seguidas')} label={'Mayor racha de victorias · ' + r.streak.team.name} to={'/equipo/' + r.streak.team.id} />}
             {r.blowout && <Record Icon={Zap} value={r.blowout.score[0] + ' a ' + r.blowout.score[1]} label={'Mayor diferencia de sets en un partido · ' + r.blowout.winner.name + ' vs ' + r.blowout.loser.name} to={r.blowout.matchId ? '/partido/' + r.blowout.matchId : undefined} />}
             {r.unbeaten && <Record Icon={ShieldCheck} value="Invicto" label={r.unbeaten.team.name + ' · ' + r.unbeaten.played + ' partidos'} to={'/equipo/' + r.unbeaten.team.id} />}
-            {r.longest && <Record Icon={Clock} value={r.longest.sets + ' sets'} label={'Más sets en un mismo partido · ' + r.longest.teamA.name + ' vs ' + r.longest.teamB.name} to={r.longest.matchId ? '/partido/' + r.longest.matchId : undefined} />}
+            {r.fastest && <Record Icon={Clock} value={Math.floor(r.fastest.avgSeconds / 60) + ':' + String(r.fastest.avgSeconds % 60).padStart(2, '0')} label={'Partido con los sets más veloces · promedio por set · ' + r.fastest.teamA.name + ' vs ' + r.fastest.teamB.name} to={r.fastest.matchId ? '/partido/' + r.fastest.matchId : undefined} />}
           </div>
         </Card>
       )}

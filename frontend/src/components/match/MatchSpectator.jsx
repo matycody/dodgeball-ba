@@ -79,11 +79,26 @@ function Team({ t, slot, form, rank, branch }) {
   return t?.id ? <GoTo to={'/equipo/' + t.id} className={cls}>{body}</GoTo> : <div className={cls}>{body}</div>
 }
 
+// Parcial por tiempo de un partido terminado: el 1T es el marcador tras el último set del primer tiempo y el 2T, lo que se sumó después.
+// Solo si todos los sets tienen su tiempo registrado (los cargados antes de existir el registro no lo muestran).
+function halfScores(m) {
+  const sets = m.sets ?? []
+  if (!sets.length || sets.some((x) => x.half !== 1 && x.half !== 2)) return null
+  const first = sets.filter((x) => x.half === 1).at(-1)
+  const a1 = first?.scoreA ?? 0
+  const b1 = first?.scoreB ?? 0
+  const a = m.score?.teamA ?? 0
+  const b = m.score?.teamB ?? 0
+  if (a < a1 || b < b1) return null
+  return { first: a1 + '-' + b1, second: a - a1 + '-' + (b - b1) }
+}
+
 // Cabecera: el centro depende del estado (previa: cuenta regresiva · en vivo: marcador y relojes · final: resultado)
 function Header({ m, tick, over, pip }) {
   const live = m.status === 'LIVE' && !over
   const pre = m.status === 'SCHEDULED' || m.status === 'READY'
   const count = useCountdown(m.scheduledAt, pre)
+  const halves = over ? halfScores(m) : null
   const when = m.scheduledAt ? [dayTab(dayOf(m.scheduledAt)), hourOf(m.scheduledAt, m.timeSet)].filter(Boolean).join(' · ') : 'Sin fecha'
   const score = (
     <span className={'font-mono text-4xl font-extrabold tabular-nums ' + (live ? 'text-live' : '')}>
@@ -134,6 +149,9 @@ function Header({ m, tick, over, pip }) {
         <div className="flex min-w-[96px] flex-col items-center gap-0.5 self-center text-center">{center}</div>
         <Team t={m.teamB} slot={m.phase?.slotB} form={m.form?.B} rank={m.form?.rankB} branch={m.branch} />
       </div>
+      {over && halves && (
+        <p className="mt-3 text-center font-mono text-[11px] font-bold tabular-nums text-muted">1T {halves.first} · 2T {halves.second}</p>
+      )}
       {m.tournament?.id && (
         <div className="mt-4 flex items-center justify-center gap-2">
           <Link to={'/liga/' + m.tournament.id} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-4 py-1.5 text-xs font-bold text-accent">

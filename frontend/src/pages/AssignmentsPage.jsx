@@ -187,7 +187,7 @@ export default function AssignmentsPage({ history = false }) {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xs font-bold uppercase tracking-widest text-muted">{history ? 'Historial de asignaciones' : 'Mis asignaciones'}</h1>
+      <h1 className="text-xs font-bold uppercase tracking-widest text-muted">{history ? 'Historial de asignaciones' : 'Asignaciones'}</h1>
       <ErrorCard message={error} />
       {list === null && !error && <p className="text-muted">Cargando…</p>}
       {list && (

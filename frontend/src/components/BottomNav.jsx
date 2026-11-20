@@ -4,7 +4,7 @@ import { LogIn } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { ITEMS, BOTTOM_PRIORITY, NOTICIAS, navEnd } from '../lib/navConfig'
 
-// Organizador: Inicio, Noticias, Mis asignaciones (al medio), Dashboard y Partidos
+// Organizador: Inicio, Noticias, Asignaciones (al medio), Dashboard y Partidos
 const ADMIN_ORDER = ['asignaciones', 'dashboard_canchas', 'partidos']
 
 export function bottomItems(user, menu = []) {
@@ -67,7 +67,7 @@ export default function BottomNav({ swipe = true }) {
         >
           <span className="block h-full w-full rounded-2xl bg-accent-soft" />
         </span>
-        {items.map(({ to, label, Icon }, i) => (
+        {items.map(({ to, label, short, Icon }, i) => (
           <NavLink
             key={to}
             to={to}
@@ -81,7 +81,7 @@ export default function BottomNav({ swipe = true }) {
             {({ isActive }) => (
               <>
                 <Icon size={22} className={isActive && dragX == null ? 'm-pop' : ''} />
-                <span className="line-clamp-2 w-full break-words">{label}</span>
+                <span className="line-clamp-2 w-full break-words">{short ?? label}</span>
               </>
             )}
           </NavLink>

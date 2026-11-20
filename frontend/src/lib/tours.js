@@ -39,7 +39,7 @@ export const TOURS = {
   ],
 
   asignaciones: [
-    { title: 'Mis asignaciones', text: 'Tus próximos partidos como árbitro o mesa, todos en una sola pantalla.' },
+    { title: 'Asignaciones', text: 'Tus próximos partidos como árbitro o mesa, todos en una sola pantalla.' },
     { title: 'Operar un partido', text: 'Tocá el partido para abrir el control cuando esté habilitado. El Historial está aparte, en el menú.' },
   ],
 

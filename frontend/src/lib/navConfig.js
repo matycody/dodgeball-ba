@@ -13,8 +13,8 @@ export const ITEMS = {
   mi_equipo: { to: '/mi-equipo', label: 'Ficha de mi equipo', Icon: Users },
   mis_estadisticas: { to: '/mis-estadisticas', label: 'Mis estadísticas', Icon: BarChart3 },
   historial_asignaciones: { to: '/asignaciones/historial', label: 'Historial', Icon: HistoryIcon },
-  asignaciones: { to: '/asignaciones', label: 'Mis asignaciones', Icon: ClipboardList }, // árbitro + mesa en una sola pantalla
-  dashboard_canchas: { to: '/admin/canchas', label: 'Dashboard de canchas', Icon: LayoutDashboard },
+  asignaciones: { to: '/asignaciones', label: 'Asignaciones', Icon: ClipboardList }, // árbitro + mesa en una sola pantalla
+  dashboard_canchas: { to: '/admin/canchas', label: 'Dashboard de canchas', short: 'Dashboard', Icon: LayoutDashboard },
   torneos: { to: '/admin/torneos', label: 'Torneos', Icon: Trophy },
   partidos: { to: '/admin/partidos', label: 'Partidos', Icon: CalendarDays },
   equipos: { to: '/admin/equipos', label: 'Equipos', Icon: Users },

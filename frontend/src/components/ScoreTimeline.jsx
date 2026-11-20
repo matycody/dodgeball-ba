@@ -4,6 +4,16 @@ import TeamBadge from './TeamBadge'
 
 const clock = (sec) => String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0')
 
+// Duración promedio de set: tiempo de juego transcurrido al decidirse el último set / cantidad de sets.
+// Solo si todos los sets tienen su momento registrado y es coherente (los partidos cargados en 00:00 no la muestran).
+function avgSetSeconds(sets) {
+  if (!sets.length || sets.some((s) => !s.half || s.second == null)) return null
+  const at = sets.map((s) => (s.half - 1) * 20 * 60 + s.second)
+  if (at.some((x, i) => x < (i ? at[i - 1] : 0))) return null
+  const avg = at[at.length - 1] / sets.length
+  return avg > 0 ? Math.round(avg) : null
+}
+
 function Side({ team, set, branch }) {
   if (!team) return <div />
   return (
@@ -23,6 +33,7 @@ export default function ScoreTimeline({ m, onDelete = null, busy = false, defaul
   const [open, setOpen] = useState(defaultOpen)
   if (!sets.length) return null
   const last = sets.length - 1
+  const avg = avgSetSeconds(sets)
   const live = m.status === 'LIVE' || m.status === 'READY'
 
   return (
@@ -54,6 +65,12 @@ export default function ScoreTimeline({ m, onDelete = null, busy = false, defaul
             )
           })}
         </ol>
+      )}
+      {open && avg != null && (
+        <p className="flex items-center justify-between gap-2 border-t border-line px-4 py-2.5 text-xs font-semibold text-muted">
+          <span>Duración promedio por set</span>
+          <span className="font-mono text-sm font-extrabold tabular-nums text-fg">{Math.floor(avg / 60) + ':' + String(avg % 60).padStart(2, '0')}</span>
+        </p>
       )}
     </section>
   )
