@@ -92,7 +92,7 @@ export default function LandingPage() {
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link to="/registro" className="flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-extrabold text-black"><UserPlus size={17} /> Crear mi cuenta</Link>
-                <button type="button" onClick={enter} className="login-glass flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold">Ver partidos <ArrowRight size={16} /></button>
+                <button type="button" onClick={enter} className="login-glass flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold">Modo visitante <ArrowRight size={16} /></button>
               </div>
               <p className="mt-4 text-xs font-semibold text-muted">Gratis · Sin descargar nada · Instalable en tu celular</p>
             </div>
@@ -172,7 +172,7 @@ export default function LandingPage() {
           <footer className="mt-12 flex flex-col items-center gap-3 border-t border-line pt-6 text-center">
             <p className="max-w-xl text-sm font-semibold text-fg">La plataforma oficial de seguimiento y gestión de partidos de Dodgeball Buenos Aires.</p>
             <div className="flex gap-5 text-xs font-bold text-muted">
-              <button type="button" onClick={enter}>Ver partidos</button>
+              <button type="button" onClick={enter}>Modo visitante</button>
               <Link to="/login">Ingresar</Link>
               <Link to="/registro">Crear cuenta</Link>
             </div>
