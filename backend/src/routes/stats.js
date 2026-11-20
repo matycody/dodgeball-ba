@@ -386,4 +386,64 @@ router.get('/team-tables', async (req, res) => {
   }
 });
 
+// Estadísticas de un torneo: por equipo (sets, puntos, sanciones, rachas) y resumen. Las listas ordenadas las arma el frontend.
+router.get('/tournaments/:id', async (req, res) => {
+  try {
+    const t = await prisma.tournament.findFirst({ where: { id: req.params.id, deletedAt: null }, select: { id: true } });
+    if (!t) return res.status(404).json({ error: 'Torneo no encontrado' });
+    const where = { tournamentId: t.id, hiddenAt: null, teamAId: { not: null }, teamBId: { not: null } };
+    const [matches, sanctions] = await Promise.all([
+      prisma.match.findMany({
+        where: { ...where, status: 'FINISHED' },
+        select: { id: true, teamAId: true, teamBId: true, modality: true, finishedAt: true, scheduledAt: true, sets: { select: { winnerTeamId: true } }, teamA: { select: TEAM_SELECT }, teamB: { select: TEAM_SELECT } },
+      }),
+      prisma.matchSanction.findMany({
+        where: { revokedAt: null, match: where },
+        select: { side: true, kind: true, matchId: true, match: { select: { teamA: { select: TEAM_SELECT }, teamB: { select: TEAM_SELECT } } } },
+      }),
+    ]);
+    const teams = new Map();
+    const get = (tm) => {
+      if (!teams.has(tm.id)) teams.set(tm.id, { team: tm, played: 0, won: 0, drawn: 0, lost: 0, setsWon: 0, setsLost: 0, pointsFor: 0, pointsAgainst: 0, bestStreak: 0, streak: 0, sanctions: { WARNING: 0, YELLOW: 0, BLUE: 0, RED: 0, total: 0 } });
+      return teams.get(tm.id);
+    };
+    let sets = 0;
+    let counted = 0;
+    for (const m of [...matches].sort((a, b) => whenOf(a) - whenOf(b))) {
+      const r = matchResult(m);
+      if (!r) continue;
+      counted++;
+      sets += r.setsA + r.setsB;
+      const pts = matchPoints(m);
+      for (const [e, mine, theirs, pf, pa] of [[get(m.teamA), r.setsA, r.setsB, pts.a, pts.b], [get(m.teamB), r.setsB, r.setsA, pts.b, pts.a]]) {
+        e.played++;
+        e.setsWon += mine; e.setsLost += theirs; e.pointsFor += pf; e.pointsAgainst += pa;
+        if (mine > theirs) { e.won++; e.streak++; e.bestStreak = Math.max(e.bestStreak, e.streak); } else { e.streak = 0; if (mine === theirs) e.drawn++; else e.lost++; }
+      }
+    }
+    const perMatch = new Map();
+    let sanctionTotal = 0;
+    for (const x of sanctions) {
+      const e = get(x.side === 'A' ? x.match.teamA : x.match.teamB);
+      if (e.sanctions[x.kind] !== undefined) e.sanctions[x.kind]++;
+      e.sanctions.total++;
+      sanctionTotal++;
+      perMatch.set(x.matchId, (perMatch.get(x.matchId) ?? 0) + 1);
+    }
+    let sanctionedMatch = null;
+    if (perMatch.size) {
+      const [id, count] = [...perMatch.entries()].sort((a, b) => b[1] - a[1])[0];
+      const m = await prisma.match.findUnique({ where: { id }, select: { id: true, teamA: { select: TEAM_SELECT }, teamB: { select: TEAM_SELECT } } });
+      if (m) sanctionedMatch = { matchId: m.id, count, teamA: m.teamA, teamB: m.teamB };
+    }
+    res.json({
+      summary: { matches: counted, sets, sanctions: sanctionTotal },
+      teams: [...teams.values()].map(({ streak, ...e }) => ({ ...e, currentStreak: streak })),
+      sanctionedMatch,
+    });
+  } catch (err) {
+    fail(err, res);
+  }
+});
+
 module.exports = router;

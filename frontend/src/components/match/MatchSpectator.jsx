@@ -150,7 +150,10 @@ function Header({ m, tick, over, pip }) {
         <Team t={m.teamB} slot={m.phase?.slotB} form={m.form?.B} rank={m.form?.rankB} branch={m.branch} />
       </div>
       {over && halves && (
-        <p className="mt-3 text-center font-mono text-[11px] font-bold tabular-nums text-muted">1T {halves.first} · 2T {halves.second}</p>
+        <div className="mt-3 space-y-0.5 text-center font-mono text-[11px] font-bold tabular-nums text-muted">
+          <p>1T {halves.first}</p>
+          <p>2T {halves.second}</p>
+        </div>
       )}
       {m.tournament?.id && (
         <div className="mt-4 flex items-center justify-center gap-2">

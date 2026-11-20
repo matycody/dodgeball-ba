@@ -8,6 +8,7 @@ import StandingsView from '../components/torneo/StandingsView'
 import BracketView from '../components/torneo/BracketView'
 import FixtureView from '../components/torneo/FixtureView'
 import ExtraMatchesView from '../components/torneo/ExtraMatchesView'
+import TorneoStats from '../components/torneo/TorneoStats'
 import MatchRow from '../components/MatchRow'
 import Podium from '../components/Podium'
 import TeamBadge from '../components/TeamBadge'
@@ -214,10 +215,7 @@ export default function TorneoPage() {
       )}
 
       {tab === 'estadisticas' && (
-        <div className="rounded-2xl border border-line bg-surface px-4 py-10 text-center">
-          <div className="text-lg font-extrabold">Próximamente</div>
-          <div className="mt-1 text-sm text-muted">Las estadísticas del torneo van a estar disponibles muy pronto.</div>
-        </div>
+        <TorneoStats tournamentId={t.id} />
       )}
 
       {tab === 'info' && (
