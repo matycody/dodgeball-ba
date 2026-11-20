@@ -303,7 +303,7 @@ export default function HomeInicio({ byId, loading, error, children }) {
       )}
 
       {error && <p className="text-danger">{error}</p>}
-      {cal === null && calTry < 3 && <Skeleton />}
+      {((cal === null && calTry < 3) || !favReady) && <Skeleton />}
 
       {v.sel === 'live' ? (
         v.live.length ? <div className="space-y-4">{v.liveSorted.map((m) => <LiveWithNext key={m.id} m={m} next={v.nextOnCourt[m.id]} featured />)}</div> : <p className="text-muted">No hay partidos en vivo.</p>
@@ -366,7 +366,7 @@ export default function HomeInicio({ byId, loading, error, children }) {
             )
           })}
           </div>
-          {v.groups.length === 0 && (cal !== null || calTry >= 3) && (
+          {v.groups.length === 0 && (cal !== null || calTry >= 3) && favReady && ( // sin esperar a los favoritos el día no está elegido y el cartel parpadea
             <p className="rounded-2xl border border-line bg-surface px-4 py-6 text-center text-sm font-bold text-muted">
               {all.length === 0 ? 'No hay partidos.' : 'No hay partidos esta fecha.'}
               {all.length > 0 && v.sel && DATE_RE.test(v.sel) && (() => {
