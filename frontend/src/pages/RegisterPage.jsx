@@ -158,13 +158,13 @@ export default function RegisterPage() {
       {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
     </button>
   )
-  const choice = 'flex w-full items-center gap-3.5 rounded-2xl border bg-surface p-4 text-left'
+  const choice = 'e-lift e-press flex w-full items-center gap-3.5 rounded-2xl border bg-surface p-4 text-left'
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-10">
-      <Link to="/login" className="mb-6 w-fit rounded-full border border-line bg-surface px-4 py-1.5 text-sm font-bold">← Volver al login</Link>
+      <Link to="/login" className="e-in e-press mb-6 w-fit rounded-full border border-line bg-surface px-4 py-1.5 text-sm font-bold">← Volver al login</Link>
       <p className="text-xs font-semibold uppercase tracking-widest text-muted">Dodgeball</p>
-      <h1 className="mb-2 mt-1 text-3xl font-extrabold">{titles[step]}</h1>
+      <h1 key={step} className="e-in mb-2 mt-1 text-3xl font-extrabold">{titles[step]}</h1>
       {step === 'tipo' && <p className="mb-6 text-sm text-muted">Elegí la opción que te corresponde. Después te pedimos confirmar tu mail.</p>}
       {step === 'mail' && <p className="mb-6 text-sm text-muted">{guest ? 'Para seguir partidos y equipos. ' : ''}Te mandamos un código al mail para confirmar que es tuyo.</p>}
       {step === 'code' && <p className="mb-6 text-sm text-muted">Lo enviamos a {email}. Revisá también spam o promociones.</p>}
@@ -176,7 +176,7 @@ export default function RegisterPage() {
 
       <div key={step} className="step-in">
       {step === 'tipo' && (
-        <div className="flex flex-col gap-3">
+        <div className="m-stagger flex flex-col gap-3">
           <button type="button" onClick={() => { setGuest(false); setStep('mail') }} className={choice + ' border-2 border-accent'}>
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent"><Trophy size={22} /></span>
             <span className="flex-1"><span className="block font-extrabold">Soy jugador</span><span className="block text-xs text-muted">Cuenta más tus datos y equipo. La organización te habilita.</span></span>

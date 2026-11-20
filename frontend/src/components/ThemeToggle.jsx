@@ -12,12 +12,19 @@ const SKINS = [
   { value: 'acero', label: 'Acero' },
 ]
 
+const FONDOS = [
+  { value: 'escudo', label: 'Escudo DBA' },
+  { value: 'cancha', label: 'Cancha' },
+]
+
 export function ThemeToggle() {
   const mode = useThemeStore((s) => s.mode)
   const setMode = useThemeStore((s) => s.setMode)
   const theme = useThemeStore((s) => s.theme)
   const skin = useThemeStore((s) => s.skin)
   const setSkin = useThemeStore((s) => s.setSkin)
+  const fondo = useThemeStore((s) => s.fondo)
+  const setFondo = useThemeStore((s) => s.setFondo)
 
   return (
     <div className="space-y-2">
@@ -44,6 +51,14 @@ export function ThemeToggle() {
         ))}
       </div>
     )}
+    <div role="radiogroup" aria-label="Fondo de pantalla" className="grid grid-cols-2 gap-1 rounded-2xl border border-line bg-surface-2 p-1">
+      {FONDOS.map(({ value, label }) => (
+        <button key={value} role="radio" aria-checked={fondo === value} onClick={() => setFondo(value)}
+          className={'rounded-xl py-2 text-xs font-bold ' + (fondo === value ? 'bg-accent text-black' : 'text-muted')}>
+          {label}
+        </button>
+      ))}
+    </div>
     </div>
   )
 }

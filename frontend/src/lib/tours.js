@@ -53,7 +53,7 @@ export const TOURS = {
   perfil: [
     { title: 'Tu perfil', text: 'Acá administrás tu cuenta y cómo ves la app.' },
     { title: 'Cuenta y seguridad', text: 'Cambiá tu mail, tu usuario y tu contraseña (te pide la actual).' },
-    { title: 'Personalización', text: 'Elegí tema (Azul noche, Celeste o Acero), colores y el orden de tu menú.' },
+    { title: 'Personalización', text: 'Elegí tema (Azul noche, Celeste o Acero), fondo (Escudo DBA o Cancha), colores y el orden de tu menú.' },
     { title: 'Repetir tutoriales', text: 'Abajo de todo está "Ver los tutoriales de nuevo".' },
   ],
 

@@ -73,7 +73,7 @@ export default function OnboardingPage() {
         <button onClick={done} className="rounded-full border border-line bg-surface px-4 py-2 text-sm font-bold">Omitir</button>
       </div>
 
-      <div className="mt-4 flex items-center gap-4 rounded-3xl border border-line bg-surface p-4">
+      <div key={step} className="step-in mt-4 flex items-center gap-4 rounded-3xl border border-line bg-surface p-4">
         <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent">
           {cur.type === 'TEAM' ? <Heart size={28} className="fill-current" /> : <Trophy size={28} />}
         </span>
@@ -94,13 +94,13 @@ export default function OnboardingPage() {
       {(cur.type === 'TEAM' ? teams : tournaments) === null && !err && <p className="mt-6 text-muted">Cargando…</p>}
       {list.length === 0 && (cur.type === 'TEAM' ? teams : tournaments) !== null && <p className="mt-6 text-muted">No hay resultados.</p>}
 
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div key={step} className="m-cascade mt-4 grid grid-cols-3 gap-3">
         {list.map((x) => {
           const on = picks[cur.type].has(x.id)
           return (
             <button key={x.id} onClick={() => toggle(x.id)} aria-pressed={on}
-              className={'relative flex flex-col items-center gap-2 rounded-2xl border px-2 py-3 text-center ' + (on ? 'border-accent bg-accent-soft' : 'border-line bg-surface')}>
-              {on && <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-accent text-black"><Check size={13} strokeWidth={3} /></span>}
+              className={'e-lift e-press relative flex flex-col items-center gap-2 rounded-2xl border px-2 py-3 text-center ' + (on ? 'border-accent bg-accent-soft' : 'border-line bg-surface')}>
+              {on && <span className="e-pop absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-accent text-black"><Check size={13} strokeWidth={3} /></span>}
               <TeamBadge team={x} size="lg" />
               <span className="line-clamp-2 text-xs font-bold leading-tight">{x.name}</span>
               {x.sub && <span className="text-[10px] font-semibold uppercase text-muted">{x.sub}</span>}
