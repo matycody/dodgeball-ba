@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import ThemeSwitch from './ThemeSwitch'
 
@@ -39,71 +39,15 @@ const FANS_LEFT = FANS.filter(([x]) => x < 50)
 const FANS_RIGHT = FANS.filter(([x]) => x > 50)
 const CROWD = [...FANS.map(([x, y]) => [px(x), py(y)]), ...seat(14, FANS_LEFT, 25), ...seat(686, FANS_RIGHT, 25)]
 
-// Movimientos de cada jugador dentro de su mitad: se adelanta hacia la línea central, esquiva de costado y se retira hacia el fondo
-const ROAM = PLAYERS.map(([x, y], i) => {
+// Escena quieta: cada jugador en una posición de juego (ni en su lugar base ni en línea), y las 6 pelotas en manos de jugadores, delante suyo (hacia el rival).
+const SPREAD = PLAYERS.map(([x, y], i) => {
   const left = i < 6
-  const bx = px(x), by = py(y)
-  const minX = left ? COURT.x + 12 : 414
-  const maxX = left ? 386 : COURT.x + COURT.w - 12
-  const rel = (tx, ty) => [Math.round(clamp(tx, minX, maxX) - bx), Math.round(clamp(ty, COURT.y + 12, COURT.y + COURT.h - 12) - by)]
-  const toLine = left ? maxX - 6 - rand() * 30 : minX + 6 + rand() * 30
-  const back = left ? bx - 25 - rand() * 30 : bx + 25 + rand() * 30
-  return {
-    p: [
-      rel(toLine, by + (rand() - 0.5) * 50),
-      rel(bx + (rand() - 0.5) * 40, by + (rand() < 0.5 ? -1 : 1) * (35 + rand() * 40)),
-      rel(back, by + (rand() - 0.5) * 60),
-    ],
-    dur: 6 + rand() * 4,
-    delay: -rand() * 8,
-  }
+  const dx = (left ? 1 : -1) * (6 + rand() * 22) // un poco adelantados hacia la línea central
+  const dy = (rand() - 0.5) * 34
+  return [clamp(px(x) + dx, COURT.x + 12, COURT.x + COURT.w - 12), clamp(py(y) + dy, COURT.y + 12, COURT.y + COURT.h - 12)]
 })
-
-// Simulación del juego (en función del tiempo, así es continua y no depende de ningún estado): cada jugador recorre su mitad y las 6 pelotas
-// pasan de mano en mano. La pelota la lleva un jugador delante suyo (hacia el rival), la tira y llega delante de un jugador del otro equipo; nunca vuela sola.
-const PBASE = PLAYERS.map(([x, y]) => [px(x), py(y)])
-const ease = (u) => u * u * (3 - 2 * u)
-function playerPos(i, t) {
-  const r = ROAM[i]
-  const ph = ((((t - r.delay) / r.dur) % 1) + 1) % 1 * 4
-  const k = Math.min(3, Math.floor(ph))
-  const u = ease(ph - k)
-  const W = [[0, 0], ...r.p, [0, 0]]
-  return [PBASE[i][0] + W[k][0] + (W[k + 1][0] - W[k][0]) * u, PBASE[i][1] + W[k][1] + (W[k + 1][1] - W[k][1]) * u]
-}
-const front = (i, t) => {
-  const [x, y] = playerPos(i, t)
-  return [x + (i < 6 ? 8 : -8), y]
-}
-const BALLS = Array.from({ length: 6 }, (_, b) => {
-  let acc = 0
-  const steps = Array.from({ length: 6 }, (_, k) => {
-    const team = (b + k) % 2 // el pase alterna entre equipos y, al ser par, cierra el ciclo
-    const st = { h: team * 6 + Math.floor(rand() * 6), H: 1 + rand() * 1.4, F: 0.6 + rand() * 0.3, s: acc }
-    acc += st.H + st.F
-    return st
-  })
-  return { steps, L: acc, off: rand() * acc }
-})
-function ballPos(b, t) {
-  const B = BALLS[b]
-  const tau = (((t + B.off) % B.L) + B.L) % B.L
-  let k = B.steps.length - 1
-  while (B.steps[k].s > tau) k--
-  const st = B.steps[k]
-  const into = tau - st.s
-  if (into < st.H) return [...front(st.h, t), 1] // la lleva el jugador
-  const u = (into - st.H) / st.F
-  const tr = t - (into - st.H) // instante del tiro
-  const a = front(st.h, tr)
-  const z = front(B.steps[(k + 1) % B.steps.length].h, tr + st.F) // llega delante del que la recibe
-  const e = 1 - (1 - u) * (1 - u)
-  return [a[0] + (z[0] - a[0]) * e, a[1] + (z[1] - a[1]) * e, 1 + 0.8 * Math.sin(Math.PI * u)] // más grande en el aire
-}
-
-// Gente de la tribuna: salta en ráfagas, cada uno a su ritmo. Árbitros: se balancean apenas, de lado a lado, casi sin notarse.
-const JUMP = CROWD.map(() => ({ '--dur': 3 + rand() * 3.5 + 's', '--dl': -rand() * 6 + 's' }))
-const SWAY = REFEREES.map(() => ({ '--dur': 3.5 + rand() * 2 + 's', '--dl': -rand() * 5 + 's', '--sw': 1.2 + rand() * 0.6 + 'px' }))
+const HOLDERS = [1, 3, 4, 7, 9, 11] // quién lleva cada pelota (3 por equipo)
+const BALL_POS = HOLDERS.map((h) => [SPREAD[h][0] + (h < 6 ? 8 : -8), SPREAD[h][1]])
 
 // Tribuna en 2D: escalones paralelos a la línea de banda, más claros cerca de la cancha
 function Stand({ x0, dir }) {
@@ -126,40 +70,13 @@ function Stand({ x0, dir }) {
 }
 
 function Scene() {
-  const root = useRef(null)
-  useEffect(() => {
-    const g = root.current
-    if (!g) return undefined
-    const players = [...g.querySelectorAll('[data-p]')]
-    const balls = [...g.querySelectorAll('[data-b]')]
-    const svg = g.ownerSVGElement
-    const update = (t) => {
-      players.forEach((el, i) => {
-        const [x, y] = playerPos(i, t)
-        el.setAttribute('transform', 'translate(' + (x - PBASE[i][0]).toFixed(1) + ' ' + (y - PBASE[i][1]).toFixed(1) + ')')
-      })
-      balls.forEach((el, i) => {
-        const [x, y, sc] = ballPos(i, t)
-        el.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') scale(' + sc.toFixed(2) + ')')
-      })
-    }
-    update(0)
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
-    let raf
-    const frame = (now) => {
-      if (svg.getClientRects().length > 0) update(now / 1000) // la versión oculta (horizontal o vertical) no se calcula
-      raf = requestAnimationFrame(frame)
-    }
-    raf = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(raf)
-  }, [])
-  const dot = (cx, cy, i, key, extra) => (
+  const dot = (cx, cy, i, key) => (
     <g key={key + i} className="e-fadein" style={{ '--d': 1500 + i * 28 + 'ms' }}>
-      <circle {...extra} cx={cx} cy={cy} r="4" fill="currentColor" />
+      <circle cx={cx} cy={cy} r="4" fill="currentColor" />
     </g>
   )
   return (
-    <g ref={root}>
+    <g>
       <g className="text-fg" opacity="0.3">
         <Stand x0={14} dir={1} />
         <Stand x0={686} dir={-1} />
@@ -172,9 +89,9 @@ function Scene() {
       </g>
       {/* Los puntitos llevan el color de acento (el del rol o el que eligió la persona) para distinguirse de la cancha */}
       <g className="text-accent" opacity="0.85">
-        {PLAYERS.map(([x, y], i) => dot(px(x), py(y), i, 'p', { 'data-p': i }))}
-        {REFEREES.map(([x, y], i) => dot(px(x), py(y), i + 12, 'r', { className: 'e-sway', style: SWAY[i] }))}
-        {CROWD.map(([x, y], i) => dot(x, y, i + 18, 'f', { className: 'e-jump', style: JUMP[i] }))}
+        {SPREAD.map(([x, y], i) => dot(x, y, i, 'p'))}
+        {REFEREES.map(([x, y], i) => dot(px(x), py(y), i + 12, 'r'))}
+        {CROWD.map(([x, y], i) => dot(x, y, i + 18, 'f'))}
         {/* Mesa centrada con sus dos designados debajo */}
         <g className="e-fadein" style={{ '--d': '2900ms' }}>
           <rect x={TABLE.x - 15} y={TABLE.y - 5} width="30" height="10" rx="3" fill="currentColor" />
@@ -183,9 +100,9 @@ function Scene() {
         </g>
       </g>
       <g className="text-fg" opacity="0.95">
-        {BALLS.map((_, i) => (
+        {BALL_POS.map(([x, y], i) => (
           <g key={'b' + i} className="e-fadein" style={{ '--d': 2300 + i * 90 + 'ms' }}>
-            <circle data-b={i} cx="0" cy="0" r="3.2" fill="#ffffff" stroke="currentColor" strokeOpacity="0.55" strokeWidth="0.8" />
+            <circle cx={x} cy={y} r="3.2" fill="#ffffff" stroke="currentColor" strokeOpacity="0.55" strokeWidth="0.8" />
           </g>
         ))}
       </g>
