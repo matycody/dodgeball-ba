@@ -81,7 +81,7 @@ export default function LandingPage() {
         {/* Barra superior */}
         <header className="e-in mx-auto flex max-w-6xl items-center justify-between px-5 pb-2 pt-[calc(0.75rem+env(safe-area-inset-top))] md:px-8">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-dba.png" alt="" className="e-float h-10 w-10 object-contain" />
+            <img src="/logo-dba-rect.png" alt="" className="h-9 w-auto" />
             <span className="text-base font-extrabold tracking-tight">Dodgeball BA</span>
           </div>
           <div className="flex items-center gap-2">
@@ -103,7 +103,7 @@ export default function LandingPage() {
                 Resultados, posiciones y estadísticas de cada torneo. Seguí cada partido segundo a segundo, desde donde estés.
               </p>
               <div style={{ '--d': '621ms' }} className="e-in mt-7 flex flex-col gap-3 sm:flex-row">
-                <Link to="/registro" className="e-shine e-press flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-extrabold text-black"><UserPlus size={17} /> Crear mi cuenta</Link>
+                <Link to="/registro" className="e-shine e-lift e-press flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-extrabold text-black"><UserPlus size={17} /> Crear mi cuenta</Link>
                 <button type="button" onClick={enter} className="login-glass e-lift e-press flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold">Modo visitante <ArrowRight size={16} /></button>
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function LandingPage() {
                 </>
               ) : (
                 <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
-                  <img src="/logo-dba.png" alt="" className="h-24 w-24 object-contain" />
+                  <img src="/logo-dba-rect.png" alt="" className="h-16 w-auto" />
                   <p className="text-sm font-bold">Dodgeball Buenos Aires</p>
                   <p className="text-xs text-muted">Cuando haya un partido en juego, lo ves acá en vivo.</p>
                 </div>
@@ -179,11 +179,11 @@ export default function LandingPage() {
 
           {/* Cierre */}
           <Reveal as="section" className="login-glass mt-16 rounded-3xl px-6 py-10 text-center sm:py-12">
-            <img src="/logo-dba.png" alt="" className="e-float mx-auto h-14 w-14 object-contain" />
+            <img src="/logo-dba-rect.png" alt="" className="mx-auto h-12 w-auto" />
             <h2 className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">Entrá a la cancha</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-muted">Creá tu cuenta para seguir a tus equipos, jugar el prode y no perderte ningún partido.</p>
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link to="/registro" className="e-shine e-press flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-extrabold text-black"><UserPlus size={17} /> Crear mi cuenta</Link>
+              <Link to="/registro" className="e-shine e-lift e-press flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-extrabold text-black"><UserPlus size={17} /> Crear mi cuenta</Link>
               <Link to="/login" className="e-lift e-press flex items-center justify-center gap-2 rounded-xl border-2 border-line bg-surface px-6 py-3.5 text-sm font-extrabold"><LogIn size={17} /> Ya tengo cuenta</Link>
             </div>
           </Reveal>

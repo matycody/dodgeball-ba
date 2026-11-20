@@ -76,7 +76,7 @@ export default function LoginPage() {
       <div className="grid flex-1 items-center gap-8 md:grid-cols-[1fr_minmax(0,24rem)] md:gap-16">
         {/* Marca: arriba y compacta en el celular, a la izquierda en pantallas grandes */}
         <div className="text-center md:text-left">
-          <img src="/logo-dba.png" alt="" className="e-in e-float mx-auto h-16 w-16 object-contain md:mx-0 md:h-24 md:w-24" />
+          <img src="/logo-dba-rect.png" alt="" className="e-in mx-auto h-14 w-auto md:mx-0 md:h-20" />
           <p style={{ '--d': '138ms' }} className="e-in mt-3 text-xs font-extrabold uppercase tracking-[0.25em] text-accent md:text-sm">Dodgeball Buenos Aires</p>
           <h1 style={{ '--d': '253ms' }} className="e-in mt-2 hidden text-4xl font-extrabold leading-tight md:block lg:text-5xl">Cada partido,<br />en tiempo real.</h1>
           <p style={{ '--d': '391ms' }} className="e-in mt-3 hidden max-w-md text-base text-muted md:block">Seguí tus torneos, el cronómetro y las estadísticas de tu equipo en un solo lugar.</p>
