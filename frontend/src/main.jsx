@@ -9,6 +9,7 @@ import { ConfirmProvider } from './components/ConfirmProvider'
 import { useThemeStore } from './stores/themeStore'
 import './lib/syncPrefs'
 import { installReportContext } from './lib/reportContext'
+import { hideSplashWhenReady } from './lib/splash'
 
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
@@ -43,4 +44,4 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
-
+hideSplashWhenReady()

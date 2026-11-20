@@ -24,9 +24,18 @@
         } catch (e) {}
       })();
     </script>
+    <style>
+      /* Pantalla de bienvenida: se pinta antes que la app y se desvanece cuando está lista */
+      #splash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:radial-gradient(60% 45% at 50% 50%,#0d2a52 0%,#07101f 55%,#04070d 100%);transition:opacity .35s ease}
+      #splash.out{opacity:0;pointer-events:none}
+      #splash img{width:min(52vw,220px);height:auto;filter:drop-shadow(0 0 28px rgba(26,167,255,.45));animation:splash-in .6s cubic-bezier(.2,.8,.2,1) both}
+      @keyframes splash-in{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:scale(1)}}
+      @media (prefers-reduced-motion:reduce){#splash img{animation:none}#splash{transition:none}}
+    </style>
     <title>Dodgeball BA Cronómetro</title>
   </head>
   <body>
+    <div id="splash" aria-hidden="true"><img src="/logo-dba.png" alt="" width="220" height="220" /></div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -83,12 +83,19 @@ export default function BuscarPage() {
     let alive = true
     setErr('')
     api('GET', '/search?q=' + encodeURIComponent(term))
-      .then((r) => alive && setRes(r))
+      .then((r) => alive && setRes({ ...r, term }))
       .catch((e) => alive && setErr(e.message))
     return () => { alive = false }
   }, [q])
 
   const total = res ? res.tournaments.length + res.teams.length + res.players.length + res.referees.length + res.users.length + res.next.length + res.past.length : 0
+
+  // Se guarda sola toda búsqueda con resultados que quedó en pantalla un rato (no depende de Enter ni de salir del campo)
+  useEffect(() => {
+    if (!res || total === 0 || res.term !== q.trim() || q.trim().length < 2) return
+    const t = setTimeout(() => setRecent(addRecent(uid, q)), 1000)
+    return () => clearTimeout(t)
+  }, [res, q]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-4">
