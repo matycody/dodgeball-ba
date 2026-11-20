@@ -59,6 +59,26 @@ const ROAM = PLAYERS.map(([x, y], i) => {
   }
 })
 
+// Las 6 pelotas: una jugada de cada una es agarrarla en una mitad, tirarla rápido al otro lado (se ve más grande en el aire), dejarla rodar y volver a tirarla.
+const BALLS = Array.from({ length: 6 }, () => {
+  const ax = COURT.x + 25 + rand() * 230
+  const ay = COURT.y + 20 + rand() * (COURT.h - 40)
+  const bx = 420 + rand() * (COURT.x + COURT.w - 25 - 420)
+  const by = COURT.y + 20 + rand() * (COURT.h - 40)
+  const rx = bx + (rand() - 0.5) * 40
+  const ry = clamp(by + (rand() - 0.5) * 40, COURT.y + 8, COURT.y + COURT.h - 8)
+  return {
+    x: ax, y: ay,
+    v: {
+      '--bx': Math.round(bx - ax) + 'px', '--by': Math.round(by - ay) + 'px',
+      '--mx': Math.round((bx + ax) / 2 - ax) + 'px', '--my': Math.round((by + ay) / 2 - ay - 6) + 'px',
+      '--rx': Math.round(rx - ax) + 'px', '--ry': Math.round(ry - ay) + 'px',
+      '--nx': Math.round((rx + ax) / 2 - ax) + 'px', '--ny': Math.round((ry + ay) / 2 - ay + 6) + 'px',
+      '--dur': 8 + rand() * 5 + 's', '--dl': -rand() * 12 + 's',
+    },
+  }
+})
+
 // Tribuna en 2D: escalones paralelos a la línea de banda, más claros cerca de la cancha
 function Stand({ x0, dir }) {
   const n = 7, w = 100, top = 70, h = 380, sw = w / n
@@ -112,6 +132,13 @@ function Scene() {
           <circle cx={TABLE.x - 8} cy={TABLE.y + 13} r="4" fill="currentColor" />
           <circle cx={TABLE.x + 8} cy={TABLE.y + 13} r="4" fill="currentColor" />
         </g>
+      </g>
+      <g className="text-fg" opacity="0.95">
+        {BALLS.map((b, i) => (
+          <g key={'b' + i} className="e-fadein" style={{ '--d': 2300 + i * 90 + 'ms' }}>
+            <circle className="e-ball" style={b.v} cx={b.x} cy={b.y} r="3.2" fill="#ffffff" stroke="currentColor" strokeOpacity="0.55" strokeWidth="0.8" />
+          </g>
+        ))}
       </g>
     </>
   )
