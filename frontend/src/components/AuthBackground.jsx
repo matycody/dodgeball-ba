@@ -33,9 +33,10 @@ function Stand({ x0, dir }) {
 }
 
 function Scene() {
-  const dot = (x, y, i, d) => <circle key={d + i} className="e-fadein" style={{ '--d': 1500 + i * 70 + 'ms' }} cx={px(x)} cy={py(y)} r="5" fill="currentColor" />
+  const dot = (x, y, i, d) => <circle key={d + i} className="e-fadein" style={{ '--d': 1500 + i * 70 + 'ms' }} cx={px(x)} cy={py(y)} r="4" fill="currentColor" />
   return (
     <>
+      <g className="text-fg" opacity="0.3">
       <Stand x0={14} dir={1} />
       <Stand x0={686} dir={-1} />
       <g fill="none" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.6">
@@ -44,11 +45,13 @@ function Scene() {
         <line className="e-fadein" style={{ '--d': '1265ms' }} x1="265" y1={COURT.y} x2="265" y2={COURT.y + COURT.h} strokeDasharray="6 7" strokeOpacity="0.4" />
         <line className="e-fadein" style={{ '--d': '1495ms' }} x1="535" y1={COURT.y} x2="535" y2={COURT.y + COURT.h} strokeDasharray="6 7" strokeOpacity="0.4" />
       </g>
-      <g opacity="0.7">
+      </g>
+      {/* Los puntitos llevan el color de acento (el del rol o el que eligió la persona) para distinguirse de la cancha */}
+      <g className="text-accent" opacity="0.85">
         {PLAYERS.map(([x, y], i) => dot(x, y, i, 'p'))}
         {REFEREES.map(([x, y], i) => dot(x, y, i + 12, 'r'))}
         {FANS.map(([x, y], i) => dot(x, y, i + 18, 'f'))}
-        <rect className="e-fadein" style={{ '--d': '2900ms' }} x={px(TABLE[0]) - 14} y={py(TABLE[1]) - 5} width="28" height="10" rx="3" fill="currentColor" />
+        <rect className="e-fadein" style={{ '--d': '2900ms' }} x={px(TABLE[0]) - 14} y={py(TABLE[1]) - 5} width="28" height="9" rx="3" fill="currentColor" />
       </g>
     </>
   )
@@ -64,10 +67,10 @@ export default function AuthBackground() {
   return (
     <div aria-hidden className="auth-vignette pointer-events-none fixed inset-0 z-[-1] overflow-hidden">
       {/* Horizontal (pantallas anchas) y vertical (celular): la misma escena girada */}
-      <svg viewBox="0 36 800 480" preserveAspectRatio="xMidYMid meet" className="auth-land h-full w-full text-fg" opacity="0.3">
+      <svg viewBox="0 36 800 480" preserveAspectRatio="xMidYMid meet" className="auth-land h-full w-full">
         <Scene />
       </svg>
-      <svg viewBox="0 0 480 800" preserveAspectRatio="xMidYMid meet" className="auth-port h-full w-full text-fg" opacity="0.3">
+      <svg viewBox="0 0 480 800" preserveAspectRatio="xMidYMid meet" className="auth-port h-full w-full">
         <g transform="translate(516 0) rotate(90)"><Scene /></g>
       </svg>
     </div>
