@@ -11,7 +11,7 @@ import { dayOf, dayTab } from '../../lib/days'
 import { socket } from '../../sockets/socket'
 import { useAuthStore } from '../../stores/authStore'
 import { useFavorites } from '../../stores/favoritesStore'
-import { Skeleton } from '../ui'
+import { Skeleton, ErrorCard } from '../ui'
 
 const CAL_BACK = 90 // días hacia atrás que se cargan
 const CAL_AHEAD = 180 // y hacia adelante
@@ -302,7 +302,7 @@ export default function HomeInicio({ byId, loading, error, children }) {
         </div>
       )}
 
-      {error && <p className="text-danger">{error}</p>}
+      <ErrorCard message={error} />
       {((cal === null && calTry < 3) || !favReady) && <Skeleton />}
 
       {v.sel === 'live' ? (

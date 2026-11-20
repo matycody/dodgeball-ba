@@ -7,6 +7,7 @@ import { normMatch } from '../lib/format'
 import { useWakeLock } from '../hooks/useWakeLock'
 import { usePipClock } from '../hooks/usePipClock'
 import MatchSpectator from '../components/match/MatchSpectator'
+import { ErrorCard } from '../components/ui'
 
 export default function MatchPage() {
   const { id } = useParams()
@@ -50,7 +51,7 @@ export default function MatchPage() {
     }
   }, [id])
 
-  if (error) return <p className="mt-10 text-center text-danger">{error}</p>
+  if (error) return <ErrorCard message={error} className="mt-6" />
   if (!m) return <p className="mt-10 text-center text-muted">Cargando…</p>
 
   // Finalizado: solo si la mesa/árbitro lo finalizó o cerró

@@ -3,6 +3,7 @@ import { api } from '../../lib/api'
 import MatchPicker from '../../components/admin/MatchPicker'
 import MovimientosPanel from './MovimientosPanel'
 import ResumenPanel from './ResumenPanel'
+import { ErrorCard } from '../../components/ui'
 
 // Color del punto según el tipo de evento; lo que no reconozco queda gris
 const DOT = {
@@ -50,7 +51,7 @@ export default function EdicionesPage() {
       {tab === 'summary' && <ResumenPanel />}
       {tab === 'users' && <MovimientosPanel />}
       {tab === 'matches' && <>
-      {err && <p className="text-danger">{err}</p>}
+      <ErrorCard message={err} />
       <MatchPicker matches={matches} value={sel} onChange={setSel} />
 
       {log?.length === 0 && <p className="text-muted">Sin actividad registrada en este partido.</p>}

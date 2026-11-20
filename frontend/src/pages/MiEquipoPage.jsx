@@ -4,6 +4,7 @@ import { CalendarDays } from 'lucide-react'
 import { api } from '../lib/api'
 import { BRANCH, fmtWhen, normMatch } from '../lib/format'
 import TeamBadge from '../components/TeamBadge'
+import { ErrorCard } from '../components/ui'
 
 const ACTIVE = ['LIVE', 'READY', 'SCHEDULED']
 
@@ -61,7 +62,7 @@ export default function MiEquipoPage() {
     })
   }, [teams])
 
-  if (err) return <p className="mt-10 text-center text-danger">{err}</p>
+  if (err) return <ErrorCard message={err} className="mt-6" />
   if (teams === null) return <p className="mt-10 text-center text-muted">Cargando…</p>
   if (teams.length === 0) return <p className="mt-10 text-center text-muted">Todavía no tenés equipo asignado.</p>
   if (teams.length === 1) return <Navigate to={'/equipo/' + teams[0].teamId} replace />

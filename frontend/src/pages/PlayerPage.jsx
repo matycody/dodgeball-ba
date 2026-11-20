@@ -7,6 +7,7 @@ import FavHeart from '../components/FavHeart'
 import MatchRow from '../components/MatchRow'
 import ResultRow from '../components/ResultRow'
 import SuspensionNotice from '../components/SuspensionNotice'
+import { ErrorCard } from '../components/ui'
 
 const Title = ({ children, n }) => (
   <h2 className="text-xs font-bold uppercase tracking-widest text-muted">{children}{n != null ? ' · ' + n : ''}</h2>
@@ -111,7 +112,7 @@ export default function PlayerPage() {
       .catch((e) => setErr(e.message))
   }, [id])
 
-  if (err) return <p className="mt-10 text-center text-danger">{err}</p>
+  if (err) return <ErrorCard message={err} className="mt-6" />
   if (!p) return <p className="mt-10 text-center text-muted">Cargando…</p>
 
   const teamIds = [...p.teams.map((t) => t.teamId), ...p.history.map((t) => t.teamId)]

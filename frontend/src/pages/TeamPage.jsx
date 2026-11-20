@@ -14,6 +14,7 @@ import MatchRow from '../components/MatchRow'
 import GoTo from '../components/GoTo'
 import ResultRow, { outcome } from '../components/ResultRow'
 import Posiciones from '../components/team/Posiciones'
+import { ErrorCard } from '../components/ui'
 
 const ACTIVE = ['LIVE', 'READY', 'SCHEDULED', 'SUSPENDED']
 const byDate = (dir) => (a, b) => {
@@ -94,7 +95,7 @@ export default function TeamPage() {
     return r
   }, [done, id])
 
-  if (err && !team) return <p className="mt-10 text-center text-danger">{err}</p>
+  if (err && !team) return <ErrorCard message={err} className="mt-6" />
   if (!team) return <p className="mt-10 text-center text-muted">Cargando…</p>
 
   const heart = (type, tid) => <FavHeart type={type} id={tid} compact={type === 'PLAYER'} name={type === 'TEAM' ? team.name : ''} />

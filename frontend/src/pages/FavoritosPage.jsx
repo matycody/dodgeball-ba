@@ -10,6 +10,7 @@ import { dayOf, dayTab } from '../lib/days'
 import { useFavorites } from '../stores/favoritesStore'
 import StandingsView from '../components/torneo/StandingsView'
 import Posiciones from '../components/team/Posiciones'
+import { ErrorCard } from '../components/ui'
 
 const TYPE_LABEL = { TEAM: 'Equipo', TOURNAMENT: 'Torneo', PLAYER: 'Jugador' }
 
@@ -102,7 +103,7 @@ export default function FavoritosPage() {
 
   return (
     <div className="m-stagger space-y-5">
-      {err && <p className="text-danger">{err}</p>}
+      <ErrorCard message={err} />
 
       <div className="flex items-start gap-2 overflow-hidden rounded-2xl border border-line bg-surface p-3">
         <div className="flex min-w-0 flex-1 gap-3 overflow-x-auto pb-1">

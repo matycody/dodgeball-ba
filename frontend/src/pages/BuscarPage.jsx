@@ -6,7 +6,7 @@ import { fmtWhen, courtLabel, BRANCH, MODALITY, TSTATUS } from '../lib/format'
 import StatusPill from '../components/StatusPill'
 import TeamBadge from '../components/TeamBadge'
 import GoTo from '../components/GoTo'
-import { inputCls } from '../components/ui'
+import { inputCls, ErrorCard } from '../components/ui'
 import { useAuthStore } from '../stores/authStore'
 import { getRecent, addRecent, removeRecent, clearRecent } from '../lib/recentSearches'
 
@@ -125,7 +125,7 @@ export default function BuscarPage() {
         </section>
       )}
       {q.trim().length < 2 && recent.length === 0 && <p className="text-muted">Escribí al menos 2 letras. Ej.: "morán", "cloth femenino", "amistoso".</p>}
-      {err && <p className="text-danger">{err}</p>}
+      <ErrorCard message={err} />
       {q.trim().length >= 2 && !res && !err && <p className="text-muted">Buscando…</p>}
       {res && total === 0 && <p className="text-muted">No encontramos nada para "{q}".</p>}
 

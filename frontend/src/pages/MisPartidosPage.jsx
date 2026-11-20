@@ -8,6 +8,7 @@ import GoTo from '../components/GoTo'
 import TeamBadge from '../components/TeamBadge'
 import { usePredictions } from '../hooks/usePredictions'
 import PredictStrip from '../components/PredictStrip'
+import { ErrorCard } from '../components/ui'
 
 const isPast = (s) => s === 'FINISHED' || s === 'CANCELLED'
 const ORDER = { LIVE: 0, READY: 1, SCHEDULED: 2 }
@@ -83,7 +84,7 @@ export default function MisPartidosPage() {
     return r
   }, [past, myIds])
 
-  if (err) return <p className="mt-10 text-center text-danger">{err}</p>
+  if (err) return <ErrorCard message={err} className="mt-6" />
   if (matches === null) return <p className="mt-10 text-center text-muted">Cargando…</p>
   if (matches.length === 0) return <p className="mt-10 text-center text-muted">Todavía no tenés partidos.</p>
 

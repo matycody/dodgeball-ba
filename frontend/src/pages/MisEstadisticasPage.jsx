@@ -6,6 +6,7 @@ import TeamBadge from '../components/TeamBadge'
 import Forma from '../components/torneo/Forma'
 import { MedalPodium } from '../components/Podium'
 import { BRANCH } from '../lib/format'
+import { ErrorCard } from '../components/ui'
 
 const RES = { G: 'V', E: 'E', P: 'D' }
 const RES_CLS = { G: 'bg-live/15 text-live', P: 'bg-danger/15 text-danger', E: 'bg-surface-2 text-muted' }
@@ -27,7 +28,7 @@ export default function MisEstadisticasPage() {
   const [err, setErr] = useState('')
   useEffect(() => { api('GET', '/me/stats').then(setD).catch((e) => setErr(e.message)) }, [])
 
-  if (err) return <p className="text-danger">{err}</p>
+  if (err) return <ErrorCard message={err} />
   if (!d) return <p className="text-muted">Cargando…</p>
   if (!d.teams.length) return <p className="rounded-2xl border border-line bg-surface p-4 text-sm">Todavía no estás vinculado a un equipo. Cuando la organización te asigne uno, vas a ver tus estadísticas acá.</p>
 

@@ -14,7 +14,7 @@ import StatusPill from '../../components/StatusPill'
 import MatchRow from '../../components/MatchRow'
 import Versus from '../../components/Versus'
 import MatchNotice from '../../components/MatchNotice'
-import { Btn, Alert, Skeleton } from '../../components/ui'
+import { Btn, Alert, Skeleton, ErrorCard } from '../../components/ui'
 import { matchInfo } from '../../lib/matchInfo'
 import { statusBorder } from '../../lib/statusStyle'
 import { usePipClock } from '../../hooks/usePipClock'
@@ -304,7 +304,7 @@ export default function DashboardPage() {
         </div>
       )}
       {loading && <Skeleton />}
-      {error && <p className="text-danger">{error}</p>}
+      <ErrorCard message={error} />
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
       {!loading && !error && courts.length === 0 && <p className="text-muted">No hay partidos con horario para este día.</p>}
 

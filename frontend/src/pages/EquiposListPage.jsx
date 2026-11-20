@@ -4,6 +4,7 @@ import { Search } from 'lucide-react'
 import { api } from '../lib/api'
 import { BRANCH, MODALITY } from '../lib/format'
 import TeamBadge from '../components/TeamBadge'
+import { ErrorCard } from '../components/ui'
 
 const norm = (s) => (s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 
@@ -23,7 +24,7 @@ export default function EquiposListPage() {
         <Search size={18} className="text-muted" />
         <input className="w-full bg-transparent outline-none" placeholder="Buscar equipo" value={q} onChange={(e) => setQ(e.target.value)} />
       </label>
-      {err && <p className="text-danger">{err}</p>}
+      <ErrorCard message={err} />
       {teams === null && !err && <p className="text-muted">Cargando…</p>}
       {teams && list.length === 0 && <p className="text-muted">No hay equipos que coincidan.</p>}
       {list.map((t) => (

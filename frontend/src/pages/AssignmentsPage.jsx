@@ -5,7 +5,7 @@ import { api } from '../lib/api'
 import { socket } from '../sockets/socket'
 import { normMatch, fmtWhen, courtLabel, BRANCH, MODALITY } from '../lib/format'
 import { matchInfo } from '../lib/matchInfo'
-import { inputCls } from '../components/ui'
+import { inputCls, ErrorCard } from '../components/ui'
 import StatusPill from '../components/StatusPill'
 import Versus from '../components/Versus'
 
@@ -188,7 +188,7 @@ export default function AssignmentsPage({ history = false }) {
   return (
     <div className="space-y-4">
       <h1 className="text-xs font-bold uppercase tracking-widest text-muted">{history ? 'Historial de asignaciones' : 'Mis asignaciones'}</h1>
-      {error && <p className="text-danger">{error}</p>}
+      <ErrorCard message={error} />
       {list === null && !error && <p className="text-muted">Cargando…</p>}
       {list && (
         <>

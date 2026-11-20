@@ -11,6 +11,8 @@ const EDGE_PATHS = /^\/(tournaments|teams|players|stats|matches|search)(\/|\?|$)
 // Si no hay red, el navegador tira un error técnico ("Load failed", "Failed to fetch"): lo cambiamos por un mensaje claro
 const MSG_OFFLINE = 'Sin conexión a internet. Revisá tu red y volvé a intentar.'
 const MSG_SERVER = 'No pudimos conectar con el servidor. Puede estar iniciándose: probá de nuevo en unos segundos.'
+// Los errores de carga por falta de red no se muestran en rojo en las pantallas: ya avisa la barra amarilla de arriba
+export const quietOffline = (msg) => (msg === MSG_OFFLINE ? '' : msg)
 async function netFetch(url, opts) {
   try {
     return await fetch(url, opts)

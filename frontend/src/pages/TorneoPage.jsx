@@ -12,7 +12,7 @@ import MatchRow from '../components/MatchRow'
 import Podium from '../components/Podium'
 import TeamBadge from '../components/TeamBadge'
 import FavHeart from '../components/FavHeart'
-import { inputCls } from '../components/ui'
+import { inputCls, ErrorCard } from '../components/ui'
 import { socket } from '../sockets/socket'
 
 const date = (iso) => (iso ? new Date(iso).toLocaleDateString('es-AR', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' }) : null)
@@ -90,7 +90,7 @@ export default function TorneoPage() {
     return { upcoming: [...live, ...next], recent: done }
   }, [matches])
 
-  if (err) return <p className="text-danger">{err}</p>
+  if (err) return <ErrorCard message={err} />
   if (!t) return <p className="text-muted">Cargando…</p>
 
   const st = TSTATUS[t.status]

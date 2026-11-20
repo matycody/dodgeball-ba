@@ -5,6 +5,7 @@ import { api } from '../lib/api'
 import { BRANCH, MODALITY, formatName } from '../lib/format'
 import TeamBadge from '../components/TeamBadge'
 import FavHeart from '../components/FavHeart'
+import { ErrorCard } from '../components/ui'
 
 const Chip = ({ on, onClick, children }) => (
   <button type="button" onClick={onClick} className={'shrink-0 rounded-full border px-3 py-1.5 text-xs font-bold ' + (on ? 'border-accent bg-accent text-black' : 'border-line bg-surface text-muted')}>{children}</button>
@@ -131,7 +132,7 @@ export default function LigaPage() {
         )}
       </div>
 
-      {err && <p className="text-danger">{err}</p>}
+      <ErrorCard message={err} />
       {list === null && !err && <p className="text-muted">Cargando…</p>}
       {list && shown.length === 0 && (
         <div className="rounded-3xl border border-line bg-surface p-6 text-center">

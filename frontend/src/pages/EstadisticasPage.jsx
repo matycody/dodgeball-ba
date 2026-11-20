@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Trophy, Search, ChevronRight, Swords, Flame, Zap, ShieldCheck, Clock, SlidersHorizontal, Medal, Flag } from 'lucide-react'
 import { api } from '../lib/api'
 import { BRANCH, MODALITY, plain } from '../lib/format'
-import { inputCls } from '../components/ui'
+import { inputCls, ErrorCard } from '../components/ui'
 import TeamSelect from '../components/TeamSelect'
 import Podium from '../components/Podium'
 import TeamBadge from '../components/TeamBadge'
@@ -74,7 +74,7 @@ function TeamStats({ teamId, filter }) {
     api('GET', '/stats/teams/' + teamId + filter).then(setD).catch(() => setD(false))
   }, [teamId, filter])
   if (d === null) return <p className="text-muted">Cargando…</p>
-  if (d === false) return <p className="text-danger">No se pudieron cargar las estadísticas.</p>
+  if (d === false) return <ErrorCard message="No se pudieron cargar las estadísticas." />
   const r = d.record
   const pct = r.played ? Math.round((r.won / r.played) * 100) : 0
   const w = (n) => (r.played ? (n / r.played) * 100 : 0) + '%'
