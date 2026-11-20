@@ -12,6 +12,7 @@ import PlayerRequestBanner from '../components/PlayerRequestBanner'
 import MenuPrefsCard from '../components/MenuPrefsCard'
 import CuentaCard from '../components/CuentaCard'
 import SuspensionNotice from '../components/SuspensionNotice'
+import AvatarPicker from '../components/AvatarPicker'
 
 function Card({ title, children }) {
   return (
@@ -39,6 +40,7 @@ export default function PerfilPage() {
   const [birth, setBirth] = useState('')
   const [pub, setPub] = useState({ showNickname: true, showNumber: true, showAge: false, showPhoto: false })
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [picker, setPicker] = useState(false)
 
   const load = () => api('GET', '/me/profile').then(setData).catch((e) => setErr(e.message))
   useEffect(() => { load() }, [])
@@ -66,6 +68,10 @@ export default function PerfilPage() {
     run(async () => { await apiUploadPhoto(f); await load(); await refreshProfile() }, 'Foto actualizada')
   }
 
+  const pickAvatar = (id) => {
+    run(async () => { await api('PUT', '/me/photo/avatar', { id }); setPicker(false); await load(); await refreshProfile() }, 'Foto actualizada')
+  }
+
   const saveExtras = () => {
     if (num !== '' && !/^\d{1,3}$/.test(num)) return setErr('El número tiene que estar entre 0 y 999')
     run(async () => {
@@ -90,6 +96,7 @@ export default function PerfilPage() {
     <div className="m-stagger space-y-4">
       {err && <p className="rounded-2xl border box-danger px-4 py-3 text-sm font-bold text-danger">{err}</p>}
       {msg && <p className="rounded-2xl border box-live px-4 py-3 text-sm font-bold text-live">{msg}</p>}
+      {picker && <AvatarPicker busy={busy} onPick={pickAvatar} onClose={() => setPicker(false)} />}
       <PlayerRequestBanner cta />
       <SuspensionNotice s={sus} self />
 
@@ -115,6 +122,9 @@ export default function PerfilPage() {
             <PersonName p={p} fallback={user?.email} />
           </p>
           <p className="text-sm text-muted">{roleLabel(user, menu)}</p>
+          <button disabled={busy} onClick={() => setPicker(true)} className="mt-1 mr-3 text-xs font-semibold text-accent">
+            Elegir un diseño
+          </button>
           {data?.photoUrl && (
             <button disabled={busy} onClick={() => run(async () => { await api('DELETE', '/me/photo'); await load(); await refreshProfile() }, 'Foto eliminada')} className="mt-1 text-xs font-semibold text-danger">
               Quitar foto

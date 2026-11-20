@@ -3,6 +3,8 @@ const prisma = require('../db');
 const supabaseAdmin = require('../lib/supabaseAdmin');
 const { authenticate } = require('../middleware/auth');
 const storage = require('../services/storage');
+const sharp = require('sharp');
+const { carita } = require('../services/caras');
 
 const router = express.Router();
 
@@ -34,6 +36,40 @@ router.put('/photo', authenticate, storage.imageBody, async (req, res) => {
   try {
     const target = photoTarget(req.user);
     const webp = await storage.processImage(req.body, 'photo');
+    await storage.uploadPhoto(target.path, webp);
+    await saveTargetPhoto(target, target.path);
+    res.json({ url: await storage.signedUrl(target.path) });
+  } catch (err) {
+    handleError(err, res);
+  }
+});
+
+// Diseños predeterminados (caritas de dibujo) para quien no quiere subir una foto.
+// Cada diseño es "av-M-3" / "av-F-3": sexo + número; la cara sale siempre igual de esa semilla.
+const AVATAR_PAGE = 6; // por sexo, por página
+const AVATAR_MAX_N = 120;
+const AVATAR_RE = /^av-([MF])-(\d{1,3})$/;
+
+router.get('/photo/avatars', authenticate, (req, res) => {
+  const page = Math.max(0, Math.min(19, Number(req.query.page) || 0));
+  const items = [];
+  for (let i = 0; i < AVATAR_PAGE; i++) {
+    for (const sex of ['M', 'F']) {
+      const n = page * AVATAR_PAGE + i + 1;
+      const id = 'av-' + sex + '-' + n;
+      items.push({ id, svg: carita(id, sex) });
+    }
+  }
+  res.json({ items, hasMore: page < 19 });
+});
+
+router.put('/photo/avatar', authenticate, express.json(), async (req, res) => {
+  try {
+    const m = AVATAR_RE.exec(String(req.body && req.body.id));
+    if (!m || Number(m[2]) < 1 || Number(m[2]) > AVATAR_MAX_N) return res.status(400).json({ error: 'Diseño inválido' });
+    const target = photoTarget(req.user);
+    const png = await sharp(Buffer.from(carita(m[0], m[1]))).png().toBuffer();
+    const webp = await storage.processImage(png, 'photo');
     await storage.uploadPhoto(target.path, webp);
     await saveTargetPhoto(target, target.path);
     res.json({ url: await storage.signedUrl(target.path) });

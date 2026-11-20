@@ -15,6 +15,40 @@ function nameScore(a, b) {
   return hit / Math.max(A.size, B.size);
 }
 
+
+// Cuántos jugadores leídos de la planilla pertenecen a este plantel (por DNI o, si no hay, por nombre)
+function overlap(team, mine) {
+  const dnis = new Set(mine.map((r) => digits(r.dni)).filter(Boolean));
+  let n = 0;
+  for (const p of team?.players ?? []) {
+    const d = digits(p.dni);
+    if (d && dnis.has(d)) n += 1;
+    else if (mine.some((r) => nameScore(p.name, r.name) >= 0.75)) n += 1;
+  }
+  return n;
+}
+
+// La organización puede haber armado el partido al revés de como está escrita la planilla (Equipo A = el equipo B del sistema).
+// Se decide a qué lado va cada equipo leído según quiénes son sus jugadores y, de apoyo, el nombre del equipo.
+async function orient(match, extracted, roster) {
+  const ta = extracted?.teamA;
+  const tb = extracted?.teamB;
+  const mineA = roster.filter((r) => r.side === 'A');
+  const mineB = roster.filter((r) => r.side === 'B');
+  let nameA = 0;
+  let nameB = 0;
+  try {
+    const teams = await prisma.team.findMany({ where: { id: { in: [match.teamAId, match.teamBId].filter(Boolean) } }, select: { id: true, name: true } });
+    const nm = new Map(teams.map((t) => [t.id, t.name]));
+    nameA = nm.get(match.teamAId) || '';
+    nameB = nm.get(match.teamBId) || '';
+  } catch { /* sin nombres: decide solo por jugadores */ }
+  const nameBonus = (read, sys) => (read && sys && nameScore(read, sys) >= 0.5 ? 1 : 0);
+  const straight = overlap(ta, mineA) + overlap(tb, mineB) + nameBonus(ta?.name, nameA) + nameBonus(tb?.name, nameB);
+  const swapped = overlap(ta, mineB) + overlap(tb, mineA) + nameBonus(ta?.name, nameB) + nameBonus(tb?.name, nameA);
+  return swapped > straight ? { A: tb, B: ta, swapped: true } : { A: ta, B: tb, swapped: false };
+}
+
 // Plantel de ambos equipos para la rama del partido
 async function loadRoster(match) {
   const teamIds = [match.teamAId, match.teamBId].filter(Boolean);
@@ -41,9 +75,11 @@ const publicRoster = (roster) => roster.map(({ dni, ...r }) => r);
 
 async function buildProposal(match, extracted, roster) {
   const out = { sides: [], signedAny: false };
+  const oriented = await orient(match, extracted, roster);
+  out.swapped = oriented.swapped; // la planilla venía con los equipos al revés del partido
   const used = new Set();
   const unknownDigits = new Set();
-  const sides = [['A', extracted?.teamA], ['B', extracted?.teamB]];
+  const sides = [['A', oriented.A], ['B', oriented.B]];
 
   for (const [side, team] of sides) {
     const mine = roster.filter((r) => r.side === side);

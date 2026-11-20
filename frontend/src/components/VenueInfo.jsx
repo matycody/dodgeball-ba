@@ -3,11 +3,12 @@ import { mapLinks } from '../lib/maps'
 
 // Foto de fondo de la sede: se ve arriba y se funde con la tarjeta hacia abajo para que el texto siga legible
 export function VenueImage({ src }) {
+  // Un solo contenedor absoluto: así el space-y del padre no le mete margen al degradé y deja una franja sin cubrir
   return (
-    <>
-      <img src={src} alt="" loading="lazy" className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-surface/30" />
-    </>
+    <div className="pointer-events-none absolute inset-0">
+      <img src={src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-x-0 -bottom-px top-0 bg-gradient-to-t from-surface via-surface/80 to-surface/30" />
+    </div>
   )
 }
 
