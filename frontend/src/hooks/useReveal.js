@@ -17,7 +17,7 @@ export function useReveal() {
 }
 
 // Cuenta de 0 hasta target cuando start pasa a true (con "reducir movimiento" muestra el número final de una)
-export function useCountUp(target, start, ms = 1400) {
+export function useCountUp(target, start, ms = 1610) {
   const [v, setV] = useState(0)
   useEffect(() => {
     if (!start || target == null) return undefined

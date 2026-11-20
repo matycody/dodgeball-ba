@@ -68,7 +68,7 @@ export default function LandingPage() {
     try { sessionStorage.setItem(LANDING_KEY, '1') } catch { /* sin storage: se muestra de nuevo al volver */ }
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { navigate('/', { replace: true }); return }
     setLeaving(true) // la pantalla se desvanece antes de entrar
-    setTimeout(() => navigate('/', { replace: true }), 300)
+    setTimeout(() => navigate('/', { replace: true }), 345)
   }
 
   const showStats = totals && (totals.teams || totals.matches)
@@ -90,21 +90,21 @@ export default function LandingPage() {
           {/* Portada */}
           <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-10 pt-8 md:pt-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
             <div className="min-w-0">
-              <span style={{ '--d': '120ms' }} className="e-in inline-block rounded-full border border-accent/60 bg-accent-soft px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent">Liga oficial · Buenos Aires</span>
-              <h1 style={{ '--d': '240ms' }} className="e-in mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+              <span style={{ '--d': '138ms' }} className="e-in inline-block rounded-full border border-accent/60 bg-accent-soft px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-accent">Liga oficial · Buenos Aires</span>
+              <h1 style={{ '--d': '276ms' }} className="e-in mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 El dodgeball de Buenos Aires,{' '}
                 <span className="text-accent">en tiempo real.</span>
               </h1>
-              <p style={{ '--d': '400ms' }} className="e-in mt-5 max-w-xl text-base text-muted sm:text-lg">
+              <p style={{ '--d': '460ms' }} className="e-in mt-5 max-w-xl text-base text-muted sm:text-lg">
                 Resultados, posiciones y estadísticas de cada torneo. Seguí cada partido segundo a segundo, desde donde estés.
               </p>
-              <div style={{ '--d': '540ms' }} className="e-in mt-7 flex flex-col gap-3 sm:flex-row">
+              <div style={{ '--d': '621ms' }} className="e-in mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link to="/registro" className="e-shine e-press flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-extrabold text-black"><UserPlus size={17} /> Crear mi cuenta</Link>
                 <button type="button" onClick={enter} className="login-glass e-lift e-press flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold">Modo visitante <ArrowRight size={16} /></button>
               </div>
             </div>
 
-            <div style={{ '--d': '420ms' }} className="login-glass e-in-right min-w-0 rounded-3xl p-4 sm:p-5">
+            <div style={{ '--d': '483ms' }} className="login-glass e-in-right min-w-0 rounded-3xl p-4 sm:p-5">
               {featured ? (
                 <>
                   <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted">
@@ -132,9 +132,9 @@ export default function LandingPage() {
               <Reveal as="p" className="mb-3 text-xs font-extrabold uppercase tracking-[0.22em] text-accent">Temporada {YEAR}</Reveal>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Stat value={totals.teams} label="Equipos de todo el país" delay={0} />
-                <Stat value={totals.tournaments} label="Torneos anuales" delay={90} />
-                <Stat value={totals.matches} label={'Partidos completos en ' + YEAR} delay={180} />
-                <Stat value={totals.sets} label={'Sets disputados en ' + YEAR} delay={270} />
+                <Stat value={totals.tournaments} label="Torneos anuales" delay={103} />
+                <Stat value={totals.matches} label={'Partidos completos en ' + YEAR} delay={207} />
+                <Stat value={totals.sets} label={'Sets disputados en ' + YEAR} delay={310} />
               </div>
             </section>
           )}
@@ -147,7 +147,7 @@ export default function LandingPage() {
             </Reveal>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {FEATURES.map(({ Icon, title, text }, i) => (
-                <Reveal key={title} delay={(i % 3) * 90} className="login-glass e-lift group rounded-2xl p-5">
+                <Reveal key={title} delay={(i % 3) * 104} className="login-glass e-lift group rounded-2xl p-5">
                   <span className="grid h-11 w-11 place-items-center rounded-xl bg-accent-soft text-accent transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"><Icon size={22} /></span>
                   <h3 className="mt-4 text-base font-extrabold">{title}</h3>
                   <p className="mt-1 text-sm text-muted">{text}</p>
@@ -160,7 +160,7 @@ export default function LandingPage() {
           {crests.length >= 6 && (
             <section className="mt-16" aria-label="Equipos de la liga">
               <Reveal as="h2" className="text-2xl font-extrabold tracking-tight sm:text-3xl">Los equipos de la liga</Reveal>
-              <Reveal delay={120} className="dba-marquee mt-6">
+              <Reveal delay={138} className="dba-marquee mt-6">
                 <div className="dba-marquee-track">
                   {[...crests, ...crests].map((t, i) => (
                     <div key={t.id + '-' + i} aria-hidden={i >= crests.length} className="flex w-24 shrink-0 flex-col items-center gap-2 text-center">

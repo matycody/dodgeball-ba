@@ -77,13 +77,13 @@ export default function LoginPage() {
         {/* Marca: arriba y compacta en el celular, a la izquierda en pantallas grandes */}
         <div className="text-center md:text-left">
           <img src="/logo-dba.png" alt="" className="e-in e-float mx-auto h-16 w-16 object-contain md:mx-0 md:h-24 md:w-24" />
-          <p style={{ '--d': '120ms' }} className="e-in mt-3 text-xs font-extrabold uppercase tracking-[0.25em] text-accent md:text-sm">Dodgeball Buenos Aires</p>
-          <h1 style={{ '--d': '220ms' }} className="e-in mt-2 hidden text-4xl font-extrabold leading-tight md:block lg:text-5xl">Cada partido,<br />en tiempo real.</h1>
-          <p style={{ '--d': '340ms' }} className="e-in mt-3 hidden max-w-md text-base text-muted md:block">Seguí tus torneos, el cronómetro y las estadísticas de tu equipo en un solo lugar.</p>
+          <p style={{ '--d': '138ms' }} className="e-in mt-3 text-xs font-extrabold uppercase tracking-[0.25em] text-accent md:text-sm">Dodgeball Buenos Aires</p>
+          <h1 style={{ '--d': '253ms' }} className="e-in mt-2 hidden text-4xl font-extrabold leading-tight md:block lg:text-5xl">Cada partido,<br />en tiempo real.</h1>
+          <p style={{ '--d': '391ms' }} className="e-in mt-3 hidden max-w-md text-base text-muted md:block">Seguí tus torneos, el cronómetro y las estadísticas de tu equipo en un solo lugar.</p>
         </div>
 
         {/* Tarjeta de vidrio sobre el fondo de la app */}
-        <div style={{ '--d': '200ms' }} className="login-glass e-in-right rounded-3xl p-6 sm:p-8">
+        <div style={{ '--d': '230ms' }} className="login-glass e-in-right rounded-3xl p-6 sm:p-8">
           <div key={forgot ? 'recuperar' : 'ingresar'} className="e-in">
             <h2 className="text-2xl font-extrabold leading-tight">{forgot ? 'Recuperá tu contraseña' : 'Iniciá sesión'}</h2>
             <p className="mb-6 mt-1 text-sm text-muted">{forgot ? 'Te mandamos un enlace al mail para elegir una nueva.' : 'Seguí los partidos y gestioná tu cuenta.'}</p>
