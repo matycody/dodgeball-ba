@@ -279,3 +279,20 @@ html.plain-bg p.text-muted { background: none; border: 0; padding: 0; border-rad
 .step-line { transition: width 420ms var(--ease-out, cubic-bezier(.2,.8,.2,1)); }
 .step-dot { transition: background-color 250ms, color 250ms, border-color 250ms; }
 @media (prefers-reduced-motion: reduce) { .step-in { animation: none; } .step-line, .step-dot { transition: none; } }
+
+/* Tarjeta de vidrio de la pantalla de ingreso: deja ver el fondo de la app; sólida si el navegador no soporta blur o se pidió menos transparencia */
+.login-glass {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .login-glass {
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .login-glass { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

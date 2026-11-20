@@ -66,66 +66,74 @@ export default function LoginPage() {
     if (err) setError(err.message)
   }
 
-  const field = 'w-full rounded-xl border border-line bg-surface px-4 py-3.5 text-base outline-none focus:border-accent'
-  const social = 'flex w-full items-center justify-center gap-3 rounded-xl bg-white py-3.5 text-sm font-bold text-black'
+  const field = 'w-full rounded-xl border border-line bg-surface/60 px-4 py-3.5 text-base outline-none focus:border-accent'
+  const round = 'grid h-12 w-12 place-items-center rounded-full bg-white shadow-md'
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col px-6 pb-10 pt-[calc(1rem+env(safe-area-inset-top))]">
-      <Link to="/" aria-label="Cerrar" className="mb-6 grid h-11 w-11 place-items-center rounded-full border border-line bg-surface"><X size={20} /></Link>
+    <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 pb-10 pt-[calc(1rem+env(safe-area-inset-top))] md:px-10">
+      <Link to="/" aria-label="Cerrar" className="mb-4 grid h-11 w-11 place-items-center rounded-full border border-line bg-surface md:mb-0"><X size={20} /></Link>
 
-      <div className="flex flex-1 flex-col justify-center">
-        <div className="mb-7">
-          <div className="mb-4 inline-block rounded-full border-2 border-accent bg-accent-soft px-5 py-2 text-sm font-extrabold uppercase tracking-[0.22em] text-accent">Dodgeball Buenos Aires</div>
-          <h1 className="text-4xl font-extrabold leading-tight">{forgot ? 'Recuperá tu contraseña' : 'Iniciá sesión'}</h1>
-          <p className="mt-1.5 text-sm text-muted">{forgot ? 'Te mandamos un enlace al mail para elegir una nueva.' : 'Seguí los partidos y gestioná tu cuenta.'}</p>
+      <div className="grid flex-1 items-center gap-8 md:grid-cols-[1fr_minmax(0,24rem)] md:gap-16">
+        {/* Marca: arriba y compacta en el celular, a la izquierda en pantallas grandes */}
+        <div className="text-center md:text-left">
+          <img src="/logo-dba.png" alt="" className="mx-auto h-16 w-16 object-contain md:mx-0 md:h-24 md:w-24" />
+          <p className="mt-3 text-xs font-extrabold uppercase tracking-[0.25em] text-accent md:text-sm">Dodgeball Buenos Aires</p>
+          <h1 className="mt-2 hidden text-4xl font-extrabold leading-tight md:block lg:text-5xl">Cada partido,<br />en tiempo real.</h1>
+          <p className="mt-3 hidden max-w-md text-base text-muted md:block">Seguí tus torneos, el cronómetro y las estadísticas de tu equipo en un solo lugar.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">{forgot ? <Mail size={19} /> : <User size={19} />}</span>
-            <input className={field + ' pl-11'} type={forgot ? 'email' : 'text'} placeholder={forgot ? 'Tu mail' : 'Usuario o mail'} required autoCapitalize="none" autoCorrect="off" spellCheck={false}
-              value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
-          </div>
-          {!forgot && (
+        {/* Tarjeta de vidrio sobre el fondo de la app */}
+        <div className="login-glass rounded-3xl p-6 sm:p-8">
+          <h2 className="text-2xl font-extrabold leading-tight">{forgot ? 'Recuperá tu contraseña' : 'Iniciá sesión'}</h2>
+          <p className="mb-6 mt-1 text-sm text-muted">{forgot ? 'Te mandamos un enlace al mail para elegir una nueva.' : 'Seguí los partidos y gestioná tu cuenta.'}</p>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="relative">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted"><Lock size={19} /></span>
-              <input className={field + ' pl-11 pr-12'} type={show ? 'text' : 'password'} placeholder="Contraseña" required minLength={6}
-                value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
-              <button type="button" onClick={() => setShow((v) => !v)} aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-muted">
-                {show ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">{forgot ? <Mail size={19} /> : <User size={19} />}</span>
+              <input className={field + ' pl-11'} type={forgot ? 'email' : 'text'} placeholder={forgot ? 'Tu mail' : 'Usuario o mail'} required autoCapitalize="none" autoCorrect="off" spellCheck={false}
+                value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
             </div>
+            {!forgot && (
+              <div className="relative">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted"><Lock size={19} /></span>
+                <input className={field + ' pl-11 pr-12'} type={show ? 'text' : 'password'} placeholder="Contraseña" required minLength={6}
+                  value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+                <button type="button" onClick={() => setShow((v) => !v)} aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-muted">
+                  {show ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            )}
+
+            {error && <p className="text-sm text-danger">{error}</p>}
+            {info && <p className="text-sm text-live">{info}</p>}
+
+            <button type="button" onClick={() => { setForgot((v) => !v); setError(''); setInfo('') }} className="self-end text-sm font-bold text-accent underline">
+              {forgot ? 'Volver a iniciar sesión' : '¿Olvidaste tu contraseña?'}
+            </button>
+
+            <button disabled={busy} className="mt-1 rounded-xl bg-accent px-4 py-3.5 font-extrabold text-black disabled:opacity-50">
+              {busy ? '...' : forgot ? 'Enviar enlace' : 'Iniciar sesión'}
+            </button>
+          </form>
+
+          {!forgot && PROVIDERS.length > 0 && (
+            <>
+              <div className="my-6 flex items-center gap-3 text-xs font-bold uppercase tracking-wider text-muted">
+                <span className="h-px flex-1 bg-line" />o continuá con<span className="h-px flex-1 bg-line" />
+              </div>
+              <div className="flex justify-center gap-4">
+                {PROVIDERS.includes('google') && <button type="button" aria-label="Continuar con Google" onClick={() => oauth('google')} className={round}><GoogleLogo /></button>}
+                {PROVIDERS.includes('apple') && <button type="button" aria-label="Continuar con Apple" onClick={() => oauth('apple')} className={round}><AppleLogo /></button>}
+              </div>
+            </>
           )}
 
-          {error && <p className="text-sm text-danger">{error}</p>}
-          {info && <p className="text-sm text-live">{info}</p>}
-
-          <button type="button" onClick={() => { setForgot((v) => !v); setError(''); setInfo('') }} className="self-end text-sm font-bold text-accent underline">
-            {forgot ? 'Volver a iniciar sesión' : '¿Olvidaste tu contraseña?'}
-          </button>
-
-          <button disabled={busy} className="mt-2 rounded-xl bg-accent px-4 py-3.5 font-extrabold text-black disabled:opacity-50">
-            {busy ? '...' : forgot ? 'Enviar enlace' : 'Iniciar sesión'}
-          </button>
-        </form>
-
-        {!forgot && PROVIDERS.length > 0 && (
-          <>
-            <div className="my-6 flex items-center gap-3 text-sm font-bold">
-              <span className="h-px flex-1 bg-line" />Accedé de forma rápida<span className="h-px flex-1 bg-line" />
-            </div>
-            <div className="flex flex-col gap-3">
-              {PROVIDERS.includes('google') && <button type="button" onClick={() => oauth('google')} className={social}><GoogleLogo /> Iniciá sesión con Google</button>}
-              {PROVIDERS.includes('apple') && <button type="button" onClick={() => oauth('apple')} className={social}><AppleLogo /> Continuar con Apple</button>}
-            </div>
-          </>
-        )}
-
-        <div className="mt-8 border-t border-line pt-6">
-          <Link to="/registro" className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-accent bg-accent-soft py-3.5 text-sm font-extrabold text-accent">
-            <UserPlus size={18} /> Crear cuenta
-          </Link>
+          <div className="mt-6 border-t border-line pt-5">
+            <Link to="/registro" className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-accent bg-accent-soft py-3 text-sm font-extrabold text-accent">
+              <UserPlus size={18} /> Crear cuenta
+            </Link>
+          </div>
         </div>
       </div>
     </main>
