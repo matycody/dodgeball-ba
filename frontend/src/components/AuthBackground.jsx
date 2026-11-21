@@ -69,7 +69,7 @@ function Stand({ x0, dir }) {
   )
 }
 
-function Scene() {
+function Scene({ stands = true }) {
   const dot = (cx, cy, i, key) => (
     <g key={key + i} className="e-fadein" style={{ '--d': 1500 + i * 28 + 'ms' }}>
       <circle cx={cx} cy={cy} r="4" fill="currentColor" />
@@ -78,8 +78,8 @@ function Scene() {
   return (
     <g>
       <g className="text-fg" opacity="0.3">
-        <Stand x0={14} dir={1} />
-        <Stand x0={686} dir={-1} />
+        {stands && <Stand x0={14} dir={1} />}
+        {stands && <Stand x0={686} dir={-1} />}
         <g fill="none" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.6">
           <rect className="e-draw" pathLength="1" x={COURT.x} y={COURT.y} width={COURT.w} height={COURT.h} rx="4" />
           <line className="e-draw" pathLength="1" style={{ '--d': '345ms' }} x1="400" y1={COURT.y} x2="400" y2={COURT.y + COURT.h} />
@@ -91,7 +91,7 @@ function Scene() {
       <g className="text-accent" opacity="0.85">
         {SPREAD.map(([x, y], i) => dot(x, y, i, 'p'))}
         {REFEREES.map(([x, y], i) => dot(px(x), py(y), i + 12, 'r'))}
-        {CROWD.map(([x, y], i) => dot(x, y, i + 18, 'f'))}
+        {stands && CROWD.map(([x, y], i) => dot(x, y, i + 18, 'f'))}
         {/* Mesa centrada con sus dos designados debajo */}
         <g className="e-fadein" style={{ '--d': '2900ms' }}>
           <rect x={TABLE.x - 15} y={TABLE.y - 5} width="30" height="10" rx="3" fill="currentColor" />
@@ -112,7 +112,7 @@ function Scene() {
 
 // Fondo propio de las pantallas de entrada (bienvenida e ingreso): color del tema, línea de luz arriba y la escena de un partido muy tenue.
 // Saca la imagen de fondo general (con el DBA gigante) mientras está montado, para que no choque con los textos.
-export default function AuthBackground() {
+export default function AuthBackground({ compact = false }) { // compact: en vertical (celular) sin tribunas, solo jugadores, árbitros y mesa
   useEffect(() => {
     document.documentElement.classList.add('plain-bg')
     return () => document.documentElement.classList.remove('plain-bg')
@@ -124,7 +124,7 @@ export default function AuthBackground() {
         <Scene />
       </svg>
       <svg viewBox="0 -120 480 920" preserveAspectRatio="xMidYMid meet" className="auth-port h-full w-full">
-        <g transform="translate(516 0) rotate(90)"><Scene /></g>
+        <g transform="translate(516 0) rotate(90)"><Scene stands={!compact} /></g>
       </svg>
     </div>
   )

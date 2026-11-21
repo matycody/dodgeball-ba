@@ -84,3 +84,12 @@ html, body, #root {
   --line: #39465a;
   --muted: #9aa8bb;
 }
+
+/* Sin sesión (presentación y modo visitante): siempre negro y gris azulado, como la cancha del fondo, aunque el estilo guardado sea Azul noche */
+.dark [data-role="guest"] {
+  --bg: #000000;
+  --surface: #1a2029;
+  --surface-2: #262f3b;
+  --line: #39465a;
+  --muted: #9aa8bb;
+}

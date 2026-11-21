@@ -4,6 +4,7 @@ import { Menu, Search, ChevronLeft, LogIn } from 'lucide-react'
 import Drawer from './Drawer'
 import BottomNav from './BottomNav'
 import { useAuthStore } from '../stores/authStore'
+import { useThemeStore } from '../stores/themeStore'
 import UserAvatar from './UserAvatar'
 import { useMenuPrefs } from '../stores/menuPrefsStore'
 import ServerClock from './ServerClock'
@@ -39,6 +40,7 @@ export default function AppLayout() {
   const user = useAuthStore((s) => s.user)
   const menu = useAuthStore((s) => s.menu)
   const authLoading = useAuthStore((s) => s.loading)
+  const fondo = useThemeStore((s) => s.fondo)
   const { pathname } = useLocation()
   const navType = useNavigationType()
   const motion = !NO_MOTION.test(pathname)
@@ -66,7 +68,7 @@ export default function AppLayout() {
 
   return (
     <div className={'mx-auto flex min-h-screen max-w-2xl flex-col' + (motion ? ' motion-ok' : '')}>
-      {!user && motion && <AuthBackground />} {/* modo visitante: el mismo fondo de la presentación (no en pantallas de operación) */}
+      {motion && (!user || fondo === 'cancha') && <AuthBackground compact={!!user} />} {/* sin sesión: siempre; con sesión: si eligió el fondo Cancha (en celular sin tribunas). No en pantallas de operación */}
       <header className="sticky top-0 z-30 flex items-center gap-2 menu-glass px-3 pb-3 sm:gap-3 sm:px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
         <button
           aria-label="Abrir menú"
