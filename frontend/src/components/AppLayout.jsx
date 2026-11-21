@@ -13,6 +13,7 @@ import { installDragScroll } from '../lib/dragScroll'
 import TourOverlay from './TourOverlay'
 import OfflineBanner from './OfflineBanner'
 import AuthBackground from './AuthBackground'
+import EscudoBackground from './EscudoBackground'
 import { tourSeen, useTourStore } from '../stores/tourStore'
 import { tourKeyFor, startTour } from '../lib/tours'
 
@@ -68,7 +69,8 @@ export default function AppLayout() {
 
   return (
     <div className={'mx-auto flex min-h-screen max-w-2xl flex-col' + (motion ? ' motion-ok' : '')}>
-      {motion && (!user || fondo === 'cancha') && <AuthBackground compact={!!user} />} {/* sin sesión: siempre; con sesión: si eligió el fondo Cancha (en celular sin tribunas). No en pantallas de operación */}
+      {motion && (!user || fondo === 'cancha') && <AuthBackground compact={!!user} />}
+      {motion && !!user && fondo !== 'cancha' && <EscudoBackground />} {/* Fondos animados: sin sesión o con Cancha, la escena (en celular sin tribunas); con Escudo DBA, el escudo armado de a poco. No en pantallas de operación */}
       <header className="sticky top-0 z-30 flex items-center gap-2 menu-glass px-3 pb-3 sm:gap-3 sm:px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
         <button
           aria-label="Abrir menú"

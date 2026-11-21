@@ -531,3 +531,6 @@ html:not(.dark) .auth-vignette {
   content: ''; position: absolute; inset: -60px -50px; z-index: -1; pointer-events: none;
   background: radial-gradient(ellipse at center, color-mix(in srgb, var(--bg) 78%, transparent) 0%, color-mix(in srgb, var(--bg) 62%, transparent) 40%, transparent 72%);
 }
+
+/* Fondo Escudo DBA animado (EscudoBackground): reemplaza a la imagen fija del fondo */
+html.escudo-live body::before { background-image: none !important; }
