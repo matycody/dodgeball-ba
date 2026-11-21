@@ -547,3 +547,6 @@ html.escudo-live body::before { background-image: none !important; }
 /* Cancha quieta: en las pantallas de operación del partido el fondo no se anima (se ve completa, sin dibujarse y sin rayo) */
 .court-still * { animation: none !important; }
 .court-still .e-orbit { display: none; }
+
+/* Enlaces dentro de tablas (posiciones, rankings): sin sombreado al pasar o apretar, el enlace solo lleva al banner del equipo */
+.motion-ok :is(td, th) a[href]:is(:hover, :active) { background-color: transparent !important; box-shadow: none !important; }
