@@ -69,8 +69,8 @@ export default function AppLayout() {
 
   return (
     <div className={'mx-auto flex min-h-screen max-w-2xl flex-col' + (motion ? ' motion-ok' : '')}>
-      {motion && (!user || fondo === 'cancha') && <AuthBackground />}
-      {motion && !!user && fondo !== 'cancha' && <EscudoBackground />} {/* Fondos animados: sin sesión o con Cancha, la cancha vacía; con Escudo DBA, el escudo armado de a poco. No en pantallas de operación */}
+      {(!user || fondo === 'cancha') && <AuthBackground still={!motion} />}
+      {motion && !!user && fondo !== 'cancha' && <EscudoBackground />} {/* Fondos animados: sin sesión o con Cancha, la cancha vacía (quieta, sin animación, en las pantallas de operación); con Escudo DBA, el escudo armado de a poco (no en pantallas de operación) */}
       <header className="sticky top-0 z-30 flex items-center gap-2 menu-glass px-3 pb-3 sm:gap-3 sm:px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
         <button
           aria-label="Abrir menú"

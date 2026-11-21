@@ -29,13 +29,13 @@ function Court({ vertical }) {
 
 // Fondo propio de las pantallas de entrada (bienvenida e ingreso) y del modo visitante: color del tema, línea de luz arriba y la cancha muy tenue.
 // Saca la imagen de fondo general (con el DBA gigante) mientras está montado, para que no choque con los textos.
-export default function AuthBackground() {
+export default function AuthBackground({ still = false }) { // still: sin animaciones (pantallas de operación del partido)
   useEffect(() => {
     document.documentElement.classList.add('plain-bg')
     return () => document.documentElement.classList.remove('plain-bg')
   }, [])
   return (
-    <div aria-hidden className="auth-vignette pointer-events-none fixed inset-x-0 top-0 z-[-1] h-[100lvh] overflow-hidden">
+    <div aria-hidden className={'auth-vignette pointer-events-none fixed inset-x-0 top-0 z-[-1] h-[100lvh] overflow-hidden' + (still ? ' court-still' : '')}>
       {/* La cancha deja libre la cabecera arriba y la barra de abajo */}
       <div className="absolute inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] top-[calc(4.5rem+env(safe-area-inset-top))] md:inset-x-5">
         <svg className="auth-land block h-full w-full overflow-visible"><Court /></svg>
