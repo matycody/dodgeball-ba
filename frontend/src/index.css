@@ -400,7 +400,8 @@ html:not(.dark)[data-fondo="cancha"] body::before {
 .e-press:not(:disabled):active { scale: .97; }
 
 @media (prefers-reduced-motion: reduce) {
-  .e-page, .e-in, .e-in-right, .e-float, .e-shake, .e-spin, .e-pop, .e-ping, .e-draw, .e-fadein, .e-glow, .e-jump, .e-sway { animation: none !important; }
+  .e-page, .e-in, .e-in-right, .e-float, .e-shake, .e-spin, .e-pop, .e-ping, .e-draw, .e-fadein, .e-glow, .e-jump, .e-sway, .e-orbit { animation: none !important; }
+  .e-orbit { display: none; } /* sin movimiento no hay rayo: quedaría un trazo fijo */
   .reveal { opacity: 1; transform: none; transition: none; }
   .e-lift, .e-root { transition: none; }
   .e-leave { opacity: 1; transform: none; }
@@ -534,3 +535,11 @@ html:not(.dark) .auth-vignette {
 
 /* Fondo Escudo DBA animado (EscudoBackground): reemplaza a la imagen fija del fondo */
 html.escudo-live body::before { background-image: none !important; }
+
+/* Rayo de luz que da la vuelta al borde de la cancha: un trazo corto (--len) que avanza sobre el contorno; --dl lo adelanta respecto de la cola */
+@keyframes e-orbit { to { stroke-dashoffset: -1; } }
+.e-orbit {
+  stroke-dasharray: var(--len, 0.1) calc(1 - var(--len, 0.1));
+  stroke-dashoffset: 0;
+  animation: e-orbit 8s linear var(--dl, 0s) infinite, e-fade 1200ms ease-out 1800ms backwards;
+}
