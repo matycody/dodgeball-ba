@@ -49,20 +49,20 @@ html:not(.dark) .bg-surface {
 /* Color de acento por rol (sirve en ambos temas) */
 :root,
 [data-role="visitor"],
-[data-role="player"] { --accent: #2f8cff; }
+[data-role="player"] { --accent: #2080c0; } /* azul del logo DBA */
 [data-role="referee"] { --accent: #ff9a3c; }
 [data-role="table"]   { --accent: #14b8a6; }
-[data-role="admin"],
-[data-role="guest"]   { --accent: #a855f7; } /* sin sesión: siempre violeta, sin importar el color elegido antes */
+[data-role="admin"]   { --accent: #a855f7; }
+[data-role="guest"]   { --accent: #2080c0; } /* sin sesión: siempre el azul del logo DBA, sin importar el color elegido antes */
 
 /* Color fijo del rol (chips); no cambia con el color personal */
 :root,
 [data-role="visitor"],
-[data-role="player"] { --role-accent: #2f8cff; }
+[data-role="player"] { --role-accent: #2080c0; }
 [data-role="referee"] { --role-accent: #ff9a3c; }
 [data-role="table"]   { --role-accent: #14b8a6; }
-[data-role="admin"],
-[data-role="guest"]   { --role-accent: #a855f7; }
+[data-role="admin"]   { --role-accent: #a855f7; }
+[data-role="guest"]   { --role-accent: #2080c0; }
 
 :root,
 [data-role] {
