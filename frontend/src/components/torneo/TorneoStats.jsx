@@ -5,9 +5,9 @@ import { api } from '../../lib/api'
 import TeamBadge from '../TeamBadge'
 
 const SHOWN = 5
-const KIND = [['WARNING', 'Adv.', 'bg-surface-2 text-fg'], ['YELLOW', 'Am.', 'bg-warn text-black'], ['BLUE', 'Az.', 'bg-accent text-black'], ['RED', 'Roj.', 'bg-danger text-white']]
+export const KIND = [['WARNING', 'Adv.', 'bg-surface-2 text-fg'], ['YELLOW', 'Am.', 'bg-warn text-black'], ['BLUE', 'Az.', 'bg-accent text-black'], ['RED', 'Roj.', 'bg-danger text-white']]
 
-function Block({ title, note, children }) {
+export function Block({ title, note, children }) {
   return (
     <section className="rounded-2xl border border-line bg-surface p-4">
       <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">{title}</p>
@@ -17,7 +17,7 @@ function Block({ title, note, children }) {
   )
 }
 
-function Metric({ value, label }) {
+export function Metric({ value, label }) {
   return (
     <div className="rounded-2xl border border-line bg-surface px-3 py-2.5">
       <p className="text-2xl font-extrabold leading-tight">{value}</p>

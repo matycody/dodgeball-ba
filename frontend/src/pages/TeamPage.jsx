@@ -14,6 +14,7 @@ import MatchRow from '../components/MatchRow'
 import GoTo from '../components/GoTo'
 import ResultRow, { outcome } from '../components/ResultRow'
 import Posiciones from '../components/team/Posiciones'
+import TeamStats from '../components/team/TeamStats'
 import { ErrorCard } from '../components/ui'
 
 const ACTIVE = ['LIVE', 'READY', 'SCHEDULED', 'SUSPENDED']
@@ -304,6 +305,7 @@ export default function TeamPage() {
           )}
         </section>
       )}
+      {tab === 'estadisticas' && <TeamStats teamId={id} mod={mod} br={br} />}
 
       {tab === 'plantel' && (
         <section className="m-cascade space-y-2">

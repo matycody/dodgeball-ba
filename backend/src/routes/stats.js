@@ -446,4 +446,68 @@ router.get('/tournaments/:id', async (req, res) => {
   }
 });
 
+// Estadísticas de un equipo (mismos filtros que /teams/:id: modality y branch): sets, puntos, rachas, sanciones y detalle por torneo
+router.get('/teams/:id/summary', async (req, res) => {
+  try {
+    const f = tournamentFilter(req.query);
+    if (f.error) return res.status(400).json({ error: f.error });
+    const team = await prisma.team.findUnique({ where: { id: req.params.id }, select: TEAM_SELECT });
+    if (!team) return res.status(404).json({ error: 'Equipo no encontrado' });
+    const where = { hiddenAt: null, OR: [{ teamAId: team.id }, { teamBId: team.id }], tournament: f.where };
+    const [matches, sanctions] = await Promise.all([
+      prisma.match.findMany({
+        where: { ...where, status: 'FINISHED' },
+        select: { id: true, teamAId: true, teamBId: true, modality: true, finishedAt: true, scheduledAt: true, sets: { select: { winnerTeamId: true } }, tournament: { select: { id: true, name: true, year: true } } },
+      }),
+      prisma.matchSanction.findMany({
+        where: { revokedAt: null, match: where },
+        select: { side: true, kind: true, matchId: true, match: { select: { teamAId: true, teamBId: true, teamA: { select: TEAM_SELECT }, teamB: { select: TEAM_SELECT } } } },
+      }),
+    ]);
+    const tournaments = new Map();
+    let sets = 0, pointsFor = 0, pointsAgainst = 0, streak = 0, bestStreak = 0, counted = 0;
+    for (const m of [...matches].sort((a, b) => whenOf(a) - whenOf(b))) {
+      const r = matchResult(m);
+      if (!r) continue;
+      counted++;
+      const isA = m.teamAId === team.id;
+      const mine = isA ? r.setsA : r.setsB;
+      const theirs = isA ? r.setsB : r.setsA;
+      const pts = matchPoints(m);
+      const pf = isA ? pts.a : pts.b;
+      const pa = isA ? pts.b : pts.a;
+      sets += r.setsA + r.setsB;
+      pointsFor += pf; pointsAgainst += pa;
+      if (!tournaments.has(m.tournament.id)) tournaments.set(m.tournament.id, { tournament: m.tournament, played: 0, won: 0, drawn: 0, lost: 0, setsWon: 0, setsLost: 0, pointsFor: 0, pointsAgainst: 0 });
+      const e = tournaments.get(m.tournament.id);
+      e.played++; e.setsWon += mine; e.setsLost += theirs; e.pointsFor += pf; e.pointsAgainst += pa;
+      if (mine > theirs) { e.won++; streak++; bestStreak = Math.max(bestStreak, streak); } else { streak = 0; if (mine === theirs) e.drawn++; else e.lost++; }
+    }
+    const kinds = { WARNING: 0, YELLOW: 0, BLUE: 0, RED: 0, total: 0 };
+    const perMatch = new Map();
+    for (const x of sanctions) {
+      if ((x.side === 'A' ? x.match.teamAId : x.match.teamBId) !== team.id) continue; // solo las del equipo, no las del rival
+      if (kinds[x.kind] !== undefined) kinds[x.kind]++;
+      kinds.total++;
+      perMatch.set(x.matchId, (perMatch.get(x.matchId) ?? 0) + 1);
+    }
+    let sanctionedMatch = null;
+    if (perMatch.size) {
+      const [id, count] = [...perMatch.entries()].sort((a, b) => b[1] - a[1])[0];
+      const x = sanctions.find((y) => y.matchId === id);
+      sanctionedMatch = { matchId: id, count, teamA: x.match.teamA, teamB: x.match.teamB };
+    }
+    res.json({
+      summary: { matches: counted, sets, sanctions: kinds.total },
+      points: { for: pointsFor, against: pointsAgainst },
+      streak: { best: bestStreak, current: streak },
+      sanctions: kinds,
+      sanctionedMatch,
+      tournaments: [...tournaments.values()].sort((a, b) => b.tournament.year - a.tournament.year || a.tournament.name.localeCompare(b.tournament.name)),
+    });
+  } catch (err) {
+    fail(err, res);
+  }
+});
+
 module.exports = router;
