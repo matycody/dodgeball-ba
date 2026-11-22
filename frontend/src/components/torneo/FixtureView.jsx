@@ -19,7 +19,7 @@ function shortWhen(m) {
   return day + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-// Fila de un partido, pensada para el celular: equipos y resultado centrados arriba;
+// Fila de un partido, pensada para el celular: equipos y resultado arriba (marcador siempre al centro);
 // debajo, a la izquierda, el horario con la sede y la cancha (más chico) y el estado a la derecha.
 export function MatchRow({ m, base, footer }) {
   const score = m.score && (m.status === 'FINISHED' || m.status === 'LIVE')
@@ -27,13 +27,14 @@ export function MatchRow({ m, base, footer }) {
   return (
     <div className={'rounded-2xl bg-surface-2 px-3 py-2 text-sm' + (m.paused ? ' opacity-70' : '')}>
       <Link to={base + m.id} className="block">
-        <p className="text-center font-semibold leading-snug">
-          {m.teamA?.name ?? m.fromA?.label ?? '—'}
+        {/* Tres columnas: el marcador (o "vs") queda siempre en el centro exacto; el nombre de A se pega a su derecha y el de B a su izquierda */}
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 font-semibold leading-snug">
+          <span className="min-w-0 break-words text-right">{m.teamA?.name ?? m.fromA?.label ?? '—'}</span>
           {score
-            ? <b className="mx-1.5 whitespace-nowrap rounded-lg bg-surface px-2 py-0.5 font-mono tabular-nums">{m.score.teamA} - {m.score.teamB}</b>
-            : ' vs '}
-          {m.teamB?.name ?? m.fromB?.label ?? '—'}
-        </p>
+            ? <b className="whitespace-nowrap rounded-lg bg-surface px-2 py-0.5 text-center font-mono tabular-nums">{m.score.teamA} - {m.score.teamB}</b>
+            : <span className="px-1 text-center font-normal text-muted">vs</span>}
+          <span className="min-w-0 break-words text-left">{m.teamB?.name ?? m.fromB?.label ?? '—'}</span>
+        </div>
         <div className="mt-1 flex items-center gap-2">
           <p className="min-w-0 flex-1 truncate text-left text-xs text-muted">
             <span className="font-bold text-fg">{shortWhen(m)}</span> · {where}
