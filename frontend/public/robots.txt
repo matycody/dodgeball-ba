@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /control
+Disallow: /perfil
+Disallow: /favoritos
+Disallow: /login
+Disallow: /registro
+Disallow: /recuperar
+Disallow: /bienvenida
+Disallow: /asignaciones
+Disallow: /mi-equipo
+Disallow: /mis-partidos
+Disallow: /mis-estadisticas
+Disallow: /edge/
+
+Sitemap: https://dodgeball-ba.vercel.app/sitemap.xml

@@ -4,7 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Cronómetro y seguimiento de partidos de Dodgeball Buenos Aires" />
+    <meta name="description" content="Resultados, posiciones, estadísticas y partidos en vivo del dodgeball de Buenos Aires: torneos, equipos y rankings de la liga, segundo a segundo." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://dodgeball-ba.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content="Dodgeball Buenos Aires" />
+    <meta property="og:title" content="Dodgeball Buenos Aires · Resultados y partidos en vivo" />
+    <meta property="og:description" content="Seguí cada partido segundo a segundo: resultados, posiciones, estadísticas, torneos y equipos del dodgeball de Buenos Aires." />
+    <meta property="og:url" content="https://dodgeball-ba.vercel.app/" />
+    <meta property="og:image" content="https://dodgeball-ba.vercel.app/logo-dba.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Dodgeball Buenos Aires · Resultados y partidos en vivo" />
+    <meta name="twitter:description" content="Resultados, posiciones y estadísticas del dodgeball de Buenos Aires, en tiempo real." />
+    <meta name="twitter:image" content="https://dodgeball-ba.vercel.app/logo-dba.png" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@graph":[
+        {"@type":"WebSite","name":"Dodgeball Buenos Aires","alternateName":"Dodgeball BA","url":"https://dodgeball-ba.vercel.app/","inLanguage":"es-AR"},
+        {"@type":"SportsOrganization","name":"Dodgeball Buenos Aires","alternateName":"Dodgeball BA","sport":"Dodgeball","url":"https://dodgeball-ba.vercel.app/","logo":"https://dodgeball-ba.vercel.app/logo-dba.png","areaServed":{"@type":"City","name":"Buenos Aires"}}
+      ]}
+    </script>
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <!-- Arranque en iOS: mismo fondo y logo que la pantalla de bienvenida (generadas con scripts/gen-splash.py) -->
     <link rel="apple-touch-startup-image" href="/splash/1320x2868.jpg" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
@@ -46,11 +65,25 @@
       @keyframes splash-in{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:scale(1)}}
       @media (prefers-reduced-motion:reduce){#splash img{animation:none}#splash{transition:none}}
     </style>
-    <title>Dodgeball BA</title>
+    <title>Dodgeball Buenos Aires · Resultados, posiciones y partidos en vivo</title>
   </head>
   <body>
     <div id="splash" aria-hidden="true"><img src="/logo-dba.png" alt="" width="220" height="220" /></div>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Contenido para buscadores y para antes de que cargue la app: React lo reemplaza al montar -->
+      <main style="font-family:system-ui,sans-serif;color:#e8eefc;background:#04070d;min-height:100vh;padding:48px 20px;max-width:760px;margin:0 auto">
+        <h1>Dodgeball Buenos Aires: resultados, posiciones y partidos en vivo</h1>
+        <p>Seguí el dodgeball de Buenos Aires en tiempo real: resultados, posiciones, estadísticas y récords de cada torneo, con el reloj del partido y del set segundo a segundo.</p>
+        <h2>Todo el dodgeball en un solo lugar</h2>
+        <ul>
+          <li><a href="/liga" style="color:#6fb2ff">Torneos y posiciones</a>: zonas, fixture y playoffs de cada torneo.</li>
+          <li><a href="/equipos" style="color:#6fb2ff">Equipos</a>: plantel, historial y estadísticas de cada equipo.</li>
+          <li><a href="/partidos" style="color:#6fb2ff">Partidos</a>: marcador y relojes en vivo.</li>
+          <li><a href="/noticias" style="color:#6fb2ff">Noticias</a> de la liga.</li>
+          <li><a href="/reglas" style="color:#6fb2ff">Reglas del juego</a> Foam y Cloth.</li>
+        </ul>
+      </main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

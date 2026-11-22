@@ -79,9 +79,23 @@ function PerfilTemp() {
 const PROTECTED = Object.entries(ITEMS).filter(([k]) => !['home', 'perfil', 'favoritos', 'mi_equipo', 'asignaciones', 'historial_asignaciones', 'mis_partidos', 'mis_estadisticas', 'dashboard_canchas', 'torneos', 'equipos', 'sedes', 'sanciones', 'partidos', 'personas', 'usuarios', 'registro_ediciones', 'reportes'].includes(k))
 
 // Sin sesión, en la raíz y la primera vez de la visita: pantalla de bienvenida (sin cabecera ni barra). "Ver partidos" la deja vista hasta cerrar la pestaña
+// Título de la pestaña (y del resultado en Google) según la pantalla pública
+const BASE_TITLE = 'Dodgeball Buenos Aires'
+const TITLES = {
+  '/': BASE_TITLE + ' · Resultados, posiciones y partidos en vivo',
+  '/liga': 'Torneos y posiciones · ' + BASE_TITLE,
+  '/equipos': 'Equipos · ' + BASE_TITLE,
+  '/partidos': 'Partidos en vivo y resultados · ' + BASE_TITLE,
+  '/noticias': 'Noticias · ' + BASE_TITLE,
+  '/reglas': 'Reglas del dodgeball (Foam y Cloth) · ' + BASE_TITLE,
+  '/acerca': 'Acerca de · ' + BASE_TITLE,
+  '/buscar': 'Buscar · ' + BASE_TITLE,
+}
+
 function Shell() {
   const { user, loading } = useAuthStore()
   const { pathname } = useLocation()
+  useEffect(() => { if (TITLES[pathname]) document.title = TITLES[pathname] }, [pathname])
   if (pathname === '/' && loading) return <div className="min-h-screen" />
   if (pathname === '/' && !user && !landingSeen()) return <LandingPage />
   return <AppLayout />
