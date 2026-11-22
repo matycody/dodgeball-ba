@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import ThemeSwitch from './ThemeSwitch'
 
-// Cancha vista desde arriba, a pantalla completa: borde, línea central y las dos líneas de ataque (punteadas), y un rayo de luz que recorre el borde.
+// Cancha vista desde arriba, a pantalla completa: borde, línea central y las dos líneas de ataque (punteadas), y dos rayos de luz que recorren el borde.
 // Se dibuja con porcentajes para ocupar todo el espacio sin deformar el trazo. Horizontal en pantallas anchas; vertical (línea central horizontal) en celular.
 // Sin tribunas ni personas. Se dibuja de a poco al cargar y queda quieta.
 function Court({ vertical }) {
@@ -17,11 +17,15 @@ function Court({ vertical }) {
         {ln('25%', { className: 'e-fadein', style: { '--d': '1265ms' }, strokeWidth: 2, strokeDasharray: '10 10', strokeOpacity: 0.3 })}
         {ln('75%', { className: 'e-fadein', style: { '--d': '1495ms' }, strokeWidth: 2, strokeDasharray: '10 10', strokeOpacity: 0.3 })}
       </g>
-      {/* Rayo de luz del acento que recorre el borde sin parar: cola tenue, brillo y núcleo */}
+      {/* Dos rayos de luz del acento que recorren el borde sin parar, en paralelo y a media vuelta uno del otro (ciclo de 8 s: el segundo arranca 4 s después). Cada uno: cola tenue, brillo y núcleo */}
       <g className="text-accent" fill="none" stroke="currentColor" strokeLinecap="round">
-        <rect className="e-orbit" pathLength="1" style={{ '--len': 0.3 }} x="0" y="0" width="100%" height="100%" rx="10" strokeWidth="2.5" strokeOpacity="0.28" />
-        <rect className="e-orbit" pathLength="1" style={{ '--len': 0.08, '--dl': '-1.5s', filter: 'blur(4px)' }} x="0" y="0" width="100%" height="100%" rx="10" strokeWidth="8" strokeOpacity="0.8" />
-        <rect className="e-orbit" pathLength="1" style={{ '--len': 0.08, '--dl': '-1.5s' }} x="0" y="0" width="100%" height="100%" rx="10" strokeWidth="3" />
+        {[0, -4].map((off) => (
+          <g key={off}>
+            <rect className="e-orbit" pathLength="1" style={{ '--len': 0.3, '--dl': off + 's' }} x="0" y="0" width="100%" height="100%" rx="10" strokeWidth="2.5" strokeOpacity="0.28" />
+            <rect className="e-orbit" pathLength="1" style={{ '--len': 0.08, '--dl': off - 1.5 + 's', filter: 'blur(4px)' }} x="0" y="0" width="100%" height="100%" rx="10" strokeWidth="8" strokeOpacity="0.8" />
+            <rect className="e-orbit" pathLength="1" style={{ '--len': 0.08, '--dl': off - 1.5 + 's' }} x="0" y="0" width="100%" height="100%" rx="10" strokeWidth="3" />
+          </g>
+        ))}
       </g>
     </>
   )
