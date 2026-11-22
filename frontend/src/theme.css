@@ -39,7 +39,7 @@ html:not(.dark) .bg-surface {
 
 /* Azul noche sobre la Cancha: el azul saturado de las tarjetas chocaba con las líneas blancas del fondo; se baja a un azul más profundo (Acero ya queda bien) */
 .dark[data-fondo="cancha"]:not([data-skin="acero"]) {
-  --bg: #05080f;
+  --bg: #071a3a;
   --surface: #0f1f40;
   --surface-2: #172c58;
   --line: #27427a;
