@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { UserPlus, LogIn, Clock, Trophy, Medal, Swords, Heart, Zap, ArrowRight } from 'lucide-react'
+import { UserPlus, LogIn, Clock, Trophy, Medal, Swords, Heart, Zap, ArrowRight, Timer } from 'lucide-react'
 import { useMatchesFeed } from '../hooks/useMatchesFeed'
 import { useMatchesStore } from '../stores/matchesStore'
 import MatchCard from '../components/MatchCard'
@@ -106,6 +106,7 @@ export default function LandingPage() {
                 <Link to="/registro" className="e-shine e-lift e-press flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-extrabold text-black"><UserPlus size={17} /> Crear mi cuenta</Link>
                 <button type="button" onClick={enter} className="login-glass e-lift e-press flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold">Modo visitante <ArrowRight size={16} /></button>
               </div>
+              <Link to="/cronometro" style={{ '--d': '690ms' }} className="e-in login-glass e-lift e-press mt-3 flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold sm:inline-flex"><Timer size={17} className="text-accent" /> Cronómetro offline</Link>
             </div>
 
             <div style={{ '--d': '483ms' }} className="login-glass e-in-right min-w-0 rounded-3xl p-4 sm:p-5">
