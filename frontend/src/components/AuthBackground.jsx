@@ -43,7 +43,7 @@ export default function AuthBackground({ still = false }) { // still: sin animac
   return (
     <div aria-hidden className={'auth-vignette pointer-events-none fixed inset-x-0 top-0 z-[-1] h-[100lvh] overflow-hidden' + (still ? ' court-still' : '')}>
       {/* La cancha deja libre la cabecera arriba y la barra de abajo */}
-      <div className="absolute inset-x-1 bottom-[calc(6rem+env(safe-area-inset-bottom))] top-[calc(7.5rem+env(safe-area-inset-top))] md:inset-x-[12%] md:bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:top-24">
+      <div className="absolute inset-x-2 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] top-[calc(0.25rem+env(safe-area-inset-top))] md:inset-x-[12%] md:bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:top-24">
         <svg className="auth-land block h-full w-full overflow-visible"><Court /></svg>
         <svg className="auth-port block h-full w-full overflow-visible"><Court vertical /></svg>
       </div>
