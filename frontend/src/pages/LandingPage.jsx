@@ -76,7 +76,7 @@ export default function LandingPage() {
 
   return (
     <>
-      <AuthBackground />
+      <AuthBackground compact />
       <div className={'motion-ok e-root relative z-10 min-h-screen overflow-x-clip ' + (leaving ? 'e-leave' : '')}>
         {/* Barra superior */}
         <header className="e-in mx-auto flex max-w-6xl items-center justify-between px-5 pb-2 pt-[calc(0.75rem+env(safe-area-inset-top))] md:px-8">
