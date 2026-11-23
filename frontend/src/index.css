@@ -36,6 +36,11 @@ body {
 html, body { max-width: 100%; overflow-x: hidden; }
 body { -webkit-text-size-adjust: 100%; }
 
+/* iOS Safari hace zoom al enfocar un campo con letra menor a 16px (ej. el buscador de equipo de Cara a cara): en pantallas táctiles los campos de texto van a 16px */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), select, textarea { font-size: 16px; }
+}
+
 input[type="date"], input[type="time"], input[type="datetime-local"] {
   min-width: 0;
   max-width: 100%;
