@@ -13,11 +13,9 @@ function Court({ vertical }) {
     <>
       <g className="text-fg" fill="none" stroke="currentColor" strokeLinecap="round">
         <rect className="e-draw" pathLength="1" x="0" y="0" width="100%" height="100%" rx="10" strokeWidth="2.5" strokeOpacity="0.45" />
-        <g className="max-md:hidden">
         {ln('50%', { className: 'e-draw', pathLength: 1, style: { '--d': '345ms' }, strokeWidth: 2.5, strokeOpacity: 0.45 })}
         {ln('25%', { className: 'e-fadein', style: { '--d': '1265ms' }, strokeWidth: 2, strokeDasharray: '10 10', strokeOpacity: 0.3 })}
         {ln('75%', { className: 'e-fadein', style: { '--d': '1495ms' }, strokeWidth: 2, strokeDasharray: '10 10', strokeOpacity: 0.3 })}
-        </g>
       </g>
       {/* Dos rayos de luz del acento que recorren el borde sin parar, en paralelo y a media vuelta uno del otro (ciclo de 8 s: el segundo arranca 4 s después). Cada uno: cola tenue, brillo y núcleo */}
       <g className="text-accent" fill="none" stroke="currentColor" strokeLinecap="round">
@@ -43,7 +41,7 @@ export default function AuthBackground({ still = false }) { // still: sin animac
   return (
     <div aria-hidden className={'auth-vignette pointer-events-none fixed inset-x-0 top-0 z-[-1] h-[100lvh] overflow-hidden' + (still ? ' court-still' : '')}>
       {/* La cancha deja libre la cabecera arriba y la barra de abajo */}
-      <div className="absolute inset-x-2 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] top-[calc(0.25rem+env(safe-area-inset-top))] md:inset-x-[12%] md:bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:top-24">
+      <div className="absolute inset-x-6 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] top-[calc(6rem+env(safe-area-inset-top))] md:inset-x-[12%] md:bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:top-24">
         <svg className="auth-land block h-full w-full overflow-visible"><Court /></svg>
         <svg className="auth-port block h-full w-full overflow-visible"><Court vertical /></svg>
       </div>
