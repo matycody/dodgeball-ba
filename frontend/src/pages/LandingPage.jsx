@@ -102,11 +102,11 @@ export default function LandingPage() {
               <p style={{ '--d': '460ms' }} className="e-in mt-5 max-w-xl text-base text-muted sm:text-lg">
                 Resultados, posiciones y estadísticas de cada torneo. Seguí cada partido segundo a segundo, desde donde estés.
               </p>
-              <div style={{ '--d': '621ms' }} className="e-in mt-7 flex flex-col gap-3 sm:flex-row">
+              <div style={{ '--d': '621ms' }} className="e-in mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link to="/registro" className="e-shine e-lift e-press flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-extrabold text-black"><UserPlus size={17} /> Crear mi cuenta</Link>
                 <button type="button" onClick={enter} className="login-glass e-lift e-press flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold">Modo visitante <ArrowRight size={16} /></button>
+                <Link to="/cronometro" className="login-glass e-lift e-press flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold"><Timer size={17} className="text-accent" /> Cronómetro offline</Link>
               </div>
-              <Link to="/cronometro" style={{ '--d': '690ms' }} className="e-in login-glass e-lift e-press mt-3 flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-extrabold sm:inline-flex"><Timer size={17} className="text-accent" /> Cronómetro offline</Link>
             </div>
 
             <div style={{ '--d': '483ms' }} className="login-glass e-in-right min-w-0 rounded-3xl p-4 sm:p-5">
