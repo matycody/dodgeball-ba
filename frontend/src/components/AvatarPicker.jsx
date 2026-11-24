@@ -16,8 +16,8 @@ export default function AvatarPicker({ onPick, onClose, busy }) {
   }, [page])
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-end bg-black/60 sm:place-items-center" onClick={onClose}>
-      <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 grid place-items-start bg-black/60 px-3 pt-[calc(4.5rem+env(safe-area-inset-top))] sm:place-items-center sm:pt-0" onClick={onClose}>
+      <div className="mx-auto max-h-[calc(100dvh-6rem-env(safe-area-inset-top))] w-full max-w-md overflow-y-auto rounded-3xl border border-line bg-surface p-5" onClick={(e) => e.stopPropagation()}>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-extrabold">Elegí tu diseño</h2>
           <button aria-label="Cerrar" onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-surface-2"><X size={16} /></button>
