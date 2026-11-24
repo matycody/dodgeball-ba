@@ -194,7 +194,7 @@ export default function PrediccionesPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-extrabold">Predicciones</h1>
-        <p className="text-sm text-muted">Elegí quién gana antes de que se habilite el partido. Cuanto más alta la cuota y más temprano predecís, más puntos.</p>
+        <p className="mt-2 rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm text-muted">Elegí quién gana antes de que se habilite el partido. Cuanto más alta la cuota y más temprano predecís, más puntos.</p>
       </div>
 
       <div className="m-cascade grid grid-cols-3 gap-2 text-center">
