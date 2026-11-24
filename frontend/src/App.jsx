@@ -101,6 +101,18 @@ function Shell() {
   return <AppLayout />
 }
 
+// Colores del rol: en ingreso, registro y recuperar siempre se ve el estilo de visitante (negro); la sesión que se abre a mitad del registro no cambia el tema hasta llegar al inicio
+const GUEST_ROUTES = ['/login', '/registro', '/recuperar']
+function RoleScope({ user, menu, accent, children }) {
+  const { pathname } = useLocation()
+  const asGuest = !user || GUEST_ROUTES.includes(pathname)
+  return (
+    <div data-role={asGuest ? 'guest' : accentRole(user, menu)} style={!asGuest && accent ? { '--accent': accent } : undefined} className="min-h-screen">
+      {children}
+    </div>
+  )
+}
+
 function App() {
   const init = useAuthStore((s) => s.init)
   const user = useAuthStore((s) => s.user)
@@ -112,9 +124,10 @@ function App() {
   }, [init])
 
   return (
-    <div data-role={user ? accentRole(user, menu) : 'guest'} style={user && accent ? { '--accent': accent } : undefined} className="min-h-screen">
-      <SavingOverlay />
+    <>
       <BrowserRouter>
+        <RoleScope user={user} menu={menu} accent={accent}>
+        <SavingOverlay />
         <Routes>
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
@@ -215,8 +228,9 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </RoleScope>
       </BrowserRouter>
-    </div>
+    </>
   )
 }
 

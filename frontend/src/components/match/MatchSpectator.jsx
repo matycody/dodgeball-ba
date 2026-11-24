@@ -178,12 +178,27 @@ function useStaff(id) {
   return staff
 }
 
-function Details({ m }) {
+function Details({ m, staffOnly = false }) {
   const staff = useStaff(m.id)
   const names = (list) => list.map((x) => x.team?.name ?? x.name).filter(Boolean).join(' · ')
   const refs = staff ? names(staff.referees) : ''
   const table = staff ? names(staff.table) : ''
   const when = m.scheduledAt ? dayTab(dayOf(m.scheduledAt)) + (hourOf(m.scheduledAt, m.timeSet) ? ' · ' + hourOf(m.scheduledAt, m.timeSet) : '') : 'Sin fecha'
+  const staffRows = (
+    <>
+      {refs && <p className="flex items-center gap-3 px-4 py-3 text-sm"><User size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Árbitros</span><span className="font-bold">{refs}</span></span></p>}
+      {table && <p className="flex items-center gap-3 px-4 py-3 text-sm"><ClipboardList size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Mesa de control</span><span className="font-bold">{table}</span></span></p>}
+    </>
+  )
+  if (staffOnly) {
+    if (!refs && !table) return null
+    return (
+      <section className="space-y-3">
+        <h2 className="text-lg font-extrabold">Árbitros y mesa</h2>
+        <div className="divide-y divide-line rounded-2xl border border-line bg-surface">{staffRows}</div>
+      </section>
+    )
+  }
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-extrabold">Información del partido</h2>
@@ -197,8 +212,7 @@ function Details({ m }) {
         )}
         <p className="flex items-center gap-3 px-4 py-3 text-sm"><Layers size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Modalidad y rama</span><span className="font-bold">{MODALITY[m.modality] ?? m.modality} · {BRANCH[m.branch] ?? m.branch}</span></span></p>
         <p className="flex items-center gap-3 px-4 py-3 text-sm"><Timer size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Reglas de tiempo</span><span className="font-bold">2 tiempos de 20 min · set de 3 min</span><span className="block text-xs text-muted">{m.modality === 'CLOTH' ? 'Al vencer el set se suman 2 puntos al equipo con más jugadores en cancha y el set se reinicia.' : 'Al vencer el set se juega muerte súbita.'}</span></span></p>
-        {refs && <p className="flex items-center gap-3 px-4 py-3 text-sm"><User size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Árbitros</span><span className="font-bold">{refs}</span></span></p>}
-        {table && <p className="flex items-center gap-3 px-4 py-3 text-sm"><ClipboardList size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Mesa de control</span><span className="font-bold">{table}</span></span></p>}
+        {staffRows}
       </div>
       {m.venue && <VenueInfo venue={m.venue} className="w-full" />}
     </section>
@@ -307,7 +321,7 @@ export default function MatchSpectator({ m, tick, over, notice, onCloseNotice, s
           )}
           <PredictBox matchId={m.id} teamA={m.teamA} teamB={m.teamB} />
           {(m.sets?.length ?? 0) > 0 && <ScoreTimeline m={m} />}
-          <Details m={m} />
+          <Details m={m} staffOnly />
         </div>
       )}
       {tab === 'alineacion' && <MatchRoster teamA={m.teamA} teamB={m.teamB} branch={m.branch} matchId={m.id} sanctions={{ items: sanctions, tick }} />}
