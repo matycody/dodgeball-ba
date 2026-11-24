@@ -164,7 +164,7 @@ export default function RegisterPage() {
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 pb-10 pt-[calc(2.5rem+env(safe-area-inset-top))]">
       <Link to="/login" className="e-in e-press mb-6 w-fit rounded-full border border-line bg-surface px-4 py-1.5 text-sm font-bold">← Volver al login</Link>
       <p className="text-xs font-semibold uppercase tracking-widest text-muted">Dodgeball</p>
-      <h1 key={step} className="e-in mb-2 mt-1 text-3xl font-extrabold">{titles[step]}</h1>
+      <h1 key={'t-' + step} className="e-in mb-2 mt-1 text-3xl font-extrabold">{titles[step]}</h1>
       {step === 'tipo' && <p className="mb-6 text-sm text-muted">Elegí la opción que te corresponde. Después te pedimos confirmar tu mail.</p>}
       {step === 'mail' && <p className="mb-6 text-sm text-muted">{guest ? 'Para seguir partidos y equipos. ' : ''}Te mandamos un código al mail para confirmar que es tuyo.</p>}
       {step === 'code' && <p className="mb-6 text-sm text-muted">Lo enviamos a {email}. Revisá también spam o promociones.</p>}

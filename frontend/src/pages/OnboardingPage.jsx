@@ -106,7 +106,7 @@ export default function OnboardingPage() {
       {(cur.type === 'TEAM' ? teams : tournaments) === null && !err && <p className="mt-6 text-muted">Cargando…</p>}
       {list.length === 0 && (cur.type === 'TEAM' ? teams : tournaments) !== null && <p className="mt-6 text-muted">No hay resultados.</p>}
 
-      <div key={step} className="m-cascade mt-4 grid grid-cols-3 gap-3">
+      <div key={'g-' + step} className="m-cascade mt-4 grid grid-cols-3 gap-3">
         {list.map((x) => {
           const on = picks[cur.type].has(x.id)
           return (
