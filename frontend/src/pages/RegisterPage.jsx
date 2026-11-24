@@ -161,7 +161,7 @@ export default function RegisterPage() {
   const choice = 'e-lift e-press flex w-full items-center gap-3.5 rounded-2xl border bg-surface p-4 text-left'
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-10">
+    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 pb-10 pt-[calc(2.5rem+env(safe-area-inset-top))]">
       <Link to="/login" className="e-in e-press mb-6 w-fit rounded-full border border-line bg-surface px-4 py-1.5 text-sm font-bold">← Volver al login</Link>
       <p className="text-xs font-semibold uppercase tracking-widest text-muted">Dodgeball</p>
       <h1 key={step} className="e-in mb-2 mt-1 text-3xl font-extrabold">{titles[step]}</h1>
