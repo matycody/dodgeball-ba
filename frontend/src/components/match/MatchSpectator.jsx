@@ -307,6 +307,7 @@ export default function MatchSpectator({ m, tick, over, notice, onCloseNotice, s
           )}
           <PredictBox matchId={m.id} teamA={m.teamA} teamB={m.teamB} />
           {(m.sets?.length ?? 0) > 0 && <ScoreTimeline m={m} />}
+          <Details m={m} />
         </div>
       )}
       {tab === 'alineacion' && <MatchRoster teamA={m.teamA} teamB={m.teamB} branch={m.branch} matchId={m.id} sanctions={{ items: sanctions, tick }} />}
