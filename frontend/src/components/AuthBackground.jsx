@@ -56,7 +56,7 @@ export function AuthLayout() {
   const { pathname } = useLocation()
   return (
     <>
-      <AuthBackground />
+      <AuthBackground compact />
       {/* motion-ok: habilita las animaciones comunes de la app (listas escalonadas, botones que se comprimen); cada ruta entra con un fundido */}
       <div key={pathname} className="motion-ok e-page">
         <Outlet />

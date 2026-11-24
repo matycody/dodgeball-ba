@@ -39,7 +39,7 @@ export default function RecuperarPage() {
   const field = 'w-full rounded-xl border border-line bg-surface px-4 py-3.5 text-base outline-none focus:border-accent'
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
+    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 pb-10 pt-[calc(2.5rem+env(safe-area-inset-top))]">
       <p className="text-xs font-semibold uppercase tracking-widest text-muted">Dodgeball</p>
       <h1 className="e-in mb-6 mt-1 text-3xl font-extrabold">Contraseña nueva</h1>
       {ready === null && <p className="text-muted">Verificando enlace…</p>}
