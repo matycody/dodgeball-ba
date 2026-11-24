@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import ScoreNum from '../ScoreNum'
 import { Link } from 'react-router-dom'
-import { CalendarDays, ClipboardList, Pin, PinOff, Trophy, User, X } from 'lucide-react'
+import { CalendarDays, ClipboardList, Layers, Pin, PinOff, Timer, Trophy, User, X } from 'lucide-react'
 import { api } from '../../lib/api'
 import { BRANCH, MODALITY, courtLabel } from '../../lib/format'
 import { halfLabel } from '../../lib/pipTime'
@@ -186,7 +186,7 @@ function Details({ m }) {
   const when = m.scheduledAt ? dayTab(dayOf(m.scheduledAt)) + (hourOf(m.scheduledAt, m.timeSet) ? ' · ' + hourOf(m.scheduledAt, m.timeSet) : '') : 'Sin fecha'
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-extrabold">Detalles</h2>
+      <h2 className="text-lg font-extrabold">Información del partido</h2>
       <div className="divide-y divide-line rounded-2xl border border-line bg-surface">
         <p className="flex items-center gap-3 px-4 py-3 text-sm font-bold"><CalendarDays size={18} className="text-muted" /> {when}</p>
         {m.tournament?.id && (
@@ -195,6 +195,8 @@ function Details({ m }) {
             <span className="min-w-0 flex-1 truncate">{m.tournament.name}{m.phase?.label ? ' · ' + m.phase.label : ''}</span>
           </Link>
         )}
+        <p className="flex items-center gap-3 px-4 py-3 text-sm"><Layers size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Modalidad y rama</span><span className="font-bold">{MODALITY[m.modality] ?? m.modality} · {BRANCH[m.branch] ?? m.branch}</span></span></p>
+        <p className="flex items-center gap-3 px-4 py-3 text-sm"><Timer size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Reglas de tiempo</span><span className="font-bold">2 tiempos de 20 min · set de 3 min</span><span className="block text-xs text-muted">{m.modality === 'CLOTH' ? 'Al vencer el set se suman 2 puntos al equipo con más jugadores en cancha y el set se reinicia.' : 'Al vencer el set se juega muerte súbita.'}</span></span></p>
         {refs && <p className="flex items-center gap-3 px-4 py-3 text-sm"><User size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Árbitros</span><span className="font-bold">{refs}</span></span></p>}
         {table && <p className="flex items-center gap-3 px-4 py-3 text-sm"><ClipboardList size={18} className="shrink-0 text-muted" /><span className="min-w-0"><span className="block text-[11px] font-bold uppercase tracking-wide text-muted">Mesa de control</span><span className="font-bold">{table}</span></span></p>}
       </div>
@@ -270,7 +272,7 @@ function HeadToHead({ m }) {
   )
 }
 
-const TABS = [['resumen', 'Resumen'], ['alineacion', 'Jugadores'], ['predicciones', 'Predicciones'], ['clasificacion', 'Clasificación'], ['cara', 'Cara a cara']]
+const TABS = [['resumen', 'Resumen'], ['alineacion', 'Jugadores'], ['predicciones', 'Predicciones'], ['clasificacion', 'Posiciones'], ['cara', 'Cara a cara'], ['info', 'Info']]
 
 // Vista del partido para todos los usuarios (la mesa y el árbitro controlan desde Control de mesa / Partidos asignados)
 export default function MatchSpectator({ m, tick, over, notice, onCloseNotice, sanctions, pip }) {
@@ -305,13 +307,13 @@ export default function MatchSpectator({ m, tick, over, notice, onCloseNotice, s
           )}
           <PredictBox matchId={m.id} teamA={m.teamA} teamB={m.teamB} />
           {(m.sets?.length ?? 0) > 0 && <ScoreTimeline m={m} />}
-          <Details m={m} />
         </div>
       )}
       {tab === 'alineacion' && <MatchRoster teamA={m.teamA} teamB={m.teamB} branch={m.branch} matchId={m.id} sanctions={{ items: sanctions, tick }} />}
       {tab === 'predicciones' && <PredictBox matchId={m.id} teamA={m.teamA} teamB={m.teamB} standalone />}
       {tab === 'clasificacion' && <StandingsView branch={m.branch} tournamentId={m.tournament.id} finished={m.tournament.status === 'FINISHED'} />}
       {tab === 'cara' && <HeadToHead m={m} />}
+      {tab === 'info' && <Details m={m} />}
     </div>
   )
 }
