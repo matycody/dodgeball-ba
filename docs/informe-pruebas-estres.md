@@ -122,7 +122,7 @@ Resultado de `/matches`: de 3 req/s a unos 56–75 req/s, con 0 errores hasta 20
 4. Probar escrituras concurrentes y una prueba de resistencia de 30 a 60 minutos.
 5. Repetir sockets desde otra IP o con `MAX_CONN_PER_IP` más alto, y con operadores enviando comandos.
 6. Correr Playwright con `E2E_EMAIL` y `E2E_PASSWORD` en un entorno de prueba.
-7. Activar la protección de la rama `main`.
+7. ~~Activar la protección de la rama `main`~~ (hecho el 24/11).
 
 ## Ronda del 07/11/2026
 

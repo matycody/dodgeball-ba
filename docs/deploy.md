@@ -4,7 +4,7 @@ Producción: frontend en Vercel https://dodgeball-ba.vercel.app y backend en Ren
 
 ## 1. Flujo de cambios
 - Rama `main`: cada push redeploya solo el backend (Render) y el frontend (Vercel).
-- Desde el 04/11/2026 el equipo sube directo a `main` (acuerdo para ir más rápido). Lo previsto en el curso es rama `feature/...` + PR + aprobación; proteger `main` queda pendiente.
+- `main` está protegida (24/11/2026): los cambios entran por rama `feature/...` + PR con aprobación de otro integrante.
 - Cada push reinicia el backend de Render: los relojes de partidos en vivo vuelven en pausa (se recuperan desde `MatchClock`) y la mesa los reanuda. **No pushear durante un partido en vivo.**
 
 ## 2. Render (backend)

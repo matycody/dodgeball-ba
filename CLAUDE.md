@@ -11,7 +11,7 @@ TP de la Práctica Profesional Supervisada (PPS 2026, Scrum, cliente real: Dodge
 - Backend: Node.js, Express, Socket.IO en Render (`backend/`).
 - Base de datos: PostgreSQL + Prisma en Neon (`backend/prisma/`).
 - Auth y archivos: Supabase (Auth nunca a mano). Extras: Sentry (errores) y Gemini (lectura de planillas).
-- Producción: https://dodgeball-ba.vercel.app y https://dodgeball-ba.onrender.com.
+- Producción: https://dodgeball-ba.vercel.app y https://dodgeball-ba.onrender.com (base en la rama `production` de Neon; desarrollo y pruebas en `dev-torneos`). Render en plan gratuito.
 
 ## Reglas del dominio
 - Dos relojes independientes: partido (2 tiempos de 20 min) y set (3 min). El reloj llega por Socket.IO segundo a segundo; no reducir los ticks ni contar el tiempo en el cliente.
@@ -22,7 +22,8 @@ TP de la Práctica Profesional Supervisada (PPS 2026, Scrum, cliente real: Dodge
 - La etapa de promoción (ascenso/permanencia) no define campeón ni podio.
 
 ## Trabajo en git
-- Se sube directo a `main` (acuerdo del equipo desde el 04/11). Cada push redeploya Render y Vercel y reinicia el backend, que pausa los relojes en vivo: no pushear durante un partido.
+- `main` está protegida (desde el 24/11): los cambios entran por una rama `feature/...` y un PR; no se pushea directo a `main`.
+- Cada merge a `main` redeploya Render y Vercel y reinicia el backend, que pausa los relojes en vivo: no mergear durante un partido.
 - Commitear y pushear solo cuando Matías lo pida ("commit"). Los commits terminan con las líneas de atribución de la sesión.
 
 ## Base de datos y migraciones
@@ -40,5 +41,6 @@ Una historia está terminada cuando: funciona en local y cumple el criterio de a
 - Jira: proyecto `PC` en proyectopps2026.atlassian.net. Confluence: espacio `DDS`.
 - Comunicación: Discord; sesiones de trabajo viernes y sábados de 18:00 a 22:00.
 
-## Pendiente (Sprint final)
-Estadísticas de quemadas y catches, alinear automatismos con el reglamento WDBF 2026, limpiar usuarios demo de producción, pruebas de estrés largas, filtros de build en Render, proteger `main` y dominio propio. Ver `docs/bitacora/`.
+## Estado y pendiente
+- Entrega y defensa final: sábado 05/12/2026 (absorbe la Entrega 7). Producción estable, claves rotadas y `main` protegida.
+- Pendiente (posterior a la entrega): estadísticas de quemadas y catches, alinear automatismos con el reglamento WDBF 2026, limpiar usuarios y fichas demo de producción, pruebas de estrés largas, filtros de build en Render y dominio propio. Ver `docs/bitacora/`.

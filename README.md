@@ -8,6 +8,7 @@ Aplicación web (PWA) para seguir y administrar los partidos de **Dodgeball Buen
 - **Cronómetro en vivo:** dos relojes independientes (partido de 2 tiempos de 20 min y set de 3 min), pausa grupal, tiempo muerto, modalidades Foam y Cloth con sus automatismos, reloj flotante (Picture-in-Picture) y modo offline. El reloj llega por Socket.IO segundo a segundo y se recupera si el servidor se reinicia.
 - **Torneos:** ligas, copas y llaves con zonas y playoffs; fixture a mano o por sorteo; tabla con desempates; podio y campeón; dashboard de canchas y "Armar jornada".
 - **Roles:** visitante, usuario, jugador, árbitro/mesa y organización, con menús propios.
+- **Personalización:** tema, fondo y color de acento, menú y tarjetas del inicio a gusto, foto de perfil o diseño predeterminado, y búsquedas recientes.
 - **Disciplina:** tarjetas en partido, suspensiones, sanciones a jugadores sin partido y quita de puntos a equipos.
 - **Contenido:** equipos y jugadores con banner público, Ranking, Sedes, Noticias, Reglas del juego, Prode (predicciones con puntos, sin dinero) y Mis estadísticas.
 - **Planilla de juego por foto:** lectura con IA (Gemini) y confirmación de la mesa; la foto queda como evidencia.
@@ -34,6 +35,7 @@ Todo está en [`docs/`](docs/README.md):
 | [Deploy](docs/deploy.md) | Render, Vercel, migraciones, Supabase, Neon |
 | [Sentry](docs/sentry.md) | Monitoreo de errores |
 | [Pruebas](docs/pruebas.md) | Vitest, E2E, carga y estrés |
+| [Informe de estrés](docs/informe-pruebas-estres.md) | Resultados de las pruebas de carga post Sprint 4 |
 | [Bitácora](docs/bitacora/) | Informes por sprint |
 
 ## Levantar el proyecto en local
@@ -95,7 +97,7 @@ Hace falta **Git** y **Node.js 24 (LTS)**. El backend corre en el puerto 3001 y 
 La PWA solo existe en el build: para probarla, `npm run build` y `npm run preview`.
 
 ## Deploy
-Producción sale de `main`: Render (backend, carpeta `backend`) y Vercel (frontend, carpeta `frontend`) redeployan con cada push. Las migraciones de la base **no** son automáticas. Cada push reinicia el backend y pausa los relojes en vivo, así que no conviene pushear durante un partido. Detalle en [docs/deploy.md](docs/deploy.md).
+Producción sale de `main`, que está protegida: los cambios entran por rama `feature/...` y PR. Render (backend, carpeta `backend`) y Vercel (frontend, carpeta `frontend`) redeployan con cada merge. Las migraciones de la base **no** son automáticas. Cada deploy reinicia el backend y pausa los relojes en vivo, así que no conviene mergear durante un partido. Detalle en [docs/deploy.md](docs/deploy.md).
 
 ## Problemas comunes
 | Problema | Qué hacer |
