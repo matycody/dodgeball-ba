@@ -79,7 +79,7 @@ function PerfilTemp() {
 const PROTECTED = Object.entries(ITEMS).filter(([k]) => !['home', 'perfil', 'favoritos', 'mi_equipo', 'asignaciones', 'historial_asignaciones', 'mis_partidos', 'mis_estadisticas', 'dashboard_canchas', 'torneos', 'equipos', 'sedes', 'sanciones', 'partidos', 'personas', 'usuarios', 'registro_ediciones', 'reportes'].includes(k))
 
 // Sin sesión, en la raíz y la primera vez de la visita: pantalla de bienvenida (sin cabecera ni barra). "Ver partidos" la deja vista hasta cerrar la pestaña
-// Título de la pestaña (y del resultado en Google) según la pantalla pública
+// Título de la pestaña (y del resultado en Google) según la pantalla pública; las pantallas que no están en la lista vuelven al título original
 const BASE_TITLE = 'Dodgeball Buenos Aires'
 const TITLES = {
   '/': BASE_TITLE + ' · Resultados, posiciones y partidos en vivo',
@@ -95,7 +95,7 @@ const TITLES = {
 function Shell() {
   const { user, loading } = useAuthStore()
   const { pathname } = useLocation()
-  useEffect(() => { if (TITLES[pathname]) document.title = TITLES[pathname] }, [pathname])
+  useEffect(() => { document.title = TITLES[pathname] ?? TITLES['/'] }, [pathname])
   if (pathname === '/' && loading) return <div className="min-h-screen" />
   if (pathname === '/' && !user && !landingSeen()) return <LandingPage />
   return <AppLayout />
