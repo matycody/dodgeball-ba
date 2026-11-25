@@ -142,3 +142,55 @@ Cambios aplicados: caché en memoria con ETag/304, gzip precomprimido y recalent
 Playwright mostró un fallo en `liga: lista los torneos` (solo celular): el test esperaba textos que la página ya no muestra una vez cargada. Se corrigió el test (ahora espera las pestañas "En curso" y "Finalizadas"), no la app.
 
 Pendiente: buscar el techo real con 600, 800 y 1000 conexiones sin partidos en vivo; probar escrituras concurrentes; más de 190 sockets desde varias IP; filtros de build en Render para que cada push de frontend no reinicie el backend (reinicia y pausa los relojes en vivo).
+
+## Ronda del 24/11/2026 (post Sprint 5)
+
+Cinco pruebas contra producción real (Render y Vercel), desde una sola PC en Buenos Aires. Datos al momento: 14 torneos y 27 equipos; `/matches` devuelve 100 partidos por página (385 KB). Herramientas: `backend/carga-prod.mjs` (autocannon), `backend/socket-carga-prod.mjs` y `concurrent-writes.mjs` (script local, no se sube al repo). Las escrituras se hicieron sobre un amistoso de prueba.
+
+**No se encontró ningún bug de integridad de datos ni de seguridad.** El único hallazgo es de infraestructura: el techo de conexiones HTTP sin errores bajó y es inestable.
+
+### 1. Quiebre HTTP en `/matches` (200, 250, 300, 350 y 400 conexiones, tres corridas)
+
+| Corrida | Primer error en |
+| --- | --- |
+| 07/11 (informe anterior) | 400 conexiones |
+| 24/11, corrida 1 | 400 conexiones |
+| 24/11, corrida 2 | 200 conexiones |
+| 24/11, corrida 3 | 400 conexiones |
+
+A 200 conexiones el p97,5 llegó a 6.200-7.200 ms en dos corridas (2.912 ms el 07/11). El máximo de throughput se mantuvo (60 a 88 req/s). Lectura: no hay techo fijo; es el patrón de un "vecino ruidoso" en la CPU compartida del plan gratuito de Render (0,15 CPU y 512 MB). La ruta `/matches` y su caché no cambiaron desde el 07/11.
+
+### 2. Resistencia: 200 conexiones constantes durante 30 minutos
+
+145.021 respuestas 2xx y 3 no-2xx (0,002 %); promedio 80,9 req/s, p97,5 de 8.759 ms, máximo 14.776 ms. Sin degradación progresiva (descarta pérdidas de memoria o conexiones sin liberar). El backend tolera mejor la carga sostenida que los picos repentinos.
+
+### 3. Sockets contra un partido real en vivo (`MAX_CONN_PER_IP=200`)
+
+| Lanzados | Conectados | Rechazados | Errores | Ticks |
+| --- | --- | --- | --- | --- |
+| 150 | 150 | 0 | 0 | 150 de 150 |
+| 195 | 195 | 0 | 0 | 195 de 195 |
+| 205 | 198 | 7 | 0 | 198 de 198 |
+
+El límite por IP funciona como está documentado y nadie perdió ticks.
+
+### 4. Escrituras concurrentes (`POST /matches/:id/sets`)
+
+| Concurrencia | 201 | 409 | Fallo de conexión | Números duplicados |
+| --- | --- | --- | --- | --- |
+| 10 | 3 | 7 | 0 | No |
+| 30 | 2 | 27 | 1 | No |
+| 50 | 1 | 49 | 0 | No |
+
+La restricción única `(matchId, number)` evita duplicados: uno gana y el resto recibe un 409 claro ("Registro duplicado, reintentá"). El único `fetch failed` fue aislado.
+
+### 5. Playwright (E2E) contra producción
+
+Resultado final: **26 de 26 aprobadas** (`login.spec.js` 8/8 y `publico.spec.js` 18/18, en celular y escritorio, 47 a 50 s). Antes: 24 fallaron por no exportar `E2E_BASE_URL` (Playwright no lee `.env.local`; cae a `localhost:5173`) y 2 por tests desactualizados (enlace "Registrate" que ahora es "Crear cuenta", y el buscador probado con 1 carácter cuando `BuscarPage.jsx` exige 2 o más). Cobertura parcial: login y páginas públicas o de invitado; los flujos por rol se validan a mano.
+
+### Conclusiones y pendientes
+
+- El código no tiene regresiones de rendimiento ni bugs de integridad bajo concurrencia; la caída del techo HTTP es de infraestructura.
+- Evaluar un plan de pago de Render (hoy no hay métricas de CPU ni memoria sin plan Pro).
+- Repetir la resistencia a 1 hora antes de la defensa y probar sockets desde más de una IP real.
+- Proteger la rama `main` en GitHub (requerir PR y aprobación): sigue sin hacerse.

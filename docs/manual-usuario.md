@@ -6,7 +6,7 @@
 
 Dodgeball BA es una aplicación web para seguir los partidos de Dodgeball Buenos Aires en vivo, con reloj de partido y de set, torneos, tablas, equipos, ranking y predicciones. Se usa desde el navegador del celular o de la PC; para mirar no hace falta cuenta.
 
-1.  **Entrar:** abrí https://dodgeball-ba.vercel.app desde el navegador. Vas a ver el Inicio con los partidos del día (Captura 1).
+1.  **Entrar:** abrí https://dodgeball-ba.vercel.app desde el navegador. La primera vez, sin cuenta, ves una pantalla de bienvenida con tres botones: "Crear cuenta", "Modo visitante" (entra a mirar sin registrarte) y "Cronómetro offline". Después vas al Inicio con los partidos del día (Captura 1). Si usás el modo visitante, "Volver a la presentación" en el menú te lleva de nuevo a la bienvenida.
 
 2.  **Instalarla en el celular (opcional):** en Android, menú del navegador y "Instalar app"; en iPhone, botón Compartir y "Agregar a pantalla de inicio". Queda como un ícono más y se abre a pantalla completa.
 
@@ -34,7 +34,7 @@ Sin iniciar sesión se puede mirar todo lo que pasa en las canchas.
 
 - **Partidos:** la misma lista por día, con calendario y filtros que se abren y se cierran, agrupada por torneo.
 
-- **Partido:** tiene cuatro pestañas (Captura 6). *Resumen* muestra el marcador y los relojes de partido y de set en vivo, y el tiempo muerto. *Jugadores* lista a cada equipo y marca a quien tiene una sanción. *Detalles* indica quiénes son árbitros y mesa. *Cara a cara* compara a los dos equipos por modalidad (todas, Foam o Cloth).
+- **Partido:** tiene hasta seis pestañas (Captura 6). *Resumen* muestra el marcador y los relojes de partido y de set en vivo, el tiempo muerto, tu predicción, la línea de tiempo de los sets (con la duración promedio por set y, al terminar, el parcial del 1.er y 2.º tiempo) y la información del partido. *Jugadores* lista a cada equipo con la foto a la izquierda y el número a la derecha, y marca a quien tiene una sanción. *Predicciones* es la caja para predecir ese partido. *Posiciones* muestra la tabla del torneo y aparece solo si el partido pertenece a un torneo. *Cara a cara* compara a los dos equipos por modalidad (todas, Foam o Cloth). *Info* indica la modalidad y la rama, las reglas de tiempo, quiénes son árbitros y quién es la mesa de control.
 
 - **Reloj flotante:** con la chincheta de la tarjeta o el botón "Fijar reloj" el reloj queda en una ventanita sobre otras pantallas, también en el celular.
 
@@ -70,7 +70,7 @@ Al iniciar sesión se suman funciones personales, disponibles para todos los rol
 
 - **Sanciones:** jugadores suspendidos (con su equipo, cuánto les falta, alcance y motivo) y descuentos de puntos a equipos.
 
-- **Perfil:** tocá tu foto arriba a la derecha (Captura 5). Ahí cargás tu foto, apodo y número, y elegís qué datos muestra tu banner público. "Cuenta y seguridad" cambia tu mail, usuario y contraseña (te pide la actual). "Personalización" cambia el tema (Azul noche, Celeste o Acero), los colores y el orden de tu menú.
+- **Perfil:** tocá tu foto arriba a la derecha (Captura 5). Ahí cargás tu foto o, si preferís no subir una, tocás "Elegir un diseño" y usás una cara de dibujo; también cargás tu apodo y número, y elegís qué datos muestra tu banner público. "Cuenta y seguridad" cambia tu mail, usuario y contraseña (te pide la actual). "Personalización" (plegable) cambia el orden de tu menú y la apariencia: tema Claro, Oscuro o Sistema; en oscuro, el estilo Azul noche o Acero; el fondo, Escudo DBA o Cancha; y el color de las etiquetas. Todo se guarda en tu cuenta.
 
 - **Ser jugador:** si todavía no figurás como jugador, pedí el alta con tu nombre, DNI, número y equipos; la organización la revisa y la aprueba o la rechaza con un motivo.
 

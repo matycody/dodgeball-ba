@@ -97,7 +97,7 @@ Hace falta **Git** y **Node.js 24 (LTS)**. El backend corre en el puerto 3001 y 
 La PWA solo existe en el build: para probarla, `npm run build` y `npm run preview`.
 
 ## Deploy
-Producción sale de `main`, que está protegida: los cambios entran por rama `feature/...` y PR. Render (backend, carpeta `backend`) y Vercel (frontend, carpeta `frontend`) redeployan con cada merge. Las migraciones de la base **no** son automáticas. Cada deploy reinicia el backend y pausa los relojes en vivo, así que no conviene mergear durante un partido. Detalle en [docs/deploy.md](docs/deploy.md).
+Producción sale de `main`: los cambios entran por rama `feature/...` y PR (la protección de la rama en GitHub está pendiente de activar). Render (backend, carpeta `backend`) y Vercel (frontend, carpeta `frontend`) redeployan con cada merge. Las migraciones de la base **no** son automáticas. Cada deploy reinicia el backend y pausa los relojes en vivo, así que no conviene mergear durante un partido. Detalle en [docs/deploy.md](docs/deploy.md).
 
 ## Problemas comunes
 | Problema | Qué hacer |

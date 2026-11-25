@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Login', () => {
-  test('muestra el formulario y el enlace de registro', async ({ page }) => {
+  test('muestra el formulario y el botón de crear cuenta', async ({ page }) => {
     await page.goto('/login')
     await expect(page.getByPlaceholder('Mail')).toBeVisible()
     await expect(page.getByPlaceholder('Contraseña')).toBeVisible()
-    await expect(page.getByRole('link', { name: /Registrate/ }).first()).toBeVisible()
+    await expect(page.getByRole('link', { name: /Crear cuenta/ }).first()).toBeVisible()
   })
 
   test('credenciales incorrectas muestran un error y no entran', async ({ page }) => {

@@ -17,8 +17,14 @@
 - El techo coincide con `/health` (~63 req/s): lo marca el plan gratuito de Render (0,1 CPU), no el código.
 - Detalle completo, tablas y método en [informe-pruebas-estres.md](informe-pruebas-estres.md).
 
+## Estado al 24/11/2026
+- **E2E (Playwright) contra producción: 26 de 26 aprobadas** (`login.spec.js` y `publico.spec.js`, celular y escritorio). Hay que exportar `E2E_BASE_URL`, `E2E_EMAIL` y `E2E_PASSWORD` en la terminal: Playwright no lee `.env.local`. Se actualizaron el enlace "Crear cuenta" y el buscador (mínimo 2 caracteres).
+- **Estrés (24/11):** quiebre HTTP inestable entre 200 y 400 conexiones (infraestructura de Render gratuito), 30 minutos a 200 conexiones sin degradación (0,002 % de error), sockets 195 de 195 y límite por IP verificado (205 lanzados: 198 conectados, 7 rechazados), y escrituras concurrentes de sets sin duplicados (409 claro). Detalle en `docs/informe-pruebas-estres.md`.
+- Script nuevo `concurrent-writes.mjs` (escrituras simultáneas de sets; local, no se sube al repo).
+- Sin volver a correr desde el 07/11: `npm test` (Vitest) y `npm run smoke` (solo contra `dev-torneos`).
+
 ## Pruebas pendientes
-- Techo con 600 a 1000 conexiones, escrituras concurrentes, sockets desde varias IP y resistencia de 30 a 60 minutos.
-- Las 2 pruebas E2E omitidas (cuenta de prueba real).
+- Resistencia de 1 hora y sockets desde varias IP reales (el techo HTTP ya se midió el 24/11).
+- E2E con sesión por rol (árbitro, mesa, organizador): hoy solo cubre login y páginas públicas.
 - Manuales: sanciones a equipos y a jugadores sin partido, planilla por foto con Gemini, mesa única con dos cuentas, reportes de problemas, tutoriales.
 - Nunca correr pruebas de escritura masiva contra producción sin backup.

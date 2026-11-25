@@ -3,9 +3,9 @@
 Producción: frontend en Vercel https://dodgeball-ba.vercel.app y backend en Render https://dodgeball-ba.onrender.com. Base de datos en Neon (rama `production`), autenticación y archivos en Supabase.
 
 ## 1. Flujo de cambios
-- Rama `main`: cada push redeploya solo el backend (Render) y el frontend (Vercel).
-- `main` está protegida (24/11/2026): los cambios entran por rama `feature/...` + PR con aprobación de otro integrante.
-- Cada push reinicia el backend de Render: los relojes de partidos en vivo vuelven en pausa (se recuperan desde `MatchClock`) y la mesa los reanuda. **No pushear durante un partido en vivo.**
+- Rama `main`: cada merge redeploya solo el backend (Render) y el frontend (Vercel).
+- Los cambios entran por rama `feature/...` + PR con aprobación de otro integrante. La protección de `main` en GitHub está pendiente de activar (al 24/11/2026 no lo está).
+- Cada deploy reinicia el backend de Render: los relojes de partidos en vivo vuelven en pausa (se recuperan desde `MatchClock`) y la mesa los reanuda. **No mergear durante un partido en vivo.**
 
 ## 2. Render (backend)
 - Servicio `dodgeball-ba`, rama `main`, Root Directory `backend`, Build `npm install`, Start `npm start`. Escucha en `process.env.PORT`.
@@ -42,7 +42,7 @@ Render solo corre `npm install`: las migraciones **no** se aplican solas.
 4. Reiniciar el backend y buscar en el log `[clock] relojes recuperados: N`.
 5. Probar en la app real.
 
-Última migración aplicada en producción: `20261107120000_bug_reports`.
+Última migración aplicada en producción: `20261111200000_venue_image`.
 
 ## 5. Supabase
 - Auth: en Redirect URLs incluir `https://dodgeball-ba.vercel.app` y `/recuperar`.
@@ -50,7 +50,7 @@ Render solo corre `npm install`: las migraciones **no** se aplican solas.
 - Proveedor Google habilitado (cliente OAuth en Google Cloud); Apple pendiente.
 
 ## 6. Neon
-- Ramas: `production` (hoy copia de `dev-torneos`), `dev-torneos` (desarrollo) y backups.
+- Ramas: `production` (la usa el backend de producción; ya no es copia de `dev-torneos`), `dev-torneos` (desarrollo) y backups.
 - Scripts útiles en `backend/scripts`: `copiar-bd.js` (copia datos entre ramas; `--aplicar`, `--vaciar-destino`), `cargar-torneos.js` (Nacional 2026), `fusionar-equipos.js`.
 
 ## 7. CORS

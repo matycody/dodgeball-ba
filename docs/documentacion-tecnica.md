@@ -308,6 +308,8 @@ Si Render se reinicia, el reloj se recupera desde la tabla MatchClock en pausa y
 
 ## Modelo de datos
 
+Nuevo en Sprint 5: Venue suma el campo opcional image (foto de fondo de la sede, VARCHAR 300; migración 20261111200000_venue_image, que también hay que aplicar a mano). Se sube con PUT /photos/venues/:id.
+
 Nuevo en Sprint 4: TournamentPlace (PK torneo + puesto, equipo, borrado en cascada con el torneo) guarda los puestos 2.º y 3.º elegidos a mano. Migración 20261105160000_tournament_places: como Render solo corre npm install, hay que aplicarla a mano con npx prisma migrate deploy y npx prisma generate.
 
 También nuevo: BugReport (tipo ReportKind: ERROR, VISUAL, SUGGESTION, OTHER; estado ReportStatus: NEW, IN_REVIEW, RESOLVED, DISCARDED) guarda cada reporte de problema con el texto, la pantalla, el dispositivo, los últimos errores de consola, el usuario (opcional, SetNull si se borra la cuenta), las rutas de las capturas, una clave de subida y la nota interna de la organización. Migración 20261107120000_bug_reports.
@@ -365,7 +367,7 @@ El CORS de Express y de Socket.IO tiene que incluir la URL del frontend; si falt
 
 1.  Hacer un backup en Neon justo antes (rama o punto de restauración).
 
-2.  Con DATABASE_URL apuntando a la base destino, correr en backend/: npx prisma migrate deploy y npx prisma generate. Aplica en orden todas las pendientes; la última es 20261107120000_bug_reports.
+2.  Con DATABASE_URL apuntando a la base destino, correr en backend/: npx prisma migrate deploy y npx prisma generate. Aplica en orden todas las pendientes; la última es 20261111200000_venue_image.
 
 3.  Reiniciar el backend y buscar en el log de Render \[clock\] relojes recuperados: N.
 
@@ -393,7 +395,19 @@ Variables: SENTRY_DSN y SENTRY_TEST_KEY en el backend (Render), VITE_SENTRY_DSN 
 
 - **Tutoriales:** se guardan por dispositivo en localStorage y la opción "No mostrar más" también en la cuenta (user_metadata.pref_tours_off de Supabase, sincronizada en lib/syncPrefs.js).
 
-## Pruebas de estrés (Post Sprint 4)
+## Pruebas de estrés (24/11/2026)
+
+Cinco pruebas contra producción real, desde una sola PC (Buenos Aires), para actualizar el informe del 06 y 07/11. **No se encontró ningún bug de integridad de datos ni de seguridad.** El único hallazgo es de infraestructura: el techo de conexiones HTTP sin errores bajó de 400 (07/11) a un rango inestable de 200 a 400 entre corridas idénticas, por la CPU compartida del plan gratuito de Render (0,15 CPU y 512 MB).
+
+- **Quiebre en /matches (3 corridas):** primer error en 400, 200 y 400 conexiones; p97,5 de 6.200-7.200 ms a 200 conexiones en dos corridas (2.912 ms el 07/11); throughput máximo estable (60 a 88 req/s).
+- **Resistencia:** 200 conexiones durante 30 minutos, 145.021 respuestas 2xx y 3 no-2xx (0,002 %), sin degradación progresiva.
+- **Sockets (partido real en vivo, MAX_CONN_PER_IP=200):** 150 y 195 espectadores conectados sin pérdida de ticks; con 205, 198 conectados y 7 rechazados, sin errores.
+- **Escrituras concurrentes (POST /matches/:id/sets, 10, 30 y 50 a la vez):** nunca se duplicó un número de set; la restricción única (matchId, number) responde un 409 claro a los demás.
+- **E2E con Playwright:** 26 de 26 aprobadas tras actualizar dos tests (enlace "Crear cuenta" y buscador con mínimo de 2 caracteres); cobertura parcial (login y páginas públicas).
+
+Recomendaciones: plan de pago de Render para un torneo con mucha concurrencia, repetir la resistencia a 1 hora antes de la defensa y probar sockets desde varias IP. El detalle completo está en docs/informe-pruebas-estres.md.
+
+## Pruebas de estrés (06 y 07/11/2026)
 
 Informe del 06 y 07/11/2026, hecho directo sobre producción y de solo lectura, desde una sola PC (Buenos Aires). Herramientas: Playwright (E2E), autocannon (backend/carga-prod.mjs, con gzip como un navegador) y socket-carga.js. Datos: 15 torneos y 28 equipos; /matches devuelve 100 partidos por página (366 KB, unos 27 KB con gzip).
 
