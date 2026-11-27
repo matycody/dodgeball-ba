@@ -16,7 +16,7 @@ let pushReady = false;
 try {
   if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
     webpush = require('web-push');
-    webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:dodgeballba@gmail.com', process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+    webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'https://dodgeball-ba.vercel.app', process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
     pushReady = true;
   }
 } catch (e) { console.error('[push] desactivado:', e.message); }

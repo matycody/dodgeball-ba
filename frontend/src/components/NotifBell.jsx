@@ -19,6 +19,7 @@ export default function NotifBell() {
   const user = useAuthStore((s) => s.user)
   const { items, unread, load, clear, wire, markRead, markAll } = useNotifStore()
   const [open, setOpen] = useState(false)
+  const [top, setTop] = useState(72)
   const navigate = useNavigate()
   const uid = user?.id
 
@@ -52,11 +53,13 @@ export default function NotifBell() {
   const host = document.querySelector('[data-role]') ?? document.body
   const panel = open && createPortal(
     <div className="fixed inset-0 z-[80]" onClick={() => setOpen(false)}>
+      <div className="relative mx-auto h-full max-w-2xl"> {/* mismo ancho que la app: el panel queda dentro del cuadro */}
       <div
         role="dialog"
         aria-label="Notificaciones"
         onClick={(e) => e.stopPropagation()}
-        className="absolute left-2 right-2 top-[calc(3.75rem+env(safe-area-inset-top))] flex max-h-[70vh] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl sm:left-auto sm:right-4 sm:w-96"
+        style={{ top, maxHeight: 'calc(100dvh - ' + top + 'px - 5.5rem)' }}
+        className="absolute left-3 right-3 flex flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl sm:left-auto sm:w-96"
       >
         <div className="flex items-center justify-between border-b border-line px-4 py-3">
           <p className="font-extrabold">Notificaciones</p>
@@ -86,6 +89,7 @@ export default function NotifBell() {
           ))}
         </div>
       </div>
+      </div>
     </div>,
     host,
   )
@@ -95,7 +99,12 @@ export default function NotifBell() {
       <button
         type="button"
         aria-label={unread ? 'Notificaciones, ' + unread + ' sin leer' : 'Notificaciones'}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          // el panel arranca justo debajo del encabezado (mide su alto real, con la barra del celular incluida)
+          const h = document.querySelector('header')
+          if (h) setTop(Math.round(h.getBoundingClientRect().bottom) + 8)
+          setOpen((o) => !o)
+        }}
         className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line bg-surface sm:h-11 sm:w-11"
       >
         <Bell size={20} />
