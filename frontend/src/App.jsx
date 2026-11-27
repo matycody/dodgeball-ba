@@ -43,7 +43,6 @@ import AdminTeamPage from './pages/admin/AdminTeamPage'
 import PartidosPage from './pages/admin/PartidosPage'
 import AdminMatchPage from './pages/admin/AdminMatchPage'
 import PersonasPage from './pages/admin/PersonasPage'
-import UsuariosPage from './pages/admin/UsuariosPage'
 import EdicionesPage from './pages/admin/EdicionesPage'
 import PlanillasPage from './pages/admin/PlanillasPage'
 import AppLayout from './components/AppLayout'
@@ -74,6 +73,12 @@ function PerfilTemp() {
       </pre>
     </div>
   )
+}
+
+// Usuarios y roles ahora vive dentro de Personas y cuentas: los enlaces viejos siguen andando
+function ToPersonas() {
+  const { search } = useLocation()
+  return <Navigate to={'/admin/personas' + search} replace />
 }
 
 const PROTECTED = Object.entries(ITEMS).filter(([k]) => !['home', 'perfil', 'favoritos', 'mi_equipo', 'asignaciones', 'historial_asignaciones', 'mis_partidos', 'mis_estadisticas', 'dashboard_canchas', 'torneos', 'equipos', 'sedes', 'sanciones', 'partidos', 'personas', 'usuarios', 'registro_ediciones', 'reportes'].includes(k))
@@ -206,7 +211,7 @@ function App() {
               <Route path="/admin/personas" element={<PersonasPage />} />
             </Route>
             <Route element={<ProtectedRoute need="usuarios" />}>
-              <Route path="/admin/usuarios" element={<UsuariosPage />} />
+              <Route path="/admin/usuarios" element={<ToPersonas />} />
             </Route>
             <Route element={<ProtectedRoute need="planillas" />}>
               <Route path="/admin/planillas" element={<PlanillasPage />} />

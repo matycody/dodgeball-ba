@@ -20,8 +20,8 @@ export const ITEMS = {
   equipos: { to: '/admin/equipos', label: 'Equipos', Icon: Users },
   sedes: { to: '/admin/sedes', label: 'Sedes', Icon: MapPin },
   sanciones: { to: '/admin/sanciones', label: 'Sanciones', Icon: Gavel },
-  personas: { to: '/admin/personas', label: 'Personas', Icon: UserCog },
-  usuarios: { to: '/admin/usuarios', label: 'Usuarios y roles', Icon: Shield },
+  personas: { to: '/admin/personas', label: 'Personas y cuentas', Icon: UserCog },
+  usuarios: { to: '/admin/usuarios', label: 'Personas y cuentas', Icon: Shield }, // solo atajo del Inicio: redirige a /admin/personas
   planillas: { to: '/admin/planillas', label: 'Planillas de juego', Icon: ClipboardCheck },
   registro_ediciones: { to: '/admin/ediciones', label: 'Registro de ediciones', Icon: HistoryIcon },
   reportes: { to: '/admin/reportes', label: 'Reportes', Icon: Bug },
@@ -31,7 +31,7 @@ export const ITEMS = {
 export const SECTIONS = [
   { title: 'Mi actividad', keys: ['mis_partidos', 'mi_equipo', 'mis_estadisticas', 'favoritos'] },
   { title: 'Árbitro y mesa', keys: ['asignaciones', 'historial_asignaciones'] },
-  { title: 'Administración', keys: ['dashboard_canchas', 'torneos', 'partidos', 'equipos', 'sedes', 'sanciones', 'personas', 'usuarios', 'planillas', 'registro_ediciones', 'reportes'] },
+  { title: 'Administración', keys: ['dashboard_canchas', 'torneos', 'partidos', 'equipos', 'sedes', 'sanciones', 'personas', 'planillas', 'registro_ediciones', 'reportes'] },
 ]
 
 // Rutas fijas del frontend (no dependen del menú del backend)
