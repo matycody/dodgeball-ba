@@ -16,6 +16,9 @@ const EMPTY = {
 // Mediodía UTC para que la fecha no se corra por zona horaria
 const toIso = (d) => (d ? d + 'T12:00:00.000Z' : undefined)
 
+// Marca que se acaba de crear un torneo: si con "atrás" se vuelve a la pantalla de crear, se salta a la lista
+export const CREATED_KEY = 'torneo-recien-creado'
+
 function Field({ label, children }) {
   return <label className="block min-w-0 text-xs text-muted">{label}{children}</label>
 }
@@ -102,7 +105,8 @@ export default function TorneoForm({ t = null, onSaved, onDirty }) {
         })
         setDone(true) // ya está guardado: no avisar al salir
         clearPending()
-        nav('/admin/torneos/' + t.id + '?tab=equipos')
+        try { sessionStorage.setItem(CREATED_KEY, '1') } catch { /* sin storage */ }
+        nav('/admin/torneos/' + t.id + '?tab=equipos', { replace: true }) // reemplaza la pantalla de crear: "atrás" vuelve a la lista
       }
     } catch (e2) { setErr(e2.message) } finally { setBusy(false) }
   }

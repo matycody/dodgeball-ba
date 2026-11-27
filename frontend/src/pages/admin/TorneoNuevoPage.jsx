@@ -1,13 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Lock } from 'lucide-react'
 import BackLink from '../../components/BackLink'
-import TorneoForm from '../../components/admin/TorneoForm'
+import TorneoForm, { CREATED_KEY } from '../../components/admin/TorneoForm'
 import { TABS } from './TorneoAdminPage'
 
 // Crear torneo: mismo menú que un torneo ya creado (Datos, Equipos, Estructura, Fixture…).
 // Hasta guardar los datos solo se puede usar "Datos"; las demás pestañas se habilitan al crear.
 export default function TorneoNuevoPage() {
   const [hint, setHint] = useState(false)
+  const nav = useNavigate()
+  // Si recién se creó un torneo y con "atrás" se llegó acá, no se muestra el formulario vacío: se sigue hacia la lista
+  const [skip] = useState(() => { try { return sessionStorage.getItem(CREATED_KEY) === '1' } catch { return false } })
+  useEffect(() => {
+    if (!skip) return
+    if (window.history.state?.idx > 0) nav(-1)
+    else nav('/admin/torneos', { replace: true })
+  }, [skip, nav])
+  if (skip) return null
 
   return (
     <div className="space-y-4">

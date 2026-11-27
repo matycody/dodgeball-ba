@@ -20,6 +20,7 @@ export default function TorneosPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setList(null); load() }, [yearFilter, view])
   useTournamentLive(() => load())
+  useEffect(() => { try { sessionStorage.removeItem('torneo-recien-creado') } catch { /* sin storage */ } }, [])
 
   async function remove(t) {
     if (!(await ask({ title: 'Eliminar torneo', message: '¿Eliminar "' + t.name + '"? Deja de verse para todos, también para la organización. Lo encontrás en "Eliminados" para restaurarlo o borrarlo definitivamente.', confirmText: 'Eliminar', danger: true }))) return
