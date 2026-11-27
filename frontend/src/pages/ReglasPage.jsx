@@ -286,6 +286,23 @@ export default function ReglasPage() {
         </a>
       </section>
 
+      {/* Video explicativo de las reglas (no se descarga hasta darle play) */}
+      <section className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <video
+          controls
+          playsInline
+          preload="none"
+          poster="/videos/reglas-dodgeball-poster.jpg"
+          className="aspect-video w-full bg-black"
+        >
+          <source src="/videos/reglas-dodgeball.mp4" type="video/mp4" />
+        </video>
+        <div className="px-4 py-3">
+          <p className="font-extrabold">Las reglas en 80 segundos</p>
+          <p className="text-sm text-muted">Video con voz: la cancha, las pelotas y cómo se juega un partido.</p>
+        </div>
+      </section>
+
       {/* Selector de modalidad */}
       <div role="tablist" aria-label="Modalidad" className="grid grid-cols-2 gap-1.5 rounded-2xl border border-line bg-surface p-1.5">
         {Object.entries(MODOS).map(([k, v]) => (
