@@ -6,9 +6,12 @@ let ioRef = null;
 const setIo = (io) => { ioRef = io; };
 
 const TZ = 'America/Argentina/Buenos_Aires';
-const fmtDate = (d) => (d
-  ? new Date(d).toLocaleString('es-AR', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })
-  : 'a definir');
+// "vie 20/11 · 18:00" (hora de Argentina, 24 h)
+const fmtDate = (d) => {
+  if (!d) return 'a definir';
+  const p = Object.fromEntries(new Intl.DateTimeFormat('es-AR', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(d)).map((x) => [x.type, x.value]));
+  return String(p.weekday).replace('.', '') + ' ' + p.day + '/' + p.month + ' · ' + p.hour + ':' + p.minute;
+};
 
 // ── Push fuera de la web (opcional: necesita el paquete web-push, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY y VAPID_SUBJECT) ──
 let webpush = null;
