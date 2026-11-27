@@ -6,23 +6,24 @@ const { serialize, pushEnabled } = require('../lib/notify');
 const router = express.Router();
 router.use(authenticate);
 
-const MAX = 50;
-const RETENTION_MS = 30 * 24 * 60 * 60 * 1000; // los avisos viejos no se muestran (y se limpian al listar)
+const MAX = 50; // la campana trae los últimos; la pantalla de Notificaciones pagina todo el historial (no se borra nunca)
 
-// Últimos avisos + cuántos faltan leer. Sin la tabla (falta migrar) responde vacío.
+// Avisos (los más nuevos primero) + cuántos faltan leer. ?before=<fecha> y ?limit=<n> para seguir con los anteriores.
+// Sin la tabla (falta migrar) responde vacío.
 router.get('/', async (req, res) => {
   try {
-    if (!prisma.notification) return res.json({ items: [], unread: 0 });
-    const since = new Date(Date.now() - RETENTION_MS);
-    prisma.notification.deleteMany({ where: { userId: req.user.id, createdAt: { lt: since } } }).catch(() => {});
-    const [items, unread] = await Promise.all([
-      prisma.notification.findMany({ where: { userId: req.user.id, createdAt: { gte: since } }, orderBy: { createdAt: 'desc' }, take: MAX }),
-      prisma.notification.count({ where: { userId: req.user.id, readAt: null, createdAt: { gte: since } } }),
+    if (!prisma.notification) return res.json({ items: [], unread: 0, hasMore: false });
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || MAX, 1), 100);
+    const before = req.query.before ? new Date(String(req.query.before)) : null;
+    const where = { userId: req.user.id, ...(before && !Number.isNaN(+before) ? { createdAt: { lt: before } } : {}) };
+    const [rows, unread] = await Promise.all([
+      prisma.notification.findMany({ where, orderBy: { createdAt: 'desc' }, take: limit + 1 }),
+      prisma.notification.count({ where: { userId: req.user.id, readAt: null } }),
     ]);
-    res.json({ items: items.map(serialize), unread });
+    res.json({ items: rows.slice(0, limit).map(serialize), unread, hasMore: rows.length > limit });
   } catch (err) {
     console.error('[notifications]', err.message);
-    res.json({ items: [], unread: 0 });
+    res.json({ items: [], unread: 0, hasMore: false });
   }
 });
 

@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
+import NotifItem, { groupByDay } from '../components/NotifItem'
+import { useNotifStore } from '../stores/notifStore'
+import { useNavigate } from 'react-router-dom'
+import { CheckCheck } from 'lucide-react'
 import { pushSupported, isIos, isStandalone, currentSubscription, enablePush, disablePush } from '../lib/push'
 
 const GROUPS = [
@@ -32,6 +36,38 @@ export default function NotificacionesPage() {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const needsInstall = isIos() && !isStandalone()
+  const navigate = useNavigate()
+  const unread = useNotifStore((s) => s.unread)
+  const [hist, setHist] = useState(null) // historial completo (no se borra nunca)
+  const [more, setMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  const loadHist = async (before) => {
+    const q = '/notifications?limit=30' + (before ? '&before=' + encodeURIComponent(before) : '')
+    const r = await api('GET', q)
+    setHist((h) => (before ? [...(h ?? []), ...(r.items ?? [])] : (r.items ?? [])))
+    setMore(!!r.hasMore)
+  }
+  useEffect(() => { loadHist().catch(() => setHist([])) }, [])
+
+  const verMas = async () => {
+    setLoadingMore(true)
+    try { await loadHist(hist[hist.length - 1].createdAt) } catch { /* reintenta tocando de nuevo */ }
+    setLoadingMore(false)
+  }
+
+  const open = async (n) => {
+    if (!n.readAt) {
+      setHist((h) => h.map((x) => (x.id === n.id ? { ...x, readAt: new Date().toISOString() } : x)))
+      api('POST', '/notifications/' + n.id + '/read').then(() => useNotifStore.getState().load()).catch(() => {})
+    }
+    if (n.link) navigate(n.link)
+  }
+
+  const readAll = () => {
+    setHist((h) => h.map((x) => (x.readAt ? x : { ...x, readAt: new Date().toISOString() })))
+    useNotifStore.getState().markAll()
+  }
 
   useEffect(() => {
     currentSubscription().then((s) => setActive(!!s && Notification.permission === 'granted'))
@@ -65,6 +101,38 @@ export default function NotificacionesPage() {
   return (
     <div className="space-y-4 pb-6">
       <h1 className="text-2xl font-extrabold">Notificaciones</h1>
+
+      <section className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <div className="flex items-center gap-2 border-b border-line px-4 py-3">
+          <p className="text-lg font-extrabold">Todas tus notificaciones</p>
+          {unread > 0 && <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-extrabold leading-none text-white">{unread}</span>}
+          <span className="flex-1" />
+          {unread > 0 && (
+            <button type="button" onClick={readAll} className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-xs font-bold text-accent active:opacity-70">
+              <CheckCheck size={14} /> Marcar leído
+            </button>
+          )}
+        </div>
+        {hist === null ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">Cargando…</p>
+        ) : hist.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">Todavía no tenés notificaciones. Acá queda el historial completo.</p>
+        ) : (
+          <>
+            {groupByDay(hist).map(([label, list]) => (
+              <div key={label}>
+                <p className="bg-surface-2 px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-widest text-muted">{label}</p>
+                {list.map((n) => <NotifItem key={n.id} n={n} onOpen={open} />)}
+              </div>
+            ))}
+            {more && (
+              <button type="button" onClick={verMas} disabled={loadingMore} className="w-full px-4 py-3.5 text-sm font-bold text-accent active:bg-surface-2 disabled:opacity-60">
+                {loadingMore ? 'Cargando…' : 'Ver anteriores'}
+              </button>
+            )}
+          </>
+        )}
+      </section>
 
       <section className="rounded-2xl border border-line bg-surface p-4">
         <div className="flex items-center gap-3">
