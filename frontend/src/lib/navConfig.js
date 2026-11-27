@@ -1,6 +1,6 @@
 ﻿import {
   Home, Heart, User, CalendarDays, Users, BarChart3, ClipboardList,
-  LayoutDashboard, Target, Trophy, Shield, UserCog, History as HistoryIcon, Timer, BookOpen, Info, Newspaper, MapPin, Gavel, ClipboardCheck, Bug,
+  LayoutDashboard, Target, Trophy, Shield, UserCog, History as HistoryIcon, Timer, BookOpen, Info, Newspaper, MapPin, Gavel, ClipboardCheck, Bug, Bell,
 } from 'lucide-react'
 import SquareAlert from '../components/SquareAlert'
 
@@ -44,6 +44,7 @@ export const GENERAL = [
   { to: '/partidos', label: 'Partidos', Icon: CalendarDays, hideIf: 'partidos' },
   { to: '/noticias', label: 'Noticias', Icon: Newspaper, bottomOnly: true }, // fija en la barra inferior para todos (no va en el drawer)
   { to: '/predicciones', label: 'Predicciones', Icon: Target },
+  { to: '/notificaciones', label: 'Notificaciones', Icon: Bell, authOnly: true },
   // Con sesión iniciada (no para visitas); el organizador ya tiene 'Sanciones' (con edición) en Administración
   { to: '/sanciones', label: 'Sanciones', Icon: Gavel, hideIf: 'sanciones', authOnly: true },
   // El organizador ya tiene 'Equipos' en Administración

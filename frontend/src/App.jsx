@@ -14,6 +14,7 @@ import PrediccionesPage from './pages/PrediccionesPage'
 import AssignmentsPage from './pages/AssignmentsPage'
 import ControlPage from './pages/ControlPage'
 import PerfilPage from './pages/PerfilPage'
+import NotificacionesPage from './pages/NotificacionesPage'
 import FavoritosPage from './pages/FavoritosPage'
 import TeamPage from './pages/TeamPage'
 import PlayerPage from './pages/PlayerPage'
@@ -156,7 +157,7 @@ function App() {
             <Route path="/reglas" element={<ReglasPage />} />
             <Route path="/acerca" element={<AcercaPage />} />
             <Route path="/reportar" element={<ReportarPage />} />
-            {GENERAL.filter((g) => !['/cronometro', '/liga', '/estadisticas', '/equipos', '/partidos', '/sedes', '/noticias', '/predicciones', '/sanciones', '/reglas', '/acerca', '/reportar'].includes(g.to)).map((g) => (
+            {GENERAL.filter((g) => !['/cronometro', '/liga', '/estadisticas', '/equipos', '/partidos', '/sedes', '/noticias', '/predicciones', '/sanciones', '/reglas', '/acerca', '/reportar', '/notificaciones'].includes(g.to)).map((g) => (
               <Route key={g.to} path={g.to} element={<Placeholder title={g.label} />} />
             ))}
 
@@ -164,6 +165,7 @@ function App() {
 
             <Route element={<ProtectedRoute />}>
               <Route path="/perfil" element={<PerfilPage />} />
+              <Route path="/notificaciones" element={<NotificacionesPage />} />
               <Route path="/favoritos" element={<FavoritosPage />} />
               <Route path="/predicciones" element={<PrediccionesPage />} />
               <Route path="/prode" element={<Navigate to="/predicciones" replace />} />

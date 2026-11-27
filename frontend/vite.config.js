@@ -35,6 +35,7 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/\.pdf$/, /^\/edge\//], // el reglamento en PDF se abre tal cual, no la app
         cleanupOutdatedCaches: true,
+        importScripts: ['push-sw.js'], // avisos push (public/push-sw.js)
         // La API (Render) y los sockets nunca se cachean: solo la app y las fuentes
         runtimeCaching: [
           {

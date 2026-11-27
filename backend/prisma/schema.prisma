@@ -71,6 +71,8 @@ model User {
   predictions    Prediction[]
   reports        BugReport[]
   notifications  Notification[]
+  pushSubs       PushSubscription[]
+  notifPref      NotifPref?
 }
 
 // Perfil inscripto por la organizaciÃ³n (jugador y/o Ã¡rbitro)
@@ -791,4 +793,26 @@ model Notification {
   @@unique([userId, dedupeKey])
   @@index([userId, readAt])
   @@index([userId, createdAt])
+}
+
+// Un dispositivo (navegador o PWA) que aceptó recibir avisos fuera de la web
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique @db.VarChar(600)
+  p256dh    String   @db.VarChar(200)
+  auth      String   @db.VarChar(100)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Tipos de aviso que la persona silenció para el push (partidos, asignaciones, solicitudes). Dentro de la web siempre se ven.
+model NotifPref {
+  userId String   @id
+  off    String[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

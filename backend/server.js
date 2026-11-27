@@ -123,4 +123,5 @@ const PORT = process.env.PORT || 3001;
 // Tope de 10 s por si la base tarda (Neon frío): en ese caso arranca igual.
 Promise.race([restoreClocks(io), new Promise((r) => setTimeout(r, 10000))]).finally(() => {
   server.listen(PORT, () => console.log(`Servidor escuchando en http://localhost:${PORT}`));
+  require('./src/lib/notify').startReminders(); // avisa 30 min antes de cada partido
 });
