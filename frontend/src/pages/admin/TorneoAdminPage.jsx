@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
+import TorneoForm from '../../components/admin/TorneoForm'
 import { ArrowLeft, Trophy, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
 import BackLink from '../../components/BackLink'
 import { api } from '../../lib/api'
@@ -17,7 +18,7 @@ import BracketEditor, { emptyBracket, fromView } from '../../components/torneo/B
 import { withSaving } from '../../lib/saving'
 
 const TABS = [
-  ['resumen', 'Resumen'], ['equipos', 'Equipos'], ['estructura', 'Estructura'],
+  ['resumen', 'Resumen'], ['datos', 'Datos'], ['equipos', 'Equipos'], ['estructura', 'Estructura'],
   ['fixture', 'Fixture'], ['tabla', 'Tabla'], ['llave', 'Playoffs'], ['sanciones', 'Sanciones'],
 ]
 const letter = (i) => String.fromCharCode(65 + (i % 26)) + (i >= 26 ? Math.floor(i / 26) : '')
@@ -736,8 +737,17 @@ function SummaryTab({ t, reload, setErr, setMsg }) {
 
 export default function TorneoAdminPage() {
   const { id } = useParams()
+  const ask = useConfirm()
+  const [params] = useSearchParams()
   const [t, setT] = useState(null)
-  const [tab, setTab] = useState('resumen')
+  const [tab, setTabRaw] = useState(() => (TABS.some(([k]) => k === params.get('tab')) ? params.get('tab') : 'resumen'))
+  const [datosDirty, setDatosDirty] = useState(false) // la pestaña Datos tiene cambios sin guardar
+  // Cambiar de pestaña con cambios sin guardar en Datos pide confirmar
+  const setTab = async (k) => {
+    if (k === tab) return
+    if (tab === 'datos' && datosDirty && !(await ask({ title: '¿Salir sin guardar?', message: 'Cambiaste datos del torneo y no los guardaste. Si cambiás de pestaña, se pierden.', confirmText: 'Salir sin guardar', cancelText: 'Quedarme', danger: true }))) return
+    setTabRaw(k)
+  }
   const [err, setErr] = useState('')
   const [msg, setMsg] = useState('')
   const [sanKey, setSanKey] = useState(0)
@@ -772,6 +782,7 @@ export default function TorneoAdminPage() {
       </div>
       <div key={tab} className="space-y-4">
       {tab === 'resumen' && <SummaryTab t={t} reload={load} setErr={setErr} setMsg={setMsg} />}
+      {tab === 'datos' && <TorneoForm key={t.id} t={t} onSaved={load} onDirty={setDatosDirty} />}
       {tab === 'equipos' && <TeamsTab t={t} reload={load} setErr={setErr} />}
       {tab === 'estructura' && (
         <div className="m-stagger space-y-6">

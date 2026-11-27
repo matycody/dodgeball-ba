@@ -24,6 +24,7 @@ import MisPartidosPage from './pages/MisPartidosPage'
 import MisEstadisticasPage from './pages/MisEstadisticasPage'
 import DashboardPage from './pages/admin/DashboardPage'
 import JornadaPage from './pages/admin/JornadaPage'
+import TorneoNuevoPage from './pages/admin/TorneoNuevoPage'
 import TorneosPage from './pages/admin/TorneosPage'
 import TorneoAdminPage from './pages/admin/TorneoAdminPage'
 import LigaPage from './pages/LigaPage'
@@ -191,6 +192,7 @@ function App() {
             </Route>
             <Route element={<ProtectedRoute need="torneos" />}>
               <Route path="/admin/torneos" element={<TorneosPage />} />
+              <Route path="/admin/torneos/nuevo" element={<TorneoNuevoPage />} />
               <Route path="/admin/torneos/:id" element={<TorneoAdminPage />} />
             </Route>
             <Route element={<ProtectedRoute need="equipos" />}>
