@@ -105,7 +105,7 @@ export default function PersonaSheet({ entry, busy, err, ok, onClose, onClearMsg
             if (email) run(() => api('POST', '/profiles/' + p.id + '/unlink', { email: email.trim() }), 'Cuenta desvinculada')
           }}>Desvincular de la cuenta</Accion>
         )}
-        {p && isDemo(p) && <Accion disabled={busy} tone="text-accent" hint="Solo cuentas demo" onClick={() => onEdit(p)}>Editar datos</Accion>}
+        {p && (isDemo(p) || !u) && <Accion disabled={busy} tone="text-accent" hint={u ? 'Solo cuentas demo' : 'Todavía sin cuenta'} onClick={() => onEdit(p)}>Editar datos</Accion>}
       </div>
     </div>
   )

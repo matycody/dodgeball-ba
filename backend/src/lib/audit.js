@@ -28,6 +28,7 @@ const LABELS = {
   'POST /profiles': 'Cargó una persona',
   'PATCH /profiles/:id': 'Editó una persona',
   'POST /profiles/:id/unlink': 'Desvinculó la cuenta de una persona',
+  'POST /profiles/:id/link': 'Vinculó una cuenta con una persona',
   'DELETE /profiles/:id': 'Eliminó una persona',
   'POST /teams': 'Creó un equipo',
   'PATCH /teams/:id': 'Editó un equipo',

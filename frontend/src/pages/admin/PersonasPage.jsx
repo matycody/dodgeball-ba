@@ -7,6 +7,8 @@ import PersonName from '../../components/PersonName'
 import PersonaSheet from '../../components/PersonaSheet'
 import { useConfirm } from '../../components/ConfirmProvider'
 import SolicitudesPanel from './SolicitudesPanel'
+import VinculacionPanel from './VinculacionPanel'
+import { computeMatches, readDescartadas, saveDescartadas, pairKey } from '../../lib/vinculacion'
 
 const NO_MAIL = '@sinmail.pps'
 const realMail = (e) => (e && !e.endsWith(NO_MAIL) ? e : '')
@@ -68,15 +70,17 @@ export default function PersonasPage() {
   const [err, setErr] = useState('')
   const [ok, setOk] = useState('')
   const [busy, setBusy] = useState(false)
-  const [tab, setTab] = useState('lista') // lista | inscribir | req | demo
-  const [pending, setPending] = useState(0)
+  const [tab, setTab] = useState('lista') // lista | inscribir | vinc | req | demo
+  const [reqs, setReqs] = useState([]) // solicitudes de alta pendientes
+  const pending = reqs.length
+  const [descartadas, setDescartadas] = useState(readDescartadas)
   const [demo, setDemo] = useState(null)
 
   const load = () =>
     Promise.all([api('GET', '/profiles'), api('GET', '/users')])
       .then(([p, u]) => { setProfiles(p); setUsers(u) })
       .catch((e) => setErr(e.message))
-  const countPending = () => api('GET', '/player-requests?status=PENDING').then((l) => setPending(l.length)).catch(() => {})
+  const countPending = () => api('GET', '/player-requests?status=PENDING').then(setReqs).catch(() => {})
   useEffect(() => { load(); countPending() }, [])
   useEffect(() => { if (tab === 'demo') api('GET', '/users/demo').then(setDemo).catch((e) => setErr(e.message)) }, [tab])
   useEffect(() => { setLimit(PAGE) }, [q, seg, conBaja])
@@ -109,6 +113,15 @@ export default function PersonasPage() {
       return hay.some((v) => v && norm(v).includes(t))
     })
   }, [entries, q, conBaja])
+
+  // Cuentas registradas que podrían ser personas ya inscriptas (sin los pares descartados)
+  const vinc = useMemo(
+    () => computeMatches(profiles, users, reqs)
+      .map((m) => ({ ...m, cands: m.cands.filter((c) => !descartadas.has(pairKey(m.u.id, c.p.id))) }))
+      .filter((m) => m.cands.length),
+    [profiles, users, reqs, descartadas],
+  )
+  const descartar = (uid, pid) => setDescartadas((s) => { const n = new Set(s); n.add(pairKey(uid, pid)); saveDescartadas(n); return n })
 
   const counts = useMemo(() => Object.fromEntries(SEGS.map(([k]) => [k, base ? base.filter(IN_SEG[k]).length : 0])), [base])
   const lista = useMemo(() => (base ?? []).filter(IN_SEG[seg]), [base, seg])
@@ -173,6 +186,7 @@ export default function PersonasPage() {
       <div className="flex flex-wrap gap-2 text-sm font-bold">
         {pill('lista', 'Personas')}
         {pill('inscribir', editing ? 'Editar' : 'Inscribir')}
+        {pill('vinc', 'Vinculación', vinc.length > 0 && <span className="ml-1.5 inline-block min-w-5 rounded-full bg-accent px-1.5 text-center text-xs font-extrabold leading-5 text-black">{vinc.length}</span>)}
         {pill('req', 'Solicitudes', pending > 0 && <span className="ml-1.5 inline-block min-w-5 rounded-full bg-danger px-1.5 text-center text-xs font-extrabold leading-5 text-white">{pending}</span>)}
         {pill('demo', 'Datos demo')}
       </div>
@@ -202,6 +216,8 @@ export default function PersonasPage() {
           {editing && <Btn onClick={() => { reset(); setTab('lista') }}>Cancelar</Btn>}
         </div>
       </form>}
+
+      {tab === 'vinc' && <VinculacionPanel matches={vinc} loading={!entries} onDismiss={descartar} onChange={async () => { await load(); await countPending() }} />}
 
       {tab === 'req' && <SolicitudesPanel onChange={() => { countPending(); load() }} />}
 

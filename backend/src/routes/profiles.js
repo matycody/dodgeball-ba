@@ -175,6 +175,40 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
+// Vincular a mano una cuenta registrada con una persona inscripta por la organización (la decisión final es del admin).
+// La ficha conserva todo su historial; pasa a usar el mail de la cuenta y la cuenta recibe los roles de la ficha.
+// Si la cuenta tenía una solicitud de alta pendiente, queda resuelta.
+router.post('/:id/link', async (req, res) => {
+  try {
+    const userId = typeof req.body?.userId === 'string' ? req.body.userId : '';
+    if (!userId) return res.status(400).json({ error: 'Indicá la cuenta a vincular' });
+
+    const [profile, user] = await Promise.all([
+      prisma.profile.findUnique({ where: { id: req.params.id }, include: { user: true } }),
+      prisma.user.findUnique({ where: { id: userId } }),
+    ]);
+    if (!profile) return res.status(404).json({ error: 'Persona no encontrada' });
+    if (!user) return res.status(404).json({ error: 'Cuenta no encontrada' });
+    if (profile.user) return res.status(409).json({ error: 'La persona ya está vinculada a otra cuenta (' + profile.user.email + '): desvinculala primero' });
+    if (user.profileId) return res.status(409).json({ error: 'La cuenta ya tiene una persona vinculada' });
+    if (!user.active) return res.status(409).json({ error: 'La cuenta está desactivada' });
+    if (!profile.active) return res.status(409).json({ error: 'La persona está de baja: reactivala antes de vincular' });
+
+    await prisma.$transaction([
+      prisma.profile.update({ where: { id: profile.id }, data: { email: user.email, status: 'VINCULADO' } }),
+      prisma.user.update({ where: { id: user.id }, data: { profileId: profile.id } }),
+      prisma.playerRequest.updateMany({
+        where: { userId: user.id, status: 'PENDING' },
+        data: { status: 'APPROVED', reviewedById: req.user.id, reviewedAt: new Date(), rejectReason: null },
+      }),
+    ]);
+    await syncRoles(profile.id);
+    res.json({ ok: true });
+  } catch (err) {
+    handleDbError(err, res);
+  }
+});
+
 // Desvincular cuenta (perdiÃ³ acceso al mail). Exige el mail nuevo para que no se revincule solo.
 router.post('/:id/unlink', async (req, res) => {
   try {
