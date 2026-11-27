@@ -19,6 +19,7 @@ export const useAuthStore = create((set, get) => ({
   profile: null, // ficha propia (nombre, apodo, número, equipos) o null si no tiene
   photoUrl: null, // URL firmada de la foto propia (vence en 1 hora)
   loading: true,
+  authError: '', // si hay sesión de Supabase pero el backend no respondió
 
   init: async () => {
     if (initialized) return
@@ -63,12 +64,15 @@ export const useAuthStore = create((set, get) => ({
   syncSession: async (session) => {
     clearInterval(profileTimer)
     if (!session) {
-      set({ session: null, user: null, menu: [], profile: null, photoUrl: null, loading: false })
+      set({ session: null, user: null, menu: [], profile: null, photoUrl: null, loading: false, authError: '' })
       return
     }
-    set({ session })
+    set({ session, authError: '' })
     try {
-      const me = await api('GET', '/me')
+      // Si el backend no responde (suspendido o arrancando), no dejamos la pantalla colgada
+      let timer
+      const limite = new Promise((_, rej) => { timer = setTimeout(() => rej(Object.assign(new Error('Tiempo de espera agotado'), { status: 0, timeout: true })), 12000) })
+      const me = await Promise.race([api('GET', '/me'), limite]).finally(() => clearTimeout(timer))
       set({ user: me.user, menu: me.menu ?? [], loading: false })
       get().refreshProfile()
       profileTimer = setInterval(() => get().refreshProfile(), 45 * 60 * 1000)
@@ -77,7 +81,10 @@ export const useAuthStore = create((set, get) => ({
       if (err.status === 401) {
         await supabase.auth.signOut({ scope: 'local' }) // solo este dispositivo
       } else {
-        set({ user: null, menu: [], loading: false })
+        const msg = err.status === 409 ? 'Ese mail ya está asociado a otra cuenta.'
+          : err.status === 403 ? (err.message || 'Cuenta sin acceso.')
+          : 'No pudimos conectar con el servidor. Probá de nuevo en unos segundos.'
+        set({ user: null, menu: [], loading: false, authError: msg })
       }
     }
   },

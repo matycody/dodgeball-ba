@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { UserPlus, LogIn, Clock, Trophy, Medal, Swords, Heart, Zap, ArrowRight, Timer } from 'lucide-react'
 import { useMatchesFeed } from '../hooks/useMatchesFeed'
 import { useMatchesStore } from '../stores/matchesStore'
+import { useAuthStore } from '../stores/authStore'
 import MatchCard from '../components/MatchCard'
 import TeamBadge from '../components/TeamBadge'
 import AuthBackground from '../components/AuthBackground'
@@ -41,6 +42,7 @@ function Stat({ value, label, delay = 0 }) {
 // Pantalla de bienvenida para quien entra sin sesión: presenta la liga, muestra un partido en vivo (o el próximo), los números y los equipos
 export default function LandingPage() {
   const navigate = useNavigate()
+  const authError = useAuthStore((s) => s.authError)
   useMatchesFeed(7)
   const byId = useMatchesStore((s) => s.byId)
   const [totals, setTotals] = useState(null)
@@ -91,6 +93,7 @@ export default function LandingPage() {
         </header>
 
         <main className="mx-auto max-w-6xl px-5 pb-16 md:px-8">
+          {authError && <p role="alert" className="mt-3 rounded-2xl border border-danger/50 bg-surface px-4 py-3 text-sm font-semibold text-danger">{authError}</p>}
           {/* Portada */}
           <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-10 pt-8 md:pt-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
             <div className="landing-scrim min-w-0">
