@@ -1,5 +1,6 @@
 const express = require('express');
 const prisma = require('../db');
+const { notifyMatchChange, notifyAssignment } = require('../lib/notify');
 const { phasesFor } = require('../services/matchPhase');
 const { formsFor } = require('../services/teamForm');
 const { briefErr } = require('../lib/briefErr');
@@ -547,6 +548,10 @@ router.patch('/:id', ...admin, async (req, res) => {
     }
 
     await notifyMatch(req.app.get('io'), req.params.id);
+    const moved = (data.scheduledAt !== undefined && +new Date(data.scheduledAt ?? 0) !== +new Date(match.scheduledAt ?? 0))
+      || (data.court !== undefined && data.court !== match.court)
+      || (data.venueId !== undefined && data.venueId !== match.venueId);
+    if (moved && match.scheduledAt) notifyMatchChange(match.id, 'moved', { stamp: String(Date.now()) });
     res.json(serialize(await fetchMatch(match.id, true), true));
   } catch (err) {
     handleError(err, res);
@@ -697,6 +702,7 @@ router.post('/:id/cancel', ...admin, async (req, res) => {
     });
 
     await notifyMatch(req.app.get('io'), req.params.id);
+    notifyMatchChange(match.id, 'cancelled');
     res.json(serialize(await fetchMatch(match.id, true), true));
   } catch (err) {
     handleError(err, res);
@@ -781,6 +787,7 @@ router.post('/:id/suspend', ...admin, async (req, res) => {
     });
 
     await notifyMatch(req.app.get('io'), req.params.id);
+    notifyMatchChange(match.id, 'suspended', { stamp: String(Date.now()) });
     res.json(serialize(await fetchMatch(match.id, true), true));
   } catch (err) {
     handleError(err, res);
@@ -819,6 +826,7 @@ router.post('/:id/reschedule', ...admin, async (req, res) => {
     });
 
     await notifyMatch(req.app.get('io'), req.params.id);
+    notifyMatchChange(match.id, 'rescheduled', { stamp: String(+when) });
     res.json(serialize(await fetchMatch(match.id, true), true));
   } catch (err) {
     handleError(err, res);
@@ -862,6 +870,7 @@ router.post('/:id/finish', authenticate, async (req, res) => {
     });
     invalidateOdds(); // el resultado cambia la fuerza de los equipos: las cuotas se recalculan
     await notifyMatch(req.app.get('io'), req.params.id);
+    notifyMatchChange(ctx.match.id, 'finished', { to: ['players'] });
     res.json(serialize(await fetchMatch(ctx.match.id, true), true));
   } catch (err) {
     handleError(err, res);
@@ -1024,6 +1033,7 @@ router.post('/:id/assignments', ...admin, async (req, res) => {
     }
 
     const created = await prisma.matchAssignment.create({ data });
+    notifyAssignment(match.id, created, 'assigned');
     // mesa: si ya había predicho este partido, su predicción se anula (árbitro: se anula recién al cerrar)
     if (data.function === 'TABLE') await voidPredictionsOfTable(match.id, data).catch((e) => console.error('[prode] asignado', e));
     res.status(201).json(created);
@@ -1035,10 +1045,12 @@ router.post('/:id/assignments', ...admin, async (req, res) => {
 
 router.delete('/:id/assignments/:assignmentId', ...admin, async (req, res) => {
   try {
+    const old = await prisma.matchAssignment.findFirst({ where: { id: req.params.assignmentId, matchId: req.params.id } });
     const result = await prisma.matchAssignment.deleteMany({
       where: { id: req.params.assignmentId, matchId: req.params.id },
     });
     if (!result.count) return res.status(404).json({ error: 'Asignación no encontrada' });
+    if (old) notifyAssignment(req.params.id, old, 'removed');
     await notifyMatch(req.app.get('io'), req.params.id);
     res.json({ ok: true });
   } catch (err) {

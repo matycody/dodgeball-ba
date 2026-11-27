@@ -1,5 +1,6 @@
 ﻿const prisma = require('../db');
 const supabase = require('../lib/supabase');
+const { notify } = require('../lib/notify');
 
 // Vincula la cuenta a un perfil inscripto (mismo mail verificado). Una sola vez.
 async function linkProfileIfAny(user) {
@@ -24,6 +25,7 @@ async function linkProfileIfAny(user) {
       data: { profileId: profile.id, roles: { set: [...roles] } },
     }),
   ]);
+  notify([user.id], { type: 'linked', title: 'Tu cuenta quedó vinculada', body: 'Ya tenés tu ficha de ' + (profile.isPlayer ? 'jugador' : 'árbitro') + ' en tu cuenta.', link: '/perfil', key: 'link:' + profile.id });
   return updated;
 }
 

@@ -70,6 +70,7 @@ model User {
   playerRequests PlayerRequest[]
   predictions    Prediction[]
   reports        BugReport[]
+  notifications  Notification[]
 }
 
 // Perfil inscripto por la organizaciÃ³n (jugador y/o Ã¡rbitro)
@@ -770,4 +771,24 @@ model BugReport {
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([status, createdAt])
+}
+
+// Avisos dentro de la web (campana). Los crea el backend y llegan por Socket.IO a la sala "user:<id>".
+// dedupeKey evita repetir el mismo aviso para la misma persona.
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String    @db.VarChar(40)
+  title     String    @db.VarChar(120)
+  body      String?   @db.VarChar(300)
+  link      String?   @db.VarChar(200)
+  dedupeKey String?   @db.VarChar(120)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
 }

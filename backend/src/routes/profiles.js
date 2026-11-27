@@ -2,6 +2,7 @@ const express = require('express');
 const { loadRows, idsOf } = require('../lib/fold');
 const prisma = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
+const { notify } = require('../lib/notify');
 
 const router = express.Router();
 router.use(authenticate, requireRole('ADMIN'));
@@ -203,6 +204,7 @@ router.post('/:id/link', async (req, res) => {
       }),
     ]);
     await syncRoles(profile.id);
+    notify([user.id], { type: 'linked', title: 'Tu cuenta quedó vinculada', body: 'La organización vinculó tu cuenta con tu ficha de ' + (profile.isPlayer ? 'jugador' : 'árbitro') + '.', link: '/perfil', key: 'link:' + profile.id });
     res.json({ ok: true });
   } catch (err) {
     handleDbError(err, res);

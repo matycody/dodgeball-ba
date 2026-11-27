@@ -1,6 +1,7 @@
 const express = require('express');
 const prisma = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
+const { notify, adminUserIds } = require('../lib/notify');
 
 const router = express.Router();
 const admin = [authenticate, requireRole('ADMIN')];
@@ -129,6 +130,7 @@ router.post('/', authenticate, async (req, res) => {
       },
       include,
     });
+    adminUserIds().then((ids) => notify(ids, { type: 'request_new', title: 'Nueva solicitud de alta', body: name, link: '/admin/personas', key: 'req:' + created.id })).catch(() => {});
     res.status(201).json(serialize(created));
   } catch (err) {
     handleError(err, res);
@@ -326,6 +328,8 @@ router.post('/:id/approve', ...admin, async (req, res) => {
         });
       }
     });
+    const row = await prisma.playerRequest.findUnique({ where: { id: req.params.id }, select: { userId: true } });
+    if (row) notify([row.userId], { type: 'request_approved', title: 'Te aprobaron el alta de jugador', body: 'Tu ficha y tu equipo ya están cargados.', link: '/perfil', key: 'req-ok:' + req.params.id });
     res.json({ ok: true });
   } catch (err) {
     handleError(err, res);
@@ -348,6 +352,8 @@ router.post('/:id/reject', ...admin, async (req, res) => {
       if (!exists) return res.status(404).json({ error: 'Solicitud no encontrada' });
       return res.status(409).json({ error: 'La solicitud ya fue resuelta' });
     }
+    const row = await prisma.playerRequest.findUnique({ where: { id: req.params.id }, select: { userId: true } });
+    if (row) notify([row.userId], { type: 'request_rejected', title: 'Rechazaron tu solicitud de alta', body: reason, link: '/perfil', key: 'req-no:' + req.params.id });
     res.json({ ok: true });
   } catch (err) {
     handleError(err, res);

@@ -6,6 +6,7 @@ import BottomNav from './BottomNav'
 import { useAuthStore } from '../stores/authStore'
 import { useThemeStore } from '../stores/themeStore'
 import UserAvatar from './UserAvatar'
+import NotifBell from './NotifBell'
 import { useMenuPrefs } from '../stores/menuPrefsStore'
 import ServerClock from './ServerClock'
 import { useTeamLogos } from '../stores/teamLogosStore'
@@ -87,6 +88,7 @@ export default function AppLayout() {
         <Link to="/buscar" aria-label="Buscar" data-tour="search" className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line bg-surface sm:h-11 sm:w-11">
           <Search size={20} />
         </Link>
+        <NotifBell />
         {user ? (
           <Link to="/perfil" data-tour="account" className="shrink-0"><UserAvatar /></Link>
         ) : (

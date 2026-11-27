@@ -81,6 +81,7 @@ app.use("/predictions", require("./src/routes/predictions"));
 app.use("/me", require("./src/routes/account"));
 app.use("/photos", require("./src/routes/photos"));
 app.use("/reports", require("./src/routes/reports"));
+app.use("/notifications", require("./src/routes/notifications"));
 
 // Errores no controlados de Express -> Sentry (si está activo)
 if (process.env.SENTRY_DSN) {
@@ -99,6 +100,7 @@ const io = new Server(server, {
 });
 
 app.set('io', io); // notifica cambios de estado desde las rutas REST
+require('./src/lib/notify').setIo(io); // avisos de la campana en vivo
 
 // Token opcional en el handshake: sin token entra como visitante (solo lectura)
 registerSocketAuth(io);
@@ -106,6 +108,7 @@ registerSocketAuth(io);
 const SOCKET_LOG = process.env.SOCKET_LOG === "1"; // con cientos de conexiones, un log por cada una carga la CPU y llena los logs
 io.on("connection", (socket) => {
   if (SOCKET_LOG) console.log(`Cliente conectado: ${socket.id}`);
+  if (socket.data.user) socket.join('user:' + socket.data.user.id); // sala propia para los avisos de la campana
 
   registerMatchHandlers(io, socket);
 
