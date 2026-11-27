@@ -35,7 +35,7 @@ router.post('/:id/activate', ...admin, async (req, res) => {
     const withMatches = new Set(counts.filter((c) => c._count._all > 0).map((c) => c.stageId));
     const missing = t.stages
       .filter((s) => !withMatches.has(s.id))
-      // En Liga y Liga+Copa las llaves se arman al terminar la liga
+      // En Liga y Liga + Playoff las llaves se arman al terminar la liga
       .filter((s) => !(t.format !== 'CUP' && s.type === 'KNOCKOUT'))
       .map((s) => s.name);
     if (missing.length) {

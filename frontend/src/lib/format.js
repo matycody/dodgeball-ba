@@ -34,7 +34,7 @@ export function toSeconds(t) {
   return m ? Number(m[1]) * 60 + Number(m[2]) : null
 }
 
-export const FORMAT = { LEAGUE: 'Liga', LEAGUE_CUP: 'Liga + Copa', CUP: 'Copa' }
+export const FORMAT = { LEAGUE: 'Liga', LEAGUE_CUP: 'Liga + Playoff', CUP: 'Copa' }
 // Nombre del formato: el que puso la organización o, si no puso, el estándar
 export const formatName = (t) => t?.formatLabel || FORMAT[t?.format]
 
