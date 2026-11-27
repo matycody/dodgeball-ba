@@ -23,6 +23,7 @@ export default function PersonasPage() {
   const [err, setErr] = useState('')
   const [ok, setOk] = useState('')
   const [busy, setBusy] = useState(false)
+  const [tab, setTab] = useState('lista') // lista | inscribir
 
   const load = () => {
     const p = new URLSearchParams({ active: inactive ? 'false' : 'true' })
@@ -39,9 +40,8 @@ export default function PersonasPage() {
 
   function startEdit(p) {
     setEditing(p)
-    window.scrollTo({ top: 0, behavior: 'smooth' }) // el formulario está arriba
+    setTab('inscribir')
     setForm({ dni: p.dni, name: p.name, email: realMail(p.email), sex: p.sex ?? '', isPlayer: p.isPlayer, isReferee: p.isReferee })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   const reset = () => { setEditing(null); setForm(EMPTY) }
 
@@ -55,7 +55,9 @@ export default function PersonasPage() {
     run(async () => {
       if (editing) await api('PATCH', '/profiles/' + editing.id, body)
       else await api('POST', '/profiles', body)
+      const wasEditing = Boolean(editing)
       reset()
+      if (wasEditing) setTab('lista')
     }, editing ? 'Persona actualizada' : 'Persona inscripta')
   }
 
@@ -66,8 +68,12 @@ export default function PersonasPage() {
       <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Personas</h1>
       {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
       {ok && <Alert tone="ok" onClose={() => setOk('')}>{ok}</Alert>}
+      <div className="flex gap-2 text-sm font-bold">
+        <button onClick={() => setTab('lista')} className={'rounded-full border px-4 py-1.5 ' + (tab === 'lista' ? 'border-accent text-accent' : 'border-line text-muted')}>Personas</button>
+        <button onClick={() => setTab('inscribir')} className={'rounded-full border px-4 py-1.5 ' + (tab === 'inscribir' ? 'border-accent text-accent' : 'border-line text-muted')}>{editing ? 'Editar' : 'Inscribir'}</button>
+      </div>
 
-      <form onSubmit={submit} className="space-y-3 rounded-3xl border border-line bg-surface p-5">
+      {tab === 'inscribir' && <form onSubmit={submit} className="space-y-3 rounded-3xl border border-line bg-surface p-5">
         <p className="text-sm font-bold">{editing ? 'Editar persona' : 'Inscribir jugador o árbitro'}</p>
         <input className={inputCls} placeholder="Nombre completo" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
@@ -89,9 +95,11 @@ export default function PersonasPage() {
           <Btn type="submit" tone="accent" disabled={busy || (!form.isPlayer && !form.isReferee) || (form.isPlayer && !form.sex)} className="flex-1">
             {editing ? 'Guardar' : 'Inscribir'}
           </Btn>
-          {editing && <Btn onClick={reset}>Cancelar</Btn>}
+          {editing && <Btn onClick={() => { reset(); setTab('lista') }}>Cancelar</Btn>}
         </div>
-      </form>
+      </form>}
+
+      {tab === 'lista' && <>
 
       <form onSubmit={(e) => { e.preventDefault(); load() }} className="flex gap-2">
         <input className={inputCls} placeholder="Buscar nombre, DNI o mail" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -136,6 +144,7 @@ export default function PersonasPage() {
           </div>
         ))}
       </div>
+      </>}
     </div>
   )
 }
