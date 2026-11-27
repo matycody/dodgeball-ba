@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { api } from '../lib/api'
 import PersonName from './PersonName'
@@ -41,8 +42,11 @@ export default function PersonaSheet({ entry, busy, err, ok, onClose, onClearMsg
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center sm:p-4" onClick={onClose}>
+  // Se dibuja fuera de la página: la animación de entrada de la pantalla rompe el position:fixed de lo que está adentro
+  // (con mucho scroll la hoja quedaba arriba, fuera de la vista). Dentro de [data-role] para conservar el color del rol.
+  const host = typeof document !== 'undefined' ? (document.querySelector('[data-role]') ?? document.body) : null
+  const sheet = (
+    <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/60 sm:items-center sm:p-4" onClick={onClose}>
       <div role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}
         className="max-h-[90dvh] w-full max-w-md space-y-3 overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:rounded-3xl sm:pb-5">
         <div className="flex items-start justify-between gap-3">
@@ -105,4 +109,5 @@ export default function PersonaSheet({ entry, busy, err, ok, onClose, onClearMsg
       </div>
     </div>
   )
+  return host ? createPortal(sheet, host) : sheet
 }
