@@ -17,7 +17,7 @@ import ExtraMatchesView, { ManualMatchForm } from '../../components/torneo/Extra
 import BracketEditor, { emptyBracket, fromView } from '../../components/torneo/BracketEditor'
 import { withSaving } from '../../lib/saving'
 
-const TABS = [
+export const TABS = [
   ['resumen', 'Resumen'], ['datos', 'Datos'], ['equipos', 'Equipos'], ['estructura', 'Estructura'],
   ['fixture', 'Fixture'], ['tabla', 'Tabla'], ['llave', 'Playoffs'], ['sanciones', 'Sanciones'],
 ]
