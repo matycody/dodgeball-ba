@@ -167,7 +167,7 @@ export default function PersonasPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Personas</h1>
+      <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Usuarios y roles</h1>
       {tab !== 'lista' && err && <Alert onClose={() => setErr('')}>{err}</Alert>}
       {tab !== 'lista' && ok && <Alert tone="ok" onClose={() => setOk('')}>{ok}</Alert>}
       <div className="flex flex-wrap gap-2 text-sm font-bold">
