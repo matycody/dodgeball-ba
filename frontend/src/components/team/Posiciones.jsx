@@ -11,7 +11,10 @@ import { Skeleton } from '../ui'
 const ZONE_CLS = { PROMOTION: 'bg-live/10', RELEGATION: 'bg-danger/10', PLAYOFF: 'bg-warn/10' }
 const ZONE_POS = { PROMOTION: 'bg-live text-black', RELEGATION: 'bg-danger text-white', PLAYOFF: 'bg-warn text-black' }
 
-const ME = 'shadow-[inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]'
+// Equipo propio: una sola franja redondeada con tinte del acento y barra a la izquierda (sin marcos que choquen con el color de la zona)
+const ME_L = 'rounded-l-xl bg-accent/20 shadow-[inset_4px_0_0_var(--color-accent)]'
+const ME_M = 'bg-accent/20'
+const ME_R = 'rounded-r-xl bg-accent/20'
 const WINDOW = 6 // si la zona es más grande, se muestran los equipos cercanos al propio
 
 function Tabla({ rows, teamId, zone }) {
@@ -39,12 +42,12 @@ function Tabla({ rows, teamId, zone }) {
           const me = r.team.id === teamId
           return (
             <tr key={r.team.id} style={{ '--d': 80 + i * 70 + 'ms' }} className={'m-row ' + (ZONE_CLS[r.zone] ?? '') + (me ? ' font-extrabold' : '')}>
-              <td className={'py-1.5 pl-1 ' + (me ? 'shadow-[inset_5px_0_0_var(--color-accent),inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]' : '')}><span className={'grid h-6 w-6 place-items-center rounded-full text-xs font-extrabold tabular-nums ' + (ZONE_POS[r.zone] ?? '')}>{rows.indexOf(r) + 1}</span></td>
-              <td className={'max-w-0 truncate py-1.5 ' + (me ? 'text-accent ' + ME : '')}>{r.team.name}</td>
-              <td className={'py-1.5 text-center tabular-nums ' + (me ? ME : '')}>{r.played}</td>
-              <td className={'py-1.5 text-center tabular-nums ' + (me ? ME : '')}>{r.pointDiff > 0 ? '+' + r.pointDiff : r.pointDiff}</td>
-              <td className={'py-1.5 text-center font-mono tabular-nums ' + (me ? ME : '')}>{r.points}</td>
-              <td className={'py-1.5 pl-2 text-right ' + (me ? 'shadow-[inset_-2px_0_0_var(--color-accent),inset_0_2px_0_var(--color-accent),inset_0_-2px_0_var(--color-accent)]' : '')}><Forma form={r.form} size="sm" /></td>
+              <td className={'py-1.5 pl-1 ' + (me ? ME_L : '')}><span className={'grid h-6 w-6 place-items-center rounded-full text-xs font-extrabold tabular-nums ' + (ZONE_POS[r.zone] ?? '')}>{rows.indexOf(r) + 1}</span></td>
+              <td className={'max-w-0 truncate py-1.5 ' + (me ? ME_M : '')}>{r.team.name}</td>
+              <td className={'py-1.5 text-center tabular-nums ' + (me ? ME_M : '')}>{r.played}</td>
+              <td className={'py-1.5 text-center tabular-nums ' + (me ? ME_M : '')}>{r.pointDiff > 0 ? '+' + r.pointDiff : r.pointDiff}</td>
+              <td className={'py-1.5 text-center font-mono tabular-nums ' + (me ? ME_M : '')}>{r.points}</td>
+              <td className={'py-1.5 pl-2 text-right ' + (me ? ME_R : '')}><Forma form={r.form} size="sm" /></td>
             </tr>
           )
         })}
