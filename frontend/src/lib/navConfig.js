@@ -20,8 +20,8 @@ export const ITEMS = {
   equipos: { to: '/admin/equipos', label: 'Equipos', Icon: Users },
   sedes: { to: '/admin/sedes', label: 'Sedes', Icon: MapPin },
   sanciones: { to: '/admin/sanciones', label: 'Sanciones', Icon: Gavel },
-  personas: { to: '/admin/personas', label: 'Personas y cuentas', Icon: UserCog },
-  usuarios: { to: '/admin/usuarios', label: 'Personas y cuentas', Icon: Shield }, // solo atajo del Inicio: redirige a /admin/personas
+  personas: { to: '/admin/personas', label: 'Personas', Icon: UserCog },
+  usuarios: { to: '/admin/usuarios', label: 'Personas', Icon: Shield }, // solo atajo del Inicio: redirige a /admin/personas
   planillas: { to: '/admin/planillas', label: 'Planillas de juego', Icon: ClipboardCheck },
   registro_ediciones: { to: '/admin/ediciones', label: 'Registro de ediciones', Icon: HistoryIcon },
   reportes: { to: '/admin/reportes', label: 'Reportes', Icon: Bug },

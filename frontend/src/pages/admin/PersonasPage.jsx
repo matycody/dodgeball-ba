@@ -1,41 +1,68 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Search } from 'lucide-react'
+import { ChevronDown, Search } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { Btn, Alert, inputCls, Skeleton } from '../../components/ui'
 import PersonName from '../../components/PersonName'
+import PersonaSheet from '../../components/PersonaSheet'
 import { useConfirm } from '../../components/ConfirmProvider'
 import SolicitudesPanel from './SolicitudesPanel'
 
 const NO_MAIL = '@sinmail.pps'
 const realMail = (e) => (e && !e.endsWith(NO_MAIL) ? e : '')
 const EMPTY = { dni: '', name: '', email: '', sex: '', isPlayer: true, isReferee: false }
-const PAGE = 60
+const PAGE = 50
+const SIN_EQUIPO = '__sin_equipo__'
 const norm = (s) => String(s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-const FILTROS = [
-  ['activos', 'Activos'],
+const SEGS = [
   ['jugadores', 'Jugadores'],
   ['arbitros', 'Árbitros'],
-  ['admins', 'Organizadores'],
-  ['sin_cuenta', 'Sin cuenta (pendientes)'],
-  ['sin_ficha', 'Cuentas sin ficha'],
-  ['inactivos', 'De baja o inactivos'],
-  ['todos', 'Todos'],
+  ['org', 'Organización'],
+  ['registrados', 'Registrados'],
 ]
-const Chip = ({ children, cls = 'bg-surface-2 text-muted' }) => (
-  <span className={'rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ' + cls}>{children}</span>
-)
-const Grupo = ({ children }) => <span className="text-[11px] font-bold uppercase tracking-widest text-muted">{children}</span>
+const IN_SEG = {
+  jugadores: ({ p }) => Boolean(p?.isPlayer),
+  arbitros: ({ p, u }) => Boolean(p?.isReferee || u?.roles.includes('REFEREE')),
+  org: ({ u }) => Boolean(u?.roles.includes('ADMIN')),
+  registrados: ({ p, u }) => Boolean(u && !p && !u.roles.length), // cuentas comunes: un familiar, un hincha
+}
+const SEG_HINT = {
+  jugadores: 'Por equipo. Tocá un equipo para ver su plantel.',
+  arbitros: 'Árbitros con ficha o con el rol designado.',
+  org: 'Cuentas con rol de organizador.',
+  registrados: 'Se registraron en la web pero no son jugadores, árbitros ni organización (un familiar, un hincha).',
+}
 
-// Personas y cuentas: la ficha (DNI, equipos, jugador/árbitro) y la cuenta de login (roles, acceso) de cada persona, juntas
+// Una persona en una sola línea: nombre, datos mínimos y el acceso a Gestionar
+function Fila({ p, u, onOpen }) {
+  const baja = (p && !p.active) || (u && !u.active)
+  const sub = p ? [p.dni, u?.email ?? (realMail(p.email) || 'sin mail')].join(' · ') : u?.username ? '@' + u.username : 'Sin ficha'
+  const tag = baja ? ['De baja', 'text-danger'] : !u && p ? ['Sin cuenta', 'text-warn'] : null
+  return (
+    <button type="button" onClick={onOpen} aria-label={'Gestionar a ' + (p?.name ?? u.email)} className="flex min-h-14 w-full items-center gap-3 px-4 py-2 text-left active:bg-surface-2">
+      <div className="min-w-0 flex-1">
+        {p ? <PersonName p={p} showReal className="block truncate text-sm font-bold" /> : <span className="block truncate text-sm font-bold">{u.email}</span>}
+        <p className="truncate text-xs text-muted">{sub}</p>
+      </div>
+      {tag && <span className={'shrink-0 text-[10px] font-bold uppercase ' + tag[1]}>{tag[0]}</span>}
+      <span className="shrink-0 text-xs font-bold text-accent">Gestionar</span>
+    </button>
+  )
+}
+const Lista = ({ children }) => <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">{children}</div>
+
+// Personas: cada persona con su mini ficha. Los roles, el acceso y la baja se gestionan desde "Gestionar"
 export default function PersonasPage() {
   const ask = useConfirm()
   const [params] = useSearchParams()
   const [profiles, setProfiles] = useState(null)
   const [users, setUsers] = useState(null)
   const [q, setQ] = useState(params.get('q') ?? '')
-  const [filtro, setFiltro] = useState(params.has('q') ? 'todos' : 'activos') // desde un enlace: se ve todo, activo o no
+  const [seg, setSeg] = useState('jugadores')
+  const [conBaja, setConBaja] = useState(params.has('q')) // desde un enlace se ve todo, activo o no
+  const [openTeams, setOpenTeams] = useState(() => new Set())
   const [limit, setLimit] = useState(PAGE)
+  const [selKey, setSelKey] = useState(null)
   const [form, setForm] = useState(EMPTY)
   const [editing, setEditing] = useState(null) // perfil en edición
   const [err, setErr] = useState('')
@@ -52,7 +79,7 @@ export default function PersonasPage() {
   const countPending = () => api('GET', '/player-requests?status=PENDING').then((l) => setPending(l.length)).catch(() => {})
   useEffect(() => { load(); countPending() }, [])
   useEffect(() => { if (tab === 'demo') api('GET', '/users/demo').then(setDemo).catch((e) => setErr(e.message)) }, [tab])
-  useEffect(() => { setLimit(PAGE) }, [q, filtro])
+  useEffect(() => { setLimit(PAGE) }, [q, seg, conBaja])
 
   async function run(fn, msg) {
     setBusy(true); setErr(''); setOk('')
@@ -71,29 +98,46 @@ export default function PersonasPage() {
     return all.sort((x, y) => (x.p?.name ?? x.u.email).localeCompare(y.p?.name ?? y.u.email, 'es'))
   }, [profiles, users])
 
-  const shown = useMemo(() => {
+  // Lo que pasa el buscador y el filtro de bajas; de acá salen los contadores de cada solapa
+  const base = useMemo(() => {
     if (!entries) return null
     const t = norm(q.trim())
     return entries.filter(({ p, u }) => {
-      const baja = (p && !p.active) || (u && !u.active)
-      const okFiltro = {
-        activos: !baja,
-        jugadores: !baja && p?.isPlayer,
-        arbitros: !baja && (p?.isReferee || u?.roles.includes('REFEREE')),
-        admins: u?.roles.includes('ADMIN') && u.active,
-        sin_cuenta: p && !u,
-        sin_ficha: u && !p,
-        inactivos: baja,
-        todos: true,
-      }[filtro]
-      if (!okFiltro) return false
+      if (!conBaja && ((p && !p.active) || (u && !u.active))) return false
       if (!t) return true
       const hay = [p?.name, p?.nickname, p?.dni, realMail(p?.email), u?.email, u?.username, ...(p?.teams ?? []).map((x) => x.name ?? x.team?.name)]
       return hay.some((v) => v && norm(v).includes(t))
     })
-  }, [entries, q, filtro])
+  }, [entries, q, conBaja])
+
+  const counts = useMemo(() => Object.fromEntries(SEGS.map(([k]) => [k, base ? base.filter(IN_SEG[k]).length : 0])), [base])
+  const lista = useMemo(() => (base ?? []).filter(IN_SEG[seg]), [base, seg])
+
+  // Jugadores agrupados por equipo (uno puede estar en dos ramas); sin equipo al final
+  const groups = useMemo(() => {
+    if (seg !== 'jugadores') return []
+    const map = new Map()
+    for (const e of lista) {
+      const ts = (e.p?.teams ?? []).map((t) => ({ id: t.teamId ?? t.team?.id, name: t.name ?? t.team?.name })).filter((t) => t.id)
+      const mine = ts.length ? ts : [{ id: SIN_EQUIPO, name: 'Sin equipo' }]
+      for (const t of mine) {
+        if (!map.has(t.id)) map.set(t.id, { id: t.id, name: t.name, list: [] })
+        if (!map.get(t.id).list.some((x) => x.key === e.key)) map.get(t.id).list.push(e)
+      }
+    }
+    return [...map.values()].sort((a, b) => (a.id === SIN_EQUIPO) - (b.id === SIN_EQUIPO) || a.name.localeCompare(b.name, 'es'))
+  }, [lista, seg])
+
+  const buscando = q.trim().length > 0
+  const isOpen = (id) => buscando || openTeams.has(id) // buscando, se abre todo para ver los resultados
+  const toggleTeam = (id) => setOpenTeams((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  const allOpen = groups.length > 0 && groups.every((g) => openTeams.has(g.id))
+
+  const sel = selKey && entries ? entries.find((e) => e.key === selKey) : null
+  const closeSheet = () => { setSelKey(null); setOk(''); setErr('') }
 
   function startEdit(p) {
+    setSelKey(null)
     setEditing(p)
     setTab('inscribir')
     setForm({ dni: p.dni, name: p.name, email: realMail(p.email), sex: p.sex ?? '', isPlayer: p.isPlayer, isReferee: p.isReferee })
@@ -120,13 +164,12 @@ export default function PersonasPage() {
   const pill = (k, label, extra) => (
     <button key={k} onClick={() => setTab(k)} className={'rounded-full border px-4 py-1.5 ' + (tab === k ? 'border-accent text-accent' : 'border-line text-muted')}>{label}{extra}</button>
   )
-  const ROLE = { ADMIN: 'Organizador', REFEREE: 'Árbitro', PLAYER: 'Jugador' }
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Personas y cuentas</h1>
-      {err && <Alert onClose={() => setErr('')}>{err}</Alert>}
-      {ok && <Alert tone="ok" onClose={() => setOk('')}>{ok}</Alert>}
+      <h1 className="text-xs font-bold uppercase tracking-widest text-muted">Personas</h1>
+      {tab !== 'lista' && err && <Alert onClose={() => setErr('')}>{err}</Alert>}
+      {tab !== 'lista' && ok && <Alert tone="ok" onClose={() => setOk('')}>{ok}</Alert>}
       <div className="flex flex-wrap gap-2 text-sm font-bold">
         {pill('lista', 'Personas')}
         {pill('inscribir', editing ? 'Editar' : 'Inscribir')}
@@ -182,76 +225,73 @@ export default function PersonasPage() {
       )}
 
       {tab === 'lista' && <>
-        <div className="flex gap-2">
-          <input className={inputCls} placeholder="Buscar nombre, DNI, mail, usuario o equipo" value={q} onChange={(e) => setQ(e.target.value)} />
-          <span className="grid w-12 shrink-0 place-items-center rounded-xl border border-line text-muted"><Search size={18} /></span>
-        </div>
-        <div className="flex items-center gap-3">
-          <select className={inputCls + ' max-w-60'} value={filtro} onChange={(e) => setFiltro(e.target.value)}>
-            {FILTROS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-          </select>
-          {shown && <span className="text-xs font-semibold text-muted">{shown.length} {shown.length === 1 ? 'resultado' : 'resultados'}</span>}
+        {!sel && err && <Alert onClose={() => setErr('')}>{err}</Alert>}
+        {!sel && ok && <Alert tone="ok" onClose={() => setOk('')}>{ok}</Alert>}
+        <div className="relative">
+          <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+          <input className={inputCls + ' pl-11'} type="search" enterKeyHint="search" placeholder="Buscar nombre, DNI, mail o equipo" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
 
-        {shown === null && <Skeleton />}
-        {shown?.length === 0 && <p className="text-muted">No hay personas ni cuentas con ese filtro.</p>}
-        <div className="m-cascade space-y-2">
-          {(shown ?? []).slice(0, limit).map(({ key, p, u }) => {
-            const mail = u?.email ?? realMail(p?.email)
-            const isAdmin = u?.roles.includes('ADMIN')
-            return (
-              <div key={key} className="space-y-2 rounded-2xl border border-line bg-surface p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    {p ? <PersonName p={p} showReal className="block truncate font-bold" /> : <p className="truncate font-bold">{u.email}</p>}
-                    <p className="truncate text-xs text-muted">{[p?.dni, mail || 'sin mail', u?.username && '@' + u.username].filter(Boolean).join(' · ')}</p>
-                  </div>
-                  <Chip cls={!u ? 'bg-warn/15 text-warn' : u.active ? 'bg-live/15 text-live' : 'bg-danger/15 text-danger'}>
-                    {!u ? 'Sin cuenta' : u.active ? 'Con cuenta' : 'Cuenta inactiva'}
-                  </Chip>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {p?.isPlayer && <Chip cls="bg-accent-soft text-accent">Jugador</Chip>}
-                  {p?.isReferee && <Chip cls="bg-accent-soft text-accent">Árbitro</Chip>}
-                  {isAdmin && <Chip cls="bg-accent-soft text-accent">{ROLE.ADMIN}</Chip>}
-                  {u && !p && !u.roles.length && <Chip>Registrado (sin ficha)</Chip>}
-                  {p && !p.active && <Chip cls="bg-danger/15 text-danger">Ficha de baja</Chip>}
-                  {(p?.teams ?? []).map((t) => <Chip key={(t.teamId ?? t.team?.id) + t.branch}>{t.name ?? t.team?.name}</Chip>)}
-                </div>
-                <div className="space-y-1.5 pt-1 text-sm font-bold">
-                  {p && (
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                      <Grupo>Ficha</Grupo>
-                      <button disabled={busy} className="text-accent" onClick={() => startEdit(p)}>Editar</button>
-                      {u && (
-                        <button disabled={busy} className="text-warn" onClick={async () => {
-                          const email = await ask({ title: 'Desvincular cuenta', message: 'Mail nuevo para ' + p.name, input: { type: 'email', placeholder: 'nuevo@mail.com' }, confirmText: 'Desvincular' })
-                          if (email) run(() => api('POST', '/profiles/' + p.id + '/unlink', { email: email.trim() }), 'Cuenta desvinculada')
-                        }}>Desvincular</button>
-                      )}
-                      {p.active
-                        ? <button disabled={busy} className="text-danger" onClick={async () => (await ask({ title: 'Dar de baja', message: '¿Dar de baja a ' + p.name + '?', confirmText: 'Dar de baja', danger: true })) && run(() => api('DELETE', '/profiles/' + p.id), 'Baja realizada')}>Dar de baja</button>
-                        : <button disabled={busy} className="text-live" onClick={() => run(() => api('PATCH', '/profiles/' + p.id, { active: true }), 'Reactivado (volvé a asignarle equipo)')}>Reactivar</button>}
-                    </div>
-                  )}
-                  {u && (
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                      <Grupo>Cuenta</Grupo>
-                      {u.active && !u.roles.includes('REFEREE') && <button disabled={busy} className="text-accent" onClick={async () => (await ask({ title: 'Designar árbitro', message: '¿Designar a ' + u.email + ' como árbitro?', confirmText: 'Designar' })) && run(() => api('POST', '/users/' + u.id + '/referee'), 'Árbitro designado')}>Designar árbitro</button>}
-                      {u.active && u.roles.includes('REFEREE') && <button disabled={busy} className="text-warn" onClick={async () => (await ask({ title: 'Quitar árbitro', message: '¿Quitar el rol de árbitro a ' + u.email + '?', confirmText: 'Quitar', danger: true })) && run(() => api('DELETE', '/users/' + u.id + '/referee'), 'Rol de árbitro quitado')}>Quitar árbitro</button>}
-                      {u.active && !isAdmin && <button disabled={busy} className="text-accent" onClick={async () => (await ask({ title: 'Hacer admin', message: '¿Hacer admin a ' + u.email + '?', confirmText: 'Hacer admin' })) && run(() => api('POST', '/users/' + u.id + '/promote'), 'Ahora es organizador')}>Hacer admin</button>}
-                      {u.active && isAdmin && <button disabled={busy} className="text-warn" onClick={async () => (await ask({ title: 'Quitar admin', message: '¿Quitar admin a ' + u.email + '?', confirmText: 'Quitar admin', danger: true })) && run(() => api('POST', '/users/' + u.id + '/demote'), 'Ya no es organizador')}>Quitar admin</button>}
-                      {u.active
-                        ? <button disabled={busy} className="text-danger" onClick={async () => (await ask({ title: 'Desactivar usuario', message: '¿Desactivar a ' + u.email + '?', confirmText: 'Desactivar', danger: true })) && run(() => api('DELETE', '/users/' + u.id), 'Cuenta desactivada')}>Desactivar</button>
-                        : <button disabled={busy} className="text-live" onClick={() => run(() => api('POST', '/users/' + u.id + '/reactivate'), 'Cuenta reactivada')}>Reactivar</button>}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
-          })}
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 text-sm font-bold [scrollbar-width:none]">
+          {SEGS.map(([k, label]) => (
+            <button key={k} onClick={() => setSeg(k)} aria-pressed={seg === k}
+              className={'flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 ' + (seg === k ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted')}>
+              {label}<span className="font-mono text-xs tabular-nums">{counts[k]}</span>
+            </button>
+          ))}
         </div>
-        {shown && shown.length > limit && <Btn onClick={() => setLimit((n) => n + PAGE)} className="w-full">Mostrar más ({shown.length - limit} restantes)</Btn>}
+
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-muted">{SEG_HINT[seg]}</p>
+          <label className="flex shrink-0 items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={conBaja} onChange={(e) => setConBaja(e.target.checked)} /> Incluir bajas</label>
+        </div>
+
+        {base === null && <Skeleton />}
+        {base && lista.length === 0 && (
+          <div className="space-y-2 py-4 text-center text-sm text-muted">
+            <p>No hay nadie en {SEGS.find(([k]) => k === seg)[1].toLowerCase()}{buscando ? ' con esa búsqueda' : ''}.</p>
+            {SEGS.filter(([k]) => k !== seg && counts[k] > 0).length > 0 && buscando && (
+              <p>Sí hay resultados en: {SEGS.filter(([k]) => k !== seg && counts[k] > 0).map(([k, l]) => (
+                <button key={k} onClick={() => setSeg(k)} className="ml-2 font-bold text-accent">{l} ({counts[k]})</button>
+              ))}</p>
+            )}
+          </div>
+        )}
+
+        {seg === 'jugadores' && groups.length > 0 && (
+          <>
+            {!buscando && groups.length > 1 && (
+              <button onClick={() => setOpenTeams(allOpen ? new Set() : new Set(groups.map((g) => g.id)))} className="text-xs font-bold text-accent">
+                {allOpen ? 'Cerrar todos los equipos' : 'Abrir todos los equipos'}
+              </button>
+            )}
+            <div className="space-y-2">
+              {groups.map((g) => (
+                <section key={g.id} className="overflow-hidden rounded-2xl border border-line bg-surface">
+                  <button type="button" onClick={() => toggleTeam(g.id)} aria-expanded={isOpen(g.id)} className="flex min-h-12 w-full items-center gap-3 px-4 py-2 text-left">
+                    <span className="min-w-0 flex-1 truncate font-bold">{g.name}</span>
+                    <span className="rounded-full bg-surface-2 px-2.5 py-0.5 font-mono text-xs font-bold tabular-nums text-muted">{g.list.length}</span>
+                    <ChevronDown size={18} className={'shrink-0 text-muted transition-transform ' + (isOpen(g.id) ? 'rotate-180' : '')} />
+                  </button>
+                  {isOpen(g.id) && (
+                    <div className="divide-y divide-line border-t border-line">
+                      {g.list.map((e) => <Fila key={e.key} p={e.p} u={e.u} onOpen={() => setSelKey(e.key)} />)}
+                    </div>
+                  )}
+                </section>
+              ))}
+            </div>
+          </>
+        )}
+
+        {seg !== 'jugadores' && lista.length > 0 && (
+          <>
+            <Lista>{lista.slice(0, limit).map((e) => <Fila key={e.key} p={e.p} u={e.u} onOpen={() => setSelKey(e.key)} />)}</Lista>
+            {lista.length > limit && <Btn onClick={() => setLimit((n) => n + PAGE)} className="w-full">Mostrar más ({lista.length - limit} restantes)</Btn>}
+          </>
+        )}
+
+        {sel && <PersonaSheet entry={sel} busy={busy} err={err} ok={ok} onClose={closeSheet} onClearMsg={() => { setErr(''); setOk('') }} run={run} ask={ask} onEdit={startEdit} />}
       </>}
     </div>
   )
