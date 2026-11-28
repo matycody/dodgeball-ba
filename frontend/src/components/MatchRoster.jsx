@@ -73,7 +73,7 @@ function TeamRoster({ team, side, matchBranch, noLink, suspended, sanctions, abs
                           ? <img src={r.photoUrl} alt="" loading="lazy" className="h-8 w-8 shrink-0 rounded-full object-cover" />
                           : <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface text-xs font-extrabold text-muted">{(r.nickname?.trim() || r.name).charAt(0).toUpperCase()}</span>}
                         <span className="min-w-0 flex-1 break-words font-semibold leading-tight">
-                          {n != null && <span className="mr-1 font-mono text-[11px] font-bold text-muted">#{n}</span>}{nm.top}
+                          {n != null && <span className="block font-mono text-[10px] font-bold leading-none text-muted">#{n}</span>}{nm.top}
                           {r.coach && <span className="ml-1.5 text-[10px] font-bold text-accent">(DT)</span>}
                           {suspended?.has(r.profileId) && <span className="ml-1.5 rounded bg-danger/15 px-1 text-[10px] font-bold text-danger">SUSPENDIDO</span>}
                           {nm.bottom && <span className="block font-normal text-muted">{nm.bottom}</span>}
