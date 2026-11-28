@@ -56,6 +56,7 @@ Solo seis variables del backend y tres del frontend son obligatorias; el resto t
 | GEMINI_API_KEY            | Solo planillas de juego | Clave para leer planillas con Gemini                                                         | —                                      |
 | GEMINI_MODEL              | No                      | Modelo principal de lectura de planillas                                                     | gemini-3.8-flash                       |
 | GEMINI_FALLBACK_MODELS    | No                      | Modelos alternativos, separados por coma                                                     | gemini-3.5-flash,gemini-3.5-flash-lite |
+| VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT | No | Notificaciones push fuera de la web (web-push); sin las claves quedan apagadas y solo funciona la campana dentro de la web. La privada es secreta, solo en el backend | — |
 | SENTRY_DSN                | No                      | Monitoreo de errores; sin ella Sentry queda apagado                                          | —                                      |
 | SENTRY_TEST_KEY           | No                      | Clave de la ruta de prueba de Sentry; borrarla después de probar                             | —                                      |
 | NODE_ENV                  | No                      | Entorno que se informa a Sentry                                                              | production                             |
@@ -118,6 +119,7 @@ La rama docs/api-sprint4 tiene un OpenAPI y una colección de Postman del 31/10 
 |--------------------|------------------------------|--------------|
 | POST, GET          | /profiles                    | Organización |
 | GET, PATCH, DELETE | /profiles/:id                | Organización |
+| POST               | /profiles/:id/link           | Organización |
 | POST               | /profiles/:id/unlink         | Organización |
 | POST               | /player-requests             | Sesión       |
 | GET                | /player-requests/mine        | Sesión       |
@@ -202,6 +204,7 @@ Novedades Sprint 4: POST /tournaments/:id/stages/:stageId/fixture acepta time (H
 | GET           | /matches/:id/suspended                     | Pública (sesión opcional) |
 | GET           | /matches/:id/staff                         | Pública (sesión opcional) |
 | GET           | /matches/:id/attendance                    | Pública (sesión opcional) |
+| GET           | /matches/:id/timeouts                      | Pública (sesión opcional) |
 | POST          | /matches/:id/ready, /unready, /finish      | Partido                   |
 | POST          | /matches/:id/sets                          | Partido                   |
 | PATCH, DELETE | /matches/:id/sets/:number                  | Partido                   |
@@ -257,6 +260,19 @@ Novedades Sprint 4: POST /tournaments/:id/stages/:stageId/fixture acepta time (H
 | GET    | /time                                 | Pública                      |
 | GET    | /debug-sentry                         | Con la clave SENTRY_TEST_KEY |
 
+### Notificaciones
+
+Campana dentro de la web y push opcional. Los avisos se generan en el backend (src/lib/notify.js) por rol: partido movido, cancelado, suspendido o reprogramado, designación o baja como árbitro o mesa, partido finalizado para los jugadores y cuenta vinculada. Cada aviso lleva una clave de deduplicación por usuario y no se borra nunca (queda el historial).
+
+| Método | Ruta | Acceso |
+| --- | --- | --- |
+| GET | /notifications | Sesión |
+| POST | /notifications/read-all | Sesión |
+| POST | /notifications/:id/read | Sesión |
+| GET, PUT | /notifications/prefs | Sesión |
+| GET | /notifications/push/config | Sesión |
+| POST | /notifications/push/subscribe, /push/unsubscribe | Sesión |
+
 ### Reportes de problemas
 
 Cualquier persona envía un reporte (con o sin cuenta) y solo la organización lo lee. Las capturas van a un bucket privado de Supabase (bug-reports, se crea solo en la primera subida) y se ven con URL firmadas de 1 hora.
@@ -308,13 +324,15 @@ Si Render se reinicia, el reloj se recupera desde la tabla MatchClock en pausa y
 
 ## Modelo de datos
 
+Nuevo en Sprint 5 (27/11): Notification (aviso por usuario con tipo, título, enlace, clave de deduplicación única por usuario y fecha de lectura; migración 20261127190000_notifications), PushSubscription (endpoint y claves del navegador) y NotifPref (tipos de aviso que cada usuario apagó; migración 20261127200000_push). Las dos también hay que aplicarlas a mano.
+
 Nuevo en Sprint 5: Venue suma el campo opcional image (foto de fondo de la sede, VARCHAR 300; migración 20261111200000_venue_image, que también hay que aplicar a mano). Se sube con PUT /photos/venues/:id.
 
 Nuevo en Sprint 4: TournamentPlace (PK torneo + puesto, equipo, borrado en cascada con el torneo) guarda los puestos 2.º y 3.º elegidos a mano. Migración 20261105160000_tournament_places: como Render solo corre npm install, hay que aplicarla a mano con npx prisma migrate deploy y npx prisma generate.
 
 También nuevo: BugReport (tipo ReportKind: ERROR, VISUAL, SUGGESTION, OTHER; estado ReportStatus: NEW, IN_REVIEW, RESOLVED, DISCARDED) guarda cada reporte de problema con el texto, la pantalla, el dispositivo, los últimos errores de consola, el usuario (opcional, SetNull si se borra la cuenta), las rutas de las capturas, una clave de subida y la nota interna de la organización. Migración 20261107120000_bug_reports.
 
-El esquema de Prisma (backend/prisma/schema.prisma, PostgreSQL en Neon) tiene 33 modelos. La cadena principal es Torneo → Etapa (zona o llave) → Fecha → Partido, y de cada Partido cuelgan sets, asignaciones, reloj, sanciones y predicciones.
+El esquema de Prisma (backend/prisma/schema.prisma, PostgreSQL en Neon) tiene 36 modelos. La cadena principal es Torneo → Etapa (zona o llave) → Fecha → Partido, y de cada Partido cuelgan sets, asignaciones, reloj, sanciones y predicciones.
 
 Enumeraciones: Role (ADMIN, REFEREE, PLAYER), Branch (MIXED, MALE, FEMALE), Modality (FOAM, CLOTH), MatchStatus (SCHEDULED, READY, LIVE, FINISHED, CANCELLED, SUSPENDED), MatchFunction (REFEREE, TABLE), TournamentFormat (LEAGUE, LEAGUE_CUP, CUP), TournamentStatus (DRAFT, ACTIVE, FINISHED), StageType (LEAGUE, KNOCKOUT), SanctionKind (WARNING, YELLOW, BLUE, RED) y TiebreakerCriterion (HEAD_TO_HEAD, SET_DIFFERENCE, SETS_WON, WINS, DRAW_LOT).
 
@@ -367,7 +385,7 @@ El CORS de Express y de Socket.IO tiene que incluir la URL del frontend; si falt
 
 1.  Hacer un backup en Neon justo antes (rama o punto de restauración).
 
-2.  Con DATABASE_URL apuntando a la base destino, correr en backend/: npx prisma migrate deploy y npx prisma generate. Aplica en orden todas las pendientes; la última es 20261111200000_venue_image.
+2.  Con DATABASE_URL apuntando a la base destino, correr en backend/: npx prisma migrate deploy y npx prisma generate. Aplica en orden todas las pendientes; la última es 20261127200000_push.
 
 3.  Reiniciar el backend y buscar en el log de Render \[clock\] relojes recuperados: N.
 

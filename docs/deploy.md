@@ -19,6 +19,7 @@ Producción: frontend en Vercel https://dodgeball-ba.vercel.app y backend en Ren
 | `ADMIN_EMAILS` | Admins iniciales, separados por coma |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | Lectura de planillas (capa gratis) |
 | `SENTRY_DSN` | DSN del proyecto de backend |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Opcionales: push fuera de la web. Sin ellas solo anda la campana dentro de la app |
 | `SENTRY_TEST_KEY` | Solo para probar; borrarla después |
 
 ## 3. Vercel (frontend)
@@ -42,7 +43,7 @@ Render solo corre `npm install`: las migraciones **no** se aplican solas.
 4. Reiniciar el backend y buscar en el log `[clock] relojes recuperados: N`.
 5. Probar en la app real.
 
-Última migración aplicada en producción: `20261111200000_venue_image`.
+Migraciones del Sprint 5 que hay que aplicar a mano: `20261111200000_venue_image`, `20261127190000_notifications` y `20261127200000_push` (esta última es la más nueva). Confirmar en Neon cuáles ya están aplicadas en producción.
 
 ## 5. Supabase
 - Auth: en Redirect URLs incluir `https://dodgeball-ba.vercel.app` y `/recuperar`.

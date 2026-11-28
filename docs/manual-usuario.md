@@ -60,6 +60,7 @@ Ranking, Sedes y Sanciones se ven en el menú, pero al tocarlos piden iniciar se
 
 Al iniciar sesión se suman funciones personales, disponibles para todos los roles.
 
+- **Notificaciones:** la campana de arriba muestra los avisos sin leer, agrupados por día y con un ícono por tipo: partido movido, cancelado, suspendido o reprogramado, designación como árbitro o mesa, partido finalizado de tu equipo y cuenta vinculada. Desde ahí marcás todo como leído, abrís el historial completo (no se borra nunca) y en Ajustes elegís qué avisos querés; también se pueden activar como notificaciones del dispositivo si el navegador lo permite.
 - **Favoritos:** tocá el corazón de un equipo, jugador o torneo. En el Inicio aparece el bloque "Tus partidos" y un corazón en los días en que juega un equipo favorito (Captura 10).
 
 - **Predicciones:** predecí quién gana un partido y sumá puntos (Captura 11). Hay calendario, torneos, favoritos, tus predicciones y la clasificación por torneo y anual. Las cuotas son decimales y cuanto antes predecís, más bonus. Reglas: en llaves, playoffs y ascenso o descenso no hay empate; no podés predecir a tu propio equipo; y si te designan árbitro o mesa de ese partido, tu predicción queda anulada y lo ves con la etiqueta "Anulada".
@@ -132,7 +133,8 @@ La organización (rol ADMIN) tiene acceso a todo el menú.
 
 - **Sanciones y quitas de puntos:** la Roja expulsa al jugador en el partido; acá se decide la suspensión (por categorías y alcance) y las quitas de puntos a equipos. En "/sanciones" ves las vigentes y las cumplidas (Captura 19).
 
-- **Usuarios y roles:** asignás árbitros, mesa y jugadores, vinculás cuentas con fichas de jugador y aprobás las solicitudes de jugadores.
+- **Personas y cuentas:** una sola pantalla con un buscador, la ficha y la cuenta de cada persona juntas, filtros y pestañas para Inscribir, Solicitudes y Datos demo. Desde "Gestionar" asignás árbitros, mesa y jugadores y vinculás cuentas con fichas de jugador.
+- **Solicitudes y datos demo:** asignás árbitros, mesa y jugadores, vinculás cuentas con fichas de jugador y aprobás las solicitudes de jugadores.
 
 - **Designaciones:** definís quién es árbitro y quién es mesa de cada partido (una persona o un equipo completo como mesa).
 
