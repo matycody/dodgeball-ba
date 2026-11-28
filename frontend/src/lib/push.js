@@ -26,7 +26,13 @@ export async function enablePush() {
   const perm = await Notification.requestPermission()
   if (perm !== 'granted') throw new Error('El navegador no dio permiso. Habilitalo en los ajustes del sitio.')
   const reg = await getReg()
-  const sub = (await reg.pushManager.getSubscription()) ?? await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(cfg.publicKey) })
+  let sub
+  try {
+    sub = (await reg.pushManager.getSubscription()) ?? await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(String(cfg.publicKey).trim().replace(/^["']|["']$/g, '')) })
+  } catch (e) {
+    // El servicio de push del navegador rechazó el registro (Brave sin "servicios de Google para push", modo incógnito, red o extensión que lo bloquea)
+    throw new Error('Este navegador no pudo registrar los avisos (' + (e.message || e.name) + '). Probá en Chrome normal, no en incógnito; en Brave activá "Usar servicios de Google para mensajes push".')
+  }
   await api('POST', '/notifications/push/subscribe', sub.toJSON())
 }
 
