@@ -8,8 +8,11 @@ export function useTimeouts(matchId, used) {
   useEffect(() => {
     if (!matchId) return undefined
     let alive = true
-    api('GET', '/matches/' + matchId + '/timeouts').then((r) => alive && setItems(r.items ?? [])).catch(() => {})
-    return () => { alive = false }
+    const load = () => api('GET', '/matches/' + matchId + '/timeouts').then((r) => alive && setItems(r.items ?? [])).catch(() => {})
+    // el contador en vivo cambia antes de que el servidor termine de guardar el pedido o el deshacer: se vuelve a leer apenas después
+    load()
+    const t = setTimeout(load, 900)
+    return () => { alive = false; clearTimeout(t) }
   }, [matchId, key])
   return items
 }
