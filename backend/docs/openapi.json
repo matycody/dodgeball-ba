@@ -93,6 +93,9 @@
     },
     {
       "name": "Sistema"
+    },
+    {
+      "name": "Notificaciones"
     }
   ],
   "paths": {
@@ -5942,6 +5945,327 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/profiles/{id}/link": {
+      "post": {
+        "tags": [
+          "Perfiles"
+        ],
+        "summary": "Vincular a mano una cuenta registrada con una persona inscripta por la organización (la decisión final es del admin). La ficha conserva todo su historial; pasa a usar el mail de la cuenta y la cuenta recibe los roles de la ficha. Si la cuenta tenía una solicitud de alta pendiente, queda resuelta.",
+        "description": "Acceso: Admin.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
+          },
+          "403": {
+            "description": "Sin permiso (no es organización)"
+          }
+        }
+      }
+    },
+    "/matches/{id}/timeouts": {
+      "get": {
+        "tags": [
+          "Partidos"
+        ],
+        "summary": "Tiempos muertos pedidos (sin los deshechos): equipo, tiempo y segundo de juego (este último solo en los pedidos desde que se registra)",
+        "description": "Acceso: Opcional.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "Notificaciones"
+        ],
+        "summary": "Avisos (los más nuevos primero) + cuántos faltan leer. ?before=<fecha> y ?limit=<n> para seguir con los anteriores. Sin la tabla (falta migrar) responde vacío.",
+        "description": "Acceso: Cuenta.",
+        "parameters": [
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
+          }
+        }
+      }
+    },
+    "/notifications/push/config": {
+      "get": {
+        "tags": [
+          "Notificaciones"
+        ],
+        "summary": "Config de push (si está activo y la clave pública)",
+        "description": "Acceso: Cuenta.",
+        "parameters": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
+          }
+        }
+      }
+    },
+    "/notifications/push/subscribe": {
+      "post": {
+        "tags": [
+          "Notificaciones"
+        ],
+        "summary": "Registrar el dispositivo para push",
+        "description": "Acceso: Cuenta.",
+        "parameters": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endpoint": {},
+                  "keys": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
+          }
+        }
+      }
+    },
+    "/notifications/push/unsubscribe": {
+      "post": {
+        "tags": [
+          "Notificaciones"
+        ],
+        "summary": "Quitar el dispositivo de push",
+        "description": "Acceso: Cuenta.",
+        "parameters": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endpoint": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
+          }
+        }
+      }
+    },
+    "/notifications/prefs": {
+      "get": {
+        "tags": [
+          "Notificaciones"
+        ],
+        "summary": "Preferencias de avisos (tipos apagados)",
+        "description": "Acceso: Cuenta.",
+        "parameters": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Notificaciones"
+        ],
+        "summary": "Preferencias de avisos (tipos apagados)",
+        "description": "Acceso: Cuenta.",
+        "parameters": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "off": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
+          }
+        }
+      }
+    },
+    "/notifications/read-all": {
+      "post": {
+        "tags": [
+          "Notificaciones"
+        ],
+        "summary": "Marcar todos los avisos como leídos",
+        "description": "Acceso: Cuenta.",
+        "parameters": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
+          }
+        }
+      }
+    },
+    "/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "Notificaciones"
+        ],
+        "summary": "Marcar un aviso como leído",
+        "description": "Acceso: Cuenta.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Sin sesión"
           }
         }
       }

@@ -2,10 +2,7 @@ openapi: 3.0.3
 info:
   title: Dodgeball BA — API REST
   version: 5.0.0 (Sprint 5)
-  description: 'API del backend (Express + Prisma + Supabase Auth). Autenticación: header `Authorization: Bearer <access_token
-    de Supabase>`, o `POST /auth/login`. Los eventos en tiempo real (Socket.IO, prefijo `match:`) se documentan en la Documentación
-    técnica. Generado el 24/11/2026 a partir de backend/src/routes y server.js. Limitación: las respuestas no están tipadas
-    y los campos de body/query se extraen del código, sin tipos ni obligatoriedad.'
+  description: 'API del backend (Express + Prisma + Supabase Auth). Autenticación: header `Authorization: Bearer <access_token de Supabase>`, o `POST /auth/login`. Los eventos en tiempo real (Socket.IO, prefijo `match:`) se documentan en la Documentación técnica. Generado el 24/11/2026 a partir de backend/src/routes y server.js. Limitación: las respuestas no están tipadas y los campos de body/query se extraen del código, sin tipos ni obligatoriedad.'
 servers:
 - url: http://localhost:3001
   description: Local
@@ -41,6 +38,7 @@ tags:
 - name: Fotos y escudos
 - name: Reportes de problemas
 - name: Sistema
+- name: Notificaciones
 paths:
   /auth/login:
     post:
@@ -75,8 +73,7 @@ paths:
     delete:
       tags:
       - Mi cuenta
-      summary: 'Eliminar mi cuenta: borra datos personales y favoritos; si estaba vinculada, solo se desvincula del perfil
-        y el historial deportivo se conserva.'
+      summary: 'Eliminar mi cuenta: borra datos personales y favoritos; si estaba vinculada, solo se desvincula del perfil y el historial deportivo se conserva.'
       description: 'Acceso: Cuenta.'
       security:
       - bearerAuth: []
@@ -250,8 +247,7 @@ paths:
     delete:
       tags:
       - Perfiles
-      summary: 'Baja lógica: sale de los planteles y conserva el historial. ?permanent=true la borra del todo (solo si no
-        tiene cuenta vinculada ni partidos asignados).'
+      summary: 'Baja lógica: sale de los planteles y conserva el historial. ?permanent=true la borra del todo (solo si no tiene cuenta vinculada ni partidos asignados).'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -358,8 +354,7 @@ paths:
     get:
       tags:
       - Equipos
-      summary: 'Detalle con plantel activo (público: solo nombre, sin DNI ni mail; la foto solo con sesión y si el jugador
-        la hizo pública)'
+      summary: 'Detalle con plantel activo (público: solo nombre, sin DNI ni mail; la foto solo con sesión y si el jugador la hizo pública)'
       description: 'Acceso: Opcional.'
       parameters:
       - name: id
@@ -622,8 +617,7 @@ paths:
     delete:
       tags:
       - Torneos
-      summary: 'Eliminar = mandar a "Eliminados": desaparece para todos (también para la organización) y se puede restaurar.
-        Sus partidos se ocultan igual que al pausar.'
+      summary: 'Eliminar = mandar a "Eliminados": desaparece para todos (también para la organización) y se puede restaurar. Sus partidos se ocultan igual que al pausar.'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -644,8 +638,7 @@ paths:
     post:
       tags:
       - Torneos
-      summary: 'Pausar: el torneo y todos sus partidos (programados, habilitados, en vivo o finalizados) desaparecen para
-        todos menos la organización. No se borra ni se cambia nada: reanudar lo deja exactamente como estaba.'
+      summary: 'Pausar: el torneo y todos sus partidos (programados, habilitados, en vivo o finalizados) desaparecen para todos menos la organización. No se borra ni se cambia nada: reanudar lo deja exactamente como estaba.'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -687,8 +680,7 @@ paths:
     put:
       tags:
       - Torneos
-      summary: Define los equipos del torneo (reemplaza la lista). Solo en borrador. Cada equipo debe tener habilitadas la
-        rama y la modalidad del torneo.
+      summary: Define los equipos del torneo (reemplaza la lista). Solo en borrador. Cada equipo debe tener habilitadas la rama y la modalidad del torneo.
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -709,9 +701,7 @@ paths:
     patch:
       tags:
       - Torneos
-      summary: Define la estructura del torneo (zonas o llaves) y los equipos de cada una. Reemplaza la estructura anterior.
-        Solo en borrador y antes de generar partidos. Corrige nombre, fase, categoría y cupos de una zona o llave sin tocar
-        fixture, partidos ni llaves (sirve con el torneo cerrado). Si el torneo es
+      summary: Define la estructura del torneo (zonas o llaves) y los equipos de cada una. Reemplaza la estructura anterior. Solo en borrador y antes de generar partidos. Corrige nombre, fase, categoría y cupos de una zona o llave sin tocar fixture, partidos ni llaves (sirve con el torneo cerrado). Si el torneo es
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -758,9 +748,7 @@ paths:
     post:
       tags:
       - Torneos
-      summary: 'Solo si no tiene partidos ni finalizó (no se borra historial) Reiniciar torneo (solo para pruebas y demos):
-        deja el fixture como recién creado. Conserva equipos, zonas, fechas y llaves; borra resultados, relojes, canchas y
-        designaciones. Body: { clearSchedule: boolean } -> true también borra los hor'
+      summary: 'Solo si no tiene partidos ni finalizó (no se borra historial) Reiniciar torneo (solo para pruebas y demos): deja el fixture como recién creado. Conserva equipos, zonas, fechas y llaves; borra resultados, relojes, canchas y designaciones. Body: { clearSchedule: boolean } -> true también borra los hor'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -887,8 +875,7 @@ paths:
     post:
       tags:
       - Fixture
-      summary: 'Sorteo del fixture todos contra todos de una zona. Body: shuffle (default true), doubleRound (ida y vuelta),
-        dates (lista, una por fecha) o startDate + intervalDays (default 7). Sin fechas, las jornadas quedan sin día.'
+      summary: 'Sorteo del fixture todos contra todos de una zona. Body: shuffle (default true), doubleRound (ida y vuelta), dates (lista, una por fecha) o startDate + intervalDays (default 7). Sin fechas, las jornadas quedan sin día.'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -939,8 +926,7 @@ paths:
     post:
       tags:
       - Fixture
-      summary: 'Armado a mano: agrega una fecha vacía al final de una zona de liga (con su día, opcional). Después los partidos
-        se agregan a la fecha (POST /matches con countsInStandings) o se mueven entre fechas (PATCH /matches/:id con matchdayId).'
+      summary: 'Armado a mano: agrega una fecha vacía al final de una zona de liga (con su día, opcional). Después los partidos se agregan a la fecha (POST /matches con countsInStandings) o se mueven entre fechas (PATCH /matches/:id con matchdayId).'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -991,8 +977,7 @@ paths:
     patch:
       tags:
       - Fixture
-      summary: Cambia el día de una jornada. Mueve solo los partidos que seguían en el día original (o sin día); los que se
-        reprogramaron a mano no se tocan, y los jugados tampoco.
+      summary: Cambia el día de una jornada. Mueve solo los partidos que seguían en el día original (o sin día); los que se reprogramaron a mano no se tocan, y los jugados tampoco.
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -1086,9 +1071,7 @@ paths:
     post:
       tags:
       - Fixture
-      summary: 'Asigna canchas a una jornada según el orden de juego: el primer partido (el más temprano, y a igual hora el
-        de menor orden) va a la cancha 1, y así hasta `courts` canchas simultáneas. Solo toca partidos Programados o Habilitados.
-        overwrite=false respeta las canchas ya definidas.'
+      summary: 'Asigna canchas a una jornada según el orden de juego: el primer partido (el más temprano, y a igual hora el de menor orden) va a la cancha 1, y así hasta `courts` canchas simultáneas. Solo toca partidos Programados o Habilitados. overwrite=false respeta las canchas ya definidas.'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -1134,9 +1117,7 @@ paths:
     post:
       tags:
       - Llaves (playoffs)
-      summary: 'Armado automático de la llave. Body: teamIds (orden de siembra) | fromStandings [{stageId, top}] | (por defecto
-        equipos de la etapa o del torneo) shuffle (sorteo; default false), keepTop (cantidad de cabezas de serie que no se
-        sortean) entryRounds { teamId: ronda } para escalera/ingresos tardíos; pa'
+      summary: 'Armado automático de la llave. Body: teamIds (orden de siembra) | fromStandings [{stageId, top}] | (por defecto equipos de la etapa o del torneo) shuffle (sorteo; default false), keepTop (cantidad de cabezas de serie que no se sortean) entryRounds { teamId: ronda } para escalera/ingresos tardíos; pa'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -1161,8 +1142,7 @@ paths:
     put:
       tags:
       - Llaves (playoffs)
-      summary: 'Llave manual. Body: { matches: [{ ref, round, slot, a, b, scheduledAt?, court? }] } a / b: null (a definir)
-        | { teamId } | { winnerOf: ref } | { loserOf: ref }'
+      summary: 'Llave manual. Body: { matches: [{ ref, round, slot, a, b, scheduledAt?, court? }] } a / b: null (a definir) | { teamId } | { winnerOf: ref } | { loserOf: ref }'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -1329,8 +1309,7 @@ paths:
     post:
       tags:
       - Torneos
-      summary: 'Cierra el torneo: congela las tablas de las zonas y registra el campeón. Body: championId (opcional, para
-        definirlo a mano), force (cerrar con partidos sin terminar)'
+      summary: 'Cierra el torneo: congela las tablas de las zonas y registra el campeón. Body: championId (opcional, para definirlo a mano), force (cerrar con partidos sin terminar)'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -1351,8 +1330,7 @@ paths:
     put:
       tags:
       - Torneos
-      summary: 'Podio a mano: campeón, 2.º y 3.º (cada uno: id = fijar, null = automático, sin enviar = no tocar). Solo en
-        torneos terminados.'
+      summary: 'Podio a mano: campeón, 2.º y 3.º (cada uno: id = fijar, null = automático, sin enviar = no tocar). Solo en torneos terminados.'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -1441,8 +1419,7 @@ paths:
     get:
       tags:
       - Estadísticas
-      summary: 'Tablas por equipo: sets y puntos a favor / en contra (Foam 1 por set, Cloth 2 por set y 1 cada uno si el set
-        empata) y sanciones recibidas (sin contar las deshechas por la mesa). Mismos filtros que el resto.'
+      summary: 'Tablas por equipo: sets y puntos a favor / en contra (Foam 1 por set, Cloth 2 por set y 1 cada uno si el set empata) y sanciones recibidas (sin contar las deshechas por la mesa). Mismos filtros que el resto.'
       description: 'Acceso: Pública.'
       responses:
         '200':
@@ -1451,8 +1428,7 @@ paths:
     get:
       tags:
       - Estadísticas
-      summary: 'Estadísticas de un torneo: por equipo (sets, puntos, sanciones, rachas) y resumen. Las listas ordenadas las
-        arma el frontend.'
+      summary: 'Estadísticas de un torneo: por equipo (sets, puntos, sanciones, rachas) y resumen. Las listas ordenadas las arma el frontend.'
       description: 'Acceso: Pública.'
       parameters:
       - name: id
@@ -1467,8 +1443,7 @@ paths:
     get:
       tags:
       - Estadísticas
-      summary: 'Estadísticas de un equipo (mismos filtros que /teams/:id: modality y branch): sets, puntos, rachas, sanciones
-        y detalle por torneo'
+      summary: 'Estadísticas de un equipo (mismos filtros que /teams/:id: modality y branch): sets, puntos, rachas, sanciones y detalle por torneo'
       description: 'Acceso: Pública.'
       parameters:
       - name: id
@@ -1533,8 +1508,7 @@ paths:
     get:
       tags:
       - Partidos
-      summary: 'Público: ?tournamentId=&status=LIVE,FINISHED&branch=&court=&teamId=&from=&to=&limit=&offset=&hidden=true (solo
-        admin)'
+      summary: 'Público: ?tournamentId=&status=LIVE,FINISHED&branch=&court=&teamId=&from=&to=&limit=&offset=&hidden=true (solo admin)'
       description: 'Acceso: Opcional.'
       parameters:
       - name: branch
@@ -1635,8 +1609,7 @@ paths:
     get:
       tags:
       - Partidos
-      summary: 'Público: quiénes arbitran y quiénes están en la mesa (solo nombre o apodo y, si la mesa es de un equipo, el
-        equipo)'
+      summary: 'Público: quiénes arbitran y quiénes están en la mesa (solo nombre o apodo y, si la mesa es de un equipo, el equipo)'
       description: 'Acceso: Opcional.'
       parameters:
       - name: id
@@ -1779,8 +1752,7 @@ paths:
     post:
       tags:
       - Partidos
-      summary: '───────────── Suspender y reprogramar un partido (solo admin) ───────────── Suspender no toca la fecha del
-        torneo: el partido sigue en su jornada y se juega más adelante.'
+      summary: '───────────── Suspender y reprogramar un partido (solo admin) ───────────── Suspender no toca la fecha del torneo: el partido sigue en su jornada y se juega más adelante.'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -2127,8 +2099,7 @@ paths:
     post:
       tags:
       - Planillas
-      summary: 'Anular: la mesa cargó una planilla equivocada. Se vuelve a "todos disponibles"; la foto y su registro quedan
-        para auditoría.'
+      summary: 'Anular: la mesa cargó una planilla equivocada. Se vuelve a "todos disponibles"; la foto y su registro quedan para auditoría.'
       description: 'Acceso: Cuenta.'
       parameters:
       - name: id
@@ -2164,8 +2135,7 @@ paths:
     get:
       tags:
       - Planillas
-      summary: 'La planilla confirmada del partido con su foto: la ve la mesa de ese partido (también después de jugarlo)
-        y el admin'
+      summary: 'La planilla confirmada del partido con su foto: la ve la mesa de ese partido (también después de jugarlo) y el admin'
       description: 'Acceso: Cuenta.'
       parameters:
       - name: id
@@ -2531,8 +2501,7 @@ paths:
     post:
       tags:
       - Sanciones
-      summary: '{ tournamentId (opcional), profileId, categories: [''FOAM:MIXED'',''CLOTH:MALE'',...], fechas: 0..20, sameDay,
-        reason (obligatorio) }'
+      summary: '{ tournamentId (opcional), profileId, categories: [''FOAM:MIXED'',''CLOTH:MALE'',...], fechas: 0..20, sameDay, reason (obligatorio) }'
       description: 'Acceso: Admin.'
       security:
       - bearerAuth: []
@@ -2568,8 +2537,7 @@ paths:
     put:
       tags:
       - Sanciones
-      summary: 'Cargar la decision: { fechas: 0..20, sameDay: bool, scope: ''MODALITY''|''ALL'', note? } (0 y false = sin
-        suspension)'
+      summary: 'Cargar la decision: { fechas: 0..20, sameDay: bool, scope: ''MODALITY''|''ALL'', note? } (0 y false = sin suspension)'
       description: 'Acceso: Admin.'
       parameters:
       - name: id
@@ -3049,8 +3017,7 @@ paths:
     get:
       tags:
       - Prode
-      summary: Partidos abiertos para predecir (alimentan Calendario, Torneos, Favoritos y Destacados), con su estado para
-        el usuario
+      summary: Partidos abiertos para predecir (alimentan Calendario, Torneos, Favoritos y Destacados), con su estado para el usuario
       description: 'Acceso: Cuenta.'
       security:
       - bearerAuth: []
@@ -3119,8 +3086,7 @@ paths:
     post:
       tags:
       - Prode
-      summary: Crear o cambiar la predicción (hasta que el partido se habilita). Repetir la misma elección no cambia nada;
-        cambiarla reinicia el reloj del bonus.
+      summary: Crear o cambiar la predicción (hasta que el partido se habilita). Repetir la misma elección no cambia nada; cambiarla reinicia el reloj del bonus.
       description: 'Acceso: Cuenta.'
       security:
       - bearerAuth: []
@@ -3619,3 +3585,196 @@ paths:
       responses:
         '200':
           description: OK
+  /profiles/{id}/link:
+    post:
+      tags:
+      - Perfiles
+      summary: Vincular a mano una cuenta registrada con una persona inscripta por la organización (la decisión final es del admin). La ficha conserva todo su historial; pasa a usar el mail de la cuenta y la cuenta recibe los roles de la ficha. Si la cuenta tenía una solicitud de alta pendiente, queda resuelta.
+      description: 'Acceso: Admin.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: {}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
+        '403':
+          description: Sin permiso (no es organización)
+  /matches/{id}/timeouts:
+    get:
+      tags:
+      - Partidos
+      summary: 'Tiempos muertos pedidos (sin los deshechos): equipo, tiempo y segundo de juego (este último solo en los pedidos desde que se registra)'
+      description: 'Acceso: Opcional.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+  /notifications:
+    get:
+      tags:
+      - Notificaciones
+      summary: Avisos (los más nuevos primero) + cuántos faltan leer. ?before=<fecha> y ?limit=<n> para seguir con los anteriores. Sin la tabla (falta migrar) responde vacío.
+      description: 'Acceso: Cuenta.'
+      parameters:
+      - name: before
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
+  /notifications/push/config:
+    get:
+      tags:
+      - Notificaciones
+      summary: Config de push (si está activo y la clave pública)
+      description: 'Acceso: Cuenta.'
+      parameters: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
+  /notifications/push/subscribe:
+    post:
+      tags:
+      - Notificaciones
+      summary: Registrar el dispositivo para push
+      description: 'Acceso: Cuenta.'
+      parameters: []
+      security:
+      - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endpoint: {}
+                keys: {}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
+  /notifications/push/unsubscribe:
+    post:
+      tags:
+      - Notificaciones
+      summary: Quitar el dispositivo de push
+      description: 'Acceso: Cuenta.'
+      parameters: []
+      security:
+      - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endpoint: {}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
+  /notifications/prefs:
+    get:
+      tags:
+      - Notificaciones
+      summary: Preferencias de avisos (tipos apagados)
+      description: 'Acceso: Cuenta.'
+      parameters: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
+    put:
+      tags:
+      - Notificaciones
+      summary: Preferencias de avisos (tipos apagados)
+      description: 'Acceso: Cuenta.'
+      parameters: []
+      security:
+      - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                'off': {}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
+  /notifications/read-all:
+    post:
+      tags:
+      - Notificaciones
+      summary: Marcar todos los avisos como leídos
+      description: 'Acceso: Cuenta.'
+      parameters: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
+  /notifications/{id}/read:
+    post:
+      tags:
+      - Notificaciones
+      summary: Marcar un aviso como leído
+      description: 'Acceso: Cuenta.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Sin sesión
