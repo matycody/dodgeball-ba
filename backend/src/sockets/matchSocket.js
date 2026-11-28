@@ -437,7 +437,7 @@ function registerMatchHandlers(io, socket) {
     if (!engine) return;
     const r = engine.startTimeout(p.team);
     if (!r.ok) return emitError(socket, match.id, r.message);
-    await logAction(io, socket, match.id, 'TIMEOUT_START', { team: p.team, half: engine.matchHalf });
+    await logAction(io, socket, match.id, 'TIMEOUT_START', { team: p.team, half: engine.matchHalf, second: Math.max(0, 20 * 60 - engine.matchTimeLeft) });
   });
 
   on(CLIENT_EVENTS.MATCH_TIMEOUT_END, 'canControlClock', async ({ match }) => {

@@ -321,6 +321,33 @@ router.get('/:id/sanctions', optionalAuth, async (req, res) => {
   }
 });
 
+// Tiempos muertos pedidos (sin los deshechos): equipo, tiempo y segundo de juego (este último solo en los pedidos desde que se registra)
+router.get('/:id/timeouts', optionalAuth, async (req, res) => {
+  try {
+    const isAdmin = Boolean(req.user && req.user.roles.includes('ADMIN'));
+    const match = await prisma.match.findUnique({ where: { id: req.params.id }, select: { id: true, hiddenAt: true } });
+    if (!match || (match.hiddenAt && !isAdmin)) return res.status(404).json({ error: 'Partido no encontrado' });
+    const rows = await prisma.clockAction.findMany({
+      where: { matchId: match.id, action: { in: ['TIMEOUT_START', 'TIMEOUT_CANCEL'] } },
+      orderBy: { at: 'asc' },
+      select: { id: true, action: true, detail: true, at: true },
+    });
+    const items = [];
+    for (const r of rows) {
+      let d = {};
+      try { d = r.detail ? JSON.parse(r.detail) : {}; } catch { d = {}; }
+      if (r.action === 'TIMEOUT_START') items.push({ id: r.id, team: d.team, half: d.half ?? null, second: d.second ?? null, at: r.at });
+      else {
+        // un cancelado deshace el último pedido de ese equipo
+        for (let i = items.length - 1; i >= 0; i -= 1) if (items[i].team === d.team) { items.splice(i, 1); break; }
+      }
+    }
+    res.json({ items });
+  } catch (err) {
+    handleError(err, res);
+  }
+});
+
 // Jugadores suspendidos para este partido (por decision del departamento de sanciones)
 router.get('/:id/suspended', optionalAuth, async (req, res) => {
   try {

@@ -15,6 +15,7 @@ import MatchNotice from '../MatchNotice'
 import VenueInfo from '../VenueInfo'
 import PredictBox from '../PredictBox'
 import ScoreTimeline from '../ScoreTimeline'
+import { useTimeouts } from '../../hooks/useTimeouts'
 import MatchRoster from '../MatchRoster'
 import StandingsView from '../torneo/StandingsView'
 import { Skeleton } from '../ui'
@@ -291,6 +292,7 @@ const TABS = [['resumen', 'Resumen'], ['alineacion', 'Jugadores'], ['prediccione
 // Vista del partido para todos los usuarios (la mesa y el árbitro controlan desde Control de mesa / Partidos asignados)
 export default function MatchSpectator({ m, tick, over, notice, onCloseNotice, sanctions, pip }) {
   const [tab, setTab] = useState('resumen')
+  const timeouts = useTimeouts(m.id, tick?.timeoutsUsed)
   const tabs = TABS.filter(([k]) => k !== 'clasificacion' || m.tournament?.id)
   return (
     <div className="space-y-4">
@@ -320,7 +322,7 @@ export default function MatchSpectator({ m, tick, over, notice, onCloseNotice, s
             </>
           )}
           <PredictBox matchId={m.id} teamA={m.teamA} teamB={m.teamB} />
-          {(m.sets?.length ?? 0) > 0 && <ScoreTimeline m={m} />}
+          <ScoreTimeline m={m} sanctions={sanctions ?? []} timeouts={timeouts} />
           <Details m={m} staffOnly />
         </div>
       )}
