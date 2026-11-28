@@ -11,6 +11,7 @@ Aplicación web (PWA) para seguir y administrar los partidos de **Dodgeball Buen
 - **Personalización:** tema, fondo y color de acento, menú y tarjetas del inicio a gusto, foto de perfil o diseño predeterminado, y búsquedas recientes.
 - **Disciplina:** tarjetas en partido, suspensiones, sanciones a jugadores sin partido y quita de puntos a equipos.
 - **Contenido:** equipos y jugadores con banner público, Ranking, Sedes, Noticias, Reglas del juego, Prode (predicciones con puntos, sin dinero) y Mis estadísticas.
+- **Notificaciones:** campana dentro de la web con avisos por rol (partido movido, cancelado o finalizado, designaciones, cuenta vinculada), historial y ajustes; push fuera de la web opcional con claves VAPID.
 - **Planilla de juego por foto:** lectura con IA (Gemini) y confirmación de la mesa; la foto queda como evidencia.
 - **Calidad y operación:** reporte de problemas con capturas, monitoreo con Sentry, tutoriales dentro de la app y pruebas de carga y E2E.
 
@@ -33,9 +34,10 @@ Todo está en [`docs/`](docs/README.md):
 | [Manual de usuario](docs/manual-usuario.md) | Uso de la app por rol, con capturas |
 | [Documentación técnica](docs/documentacion-tecnica.md) | Arquitectura, variables de entorno, API, Socket.IO, modelo de datos |
 | [Deploy](docs/deploy.md) | Render, Vercel, migraciones, Supabase, Neon |
+| [API (OpenAPI y Postman)](backend/docs/openapi.yaml) | 183 operaciones, con colección de Postman en `backend/docs/` |
 | [Sentry](docs/sentry.md) | Monitoreo de errores |
 | [Pruebas](docs/pruebas.md) | Vitest, E2E, carga y estrés |
-| [Informe de estrés](docs/informe-pruebas-estres.md) | Resultados de las pruebas de carga post Sprint 4 |
+| [Informe de estrés](docs/informe-pruebas-estres.md) | Resultados de las pruebas de carga y estrés (06/11 y 24/11) |
 | [Bitácora](docs/bitacora/) | Informes por sprint |
 
 ## Levantar el proyecto en local
